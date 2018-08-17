@@ -279,12 +279,19 @@
 	   			$('#n_questionBankID').val(id);
 	   			var qs=data.data;
 	   			$('.my_qi').remove();
+	   			var num = 0;
+	   			var duoxuan = 0;
+	   			var panduan = 0;
+	   			var tiankong = 0;
+	   			var wenda = 0;
 	   			for(var i=0;i<qs.length;i++){
 	   				if(qs[i].questionType == 1){ //单选
+						num++;
 	   					var mb=$('.danxuan-mode').clone();
 	   					mb.removeClass('danxuan-mode');
 	   					mb.removeClass('yc');
 	   					mb.addClass('my_qi');
+	   					mb.find('.numitem').append(num+'、');
 	   					mb.find('.my-content').append(qs[i].questionContent);
 	   					mb.find('.my-oA').append(qs[i].optionA);
 	   					mb.find('.my-oB').append(qs[i].optionB);
@@ -294,10 +301,12 @@
 	   					mb.find('button').attr('data-id',qs[i].questionID);
 	   					$('#danxuan').append(mb);
 	   				}else if(qs[i].questionType == 2){ //多选
+						duoxuan++;
 	   					var mb=$('.duoxuan-mode').clone();
 	   					mb.removeClass('duoxuan-mode');
 	   					mb.removeClass('yc');
 	   					mb.addClass('my_qi');
+                        mb.find('.duoxuan').append(duoxuan+'、');
 	   					mb.find('.my-content').append(qs[i].questionContent);
 	   					mb.find('.my-oA').append(qs[i].optionA);
 	   					mb.find('.my-oB').append(qs[i].optionB);
@@ -307,28 +316,34 @@
 	   					mb.find('button').attr('data-id',qs[i].questionID);
 	   					$('#duoxuan').append(mb);
 	   				}else if(qs[i].questionType == 3){ //判断
+						panduan++;
 	   					var mb=$('.panduan-mode').clone();
 	   					mb.removeClass('panduan-mode');
 	   					mb.removeClass('yc');
 	   					mb.addClass('my_qi');
+                        mb.find('.panduan').append(panduan+'、');
 	   					mb.find('.my-content').append(qs[i].questionContent);
 	   					mb.find('.rightanswer').append(qs[i].rightAnswer);
 	   					mb.find('button').attr('data-id',qs[i].questionID);
 	   					$('#panduan').append(mb);
 	   				}else if(qs[i].questionType == 4){ //填空
+						tiankong++;
 	   					var mb=$('.tiankong-mode').clone();
 	   					mb.removeClass('tiankong-mode');
 	   					mb.removeClass('yc');
 	   					mb.addClass('my_qi');
+                        mb.find('.tiankong').append(tiankong+'、');
 	   					mb.find('.my-content').append(qs[i].questionContent);
 	   					mb.find('.rightanswer').append(qs[i].rightAnswer);
 	   					mb.find('button').attr('data-id',qs[i].questionID);
 	   					$('#tiankong').append(mb);
 	   				}else if(qs[i].questionType == 5){ //问答
+						wenda++;
 	   					var mb=$('.wenda-mode').clone();
 	   					mb.removeClass('wenda-mode');
 	   					mb.removeClass('yc');
 	   					mb.addClass('my_qi');
+                        mb.find('.wenda').append(wenda+'、');
 	   					mb.find('.my-content').append(qs[i].questionContent);
 	   					mb.find('.rightanswer').append(qs[i].rightAnswer);
 	   					mb.find('button').attr('data-id',qs[i].questionID);		
@@ -523,7 +538,7 @@
 					    <div role="tabpanel" class="tab-pane active" id="danxuan">
 							<div class="danxuan-mode yc" style="margin-left:20px;">
 									<div class="my-content" style="margin-top: 20px;margin-left:10px; font-size: 20px;">
-										
+										<span class="numitem"></span>
 									</div>
 									<div style="padding-left: 30px;font-size: 15px;">
 										<div class="my-oA">
@@ -551,7 +566,7 @@
 					    <div role="tabpanel" class="tab-pane" id="duoxuan">
 							<div class="duoxuan-mode yc" style="margin-left:20px;">
 								<div class="my-content" style="margin-top: 20px;margin-left:10px; font-size: 20px;">
-								
+									<span class="duoxuan"></span>
 								</div>
 								<div style="padding-left: 30px;font-size: 15px;">
 									<div class="my-oA">
@@ -579,7 +594,7 @@
 					    <div role="tabpanel" class="tab-pane" id="panduan">
 					    	<div class="panduan-mode yc" style="margin-left:20px;">
 								<div class="my-content" style="margin-top: 20px;margin-left:10px; font-size: 20px;">
-									
+									<span class="panduan"></span>
 								</div>
 								<div class="rightanswer" style="color: green;padding-left:10px;">
 									正确答案：
@@ -593,7 +608,7 @@
 					    <div role="tabpanel" class="tab-pane" id="tiankong">
 							<div class="tiankong-mode yc" style="margin-left:20px;">
 								<div class="my-content" style="margin-top: 20px;margin-left:10px; font-size: 20px;">
-								
+									<span class="tiankong"></span>
 								</div>
 								<div class="rightanswer" style="color: green;padding-left:10px;">
 									正确答案：
@@ -607,7 +622,7 @@
 					    <div role="tabpanel" class="tab-pane" id="wenda">
 							<div class="wenda-mode yc" style="margin-left:20px;">
 								<div class="my-content" style="margin-top: 20px;margin-left:10px; font-size: 20px;">
-								
+									<span class="wenda"></span>
 								</div>
 								<div class="rightanswer" style="color: green;padding-left:10px;">
 									正确答案： 
