@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<meta http-equiv="X-UA-Compatible" content="IE=edge,Chrome=1" />
+    	<meta name="viewport" content="width=device-width, initial-scale=1">
+    	<meta http-equiv="X-UA-Compatible" content="IE=edge,Chrome=1" />
+    	<link rel="stylesheet" type="text/css" href="../assets/bootstrap/css/bootstrap.css">
+		<script src="../assets/jquery/js/jquery-1.12.4.min.js"></script>
+    	<script src="../assets/jquery/js/jquery-ui.min.js"></script>
+    	<script src="../assets/bootstrap/js/bootstrap.js"></script>
+    	
+    	<title>题库类型管理</title>
+    	<style type="text/css">
+			/* 面板样式*/
+			.panel-default > .panel-heading{
+				background-color: #51585e;
+			    color: #eee;
+			}
+			
+			.pull-right > a{
+				color: white;
+			}
+
+			.yc{
+				display: none;
+			}
+			
+			.modal-footer{
+				margin-top: 0px;
+			}
+			
+		</style>
+    </head>
+	
+	<script type="text/javascript">
+		function del(){
+			var id=$('#url').val();
+			$.ajax({
+				type:"POST",
+				url: "../QuestionBankType/del",
+				dataType:"json",
+				data:{ questionBankTypeID:id },
+				success:function(data){
+					if(data.success){//成功
+						alert(data.msg);
+						getTableData();
+					}else{          //失败
+						alert(data.msg);
+					}
+				}
+			});
+		}
+		function toArray(params){
+			var formObject = {};
+		    for (var item in params) {
+		        formObject[params[item].name] = params[item].value;
+		    }
+		    return formObject;
+		}
+		function add(){
+			var params = $('#addForm').serializeArray();
+			//将序列化数据转为对象
+		   	var formArray=toArray(params);
+
+			$.ajax({
+				type:"POST",
+				url:"../QuestionBankType/add",
+				dataType: "json",
+				data:formArray,
+				success:function(data){
+					if(data.success){//成功
+						alert(data.msg);
+						getTableData();
+					}else{   //失败
+						alert(data.msg);
+					}
+				}
+			});
+		}
+		function update(){
+			var params=$('#updateForm').serializeArray();
+			var formArray=toArray(params);
+			$.ajax({
+				type:"POST",
+				url:"../QuestionBankType/update",
+				dataType: "json",
+				data:formArray,
+				success:function(data){
+					if(data.success){//成功
+						alert(data.msg);
+						getTableData();
+					}else{   //失败
+						alert(data.msg);
+					}
+				}
+			});
+
+		}
+		function getTableData(){
+				$.ajax({
+					type:"POST",
+					url:"../QuestionBankType/getList",
+					dataType: "json",
+					success:function(data){
+						if(data.success){
+							var ls=data.data;
+							var tbody=$('#tb');
+							//先清空表格
+							tbody.empty();
+							ls.sort(function(a,b){return a.questionBankTypeID-b.questionBankTypeID});
+							for(var i=0;i<ls.length;i++){
+								var tr=$('<tr></tr>');
+								var th=$('<th scope="row"></th>').text(ls[i].questionBankTypeID);
+								var td1=$('<td></td>').text(ls[i].questionBankTypeName);
+								var td2=$('#mtd').clone();
+								//添加属性,直接把id绑定一个参数
+								td2.children('div').children('ul').attr('data-id',ls[i].questionBankTypeID);
+								//把名称绑定，便于修改框弹出
+								td2.children('div').children('ul').attr('data-name',ls[i].questionBankTypeName);
+								td2.removeClass('yc');
+								tr.append(th).append(td1).append(td2);
+								tbody.append(tr);
+							}
+							$('#tb #edit').click( function(){
+								var id=$(this).parent().parent().attr('data-id');
+								var name=$(this).parent().parent().attr('data-name');
+								$('#questionBankTypeName2').val(name);
+								$('#questionBankTypeID2').val(id);
+								$('#myModal2').modal('show');
+							});
+							$('#tb #del').click(function(){
+								var id=$(this).parent().parent().attr('data-id');
+								$("#url").val(id);
+								$("#delcfmModel").modal('show');
+						//		del(id);
+							});
+						}else{
+							alert('查询失败！');
+						}
+					}	
+				});
+			}
+		$(document).ready(function(){
+			$("#modalDialog").draggable({ handle: ".modal-header"   });//为模态对话框添加拖拽
+	        $("#myModal").css("overflow", "hidden"); //禁止模态对话框的半透明背景滚动
+			$("#modalDialog2").draggable({ handle: ".modal-header"   });//为模态对话框添加拖拽
+	        $("#myModal2").css("overflow", "hidden");  //禁止模态对话框的半透明背景滚动
+			$("#modalDialog3").draggable({ handle: ".modal-header"   });//为模态对话框添加拖拽
+	        $("#myModal3").css("overflow", "hidden");  //禁止模态对话框的半透明背景滚动
+			getTableData();
+		});
+	</script>
+
+	<body>
+		<div class="container-fluid">
+			<div class="row">
+				<div class="col-md-12">
+					<div class="panel panel-default">
+						<div class="panel-heading">题库类型管理
+							<span class="pull-right">
+								<a  href="#"  rel="tooltip" title="添加"><i  class="glyphicon glyphicon-plus" data-toggle="modal" data-target="#myModal"></i></a>
+								&nbsp;
+								<a  href="#"  rel="tooltip" title="点击刷新" ><i class="glyphicon glyphicon-refresh" onclick="getTableData()"></i></a>
+							</span>
+						</div>
+						<table class="table">
+							<thead>
+								<tr>
+									<th>类型ID</th>
+									<th>类型名称</th>
+									<th>操作</th>
+									<td class="yc" id="mtd">
+										<div role="presentation" class="dropdown">
+										    <button class="btn btn-default btn-xs dropdown-toggle" data-toggle="dropdown"  role="button" aria-haspopup="true" aria-expanded="false">
+										      操作 <span class="caret"></span>
+										    </button>
+										    <ul class="dropdown-menu">
+										      <li><a href="#"  id="edit">编辑</a></li>
+										      <li><a href="#"  id="del">删除</a></li>
+										    </ul>
+										  </div>
+									</td>
+								</tr>
+							</thead>
+							<tbody id="tb">
+								
+								<!-- <tr>
+									<th scope="row">1</th>
+									<td>基础练习</td>
+									<td>
+										  <div role="presentation" class="dropdown">
+										    <button class="btn btn-default btn-xs dropdown-toggle" data-toggle="dropdown" href="#" role="button" aria-haspopup="true" aria-expanded="false">
+										      操作 <span class="caret"></span>
+										    </button>
+										    <ul class="dropdown-menu">
+										      <li><a href="">编辑</a></li>
+										      <li><a href="">删除</a></li>
+										    </ul>
+										  </div>
+									</td>
+								</tr> -->
+							</tbody>
+						</table>
+					</div>
+				</div>
+			</div>
+		</div>
+
+<!-- 		模态框，添加 -->
+		<div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+		  <div class="modal-dialog" id="modalDialog" role="document">
+		    <div class="modal-content">
+		      <div class="modal-header">
+		        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+		        <h4 class="modal-title" id="myModalLabel">添加题库类型</h4>
+		      </div>
+		      <div class="modal-body">
+		        <form id="addForm">
+		        	<div class="form-group">
+		        		<label for="questionBankTypeName">类型名称</label>
+		        		<input type="text" class="form-control" name="questionBankTypeName" id="questionBankTypeName" placeholder="类型名称">                       
+
+		        	</div>
+		        </form>
+		      </div>
+		      <div class="modal-footer">
+		        <button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
+		        <button type="button" class="btn btn-primary" data-dismiss="modal" onclick="add()">添加</button>
+		      </div>
+		    </div>
+		  </div>
+		</div>
+
+		<!-- 模态框修改  -->
+		<div class="modal fade" id="myModal2" tabindex="-1" role="dialog" aria-labelledby="myModalLabel2">
+		  <div class="modal-dialog" id="modalDialog2" role="document">
+		    <div class="modal-content">
+		      <div class="modal-header">
+		        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+		        <h4 class="modal-title" id="myModalLabel2">修改题库类型</h4>
+		      </div>
+		      <div class="modal-body">
+		        <form id="updateForm">
+		        	<div class="form-group">
+		        		<!-- 保存要修改的题库类型ID       -->
+		        		<input type="text" name="questionBankTypeID" id="questionBankTypeID2" style="display: none;">
+						<label for="questionBankTypeName">类型名称</label>
+		        		<input type="text" class="form-control" name="questionBankTypeName" id="questionBankTypeName2" placeholder="类型名称">                       
+					</div>
+		        </form>
+		      </div>
+		      <div class="modal-footer">
+		        <button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
+		        <button type="button" class="btn btn-primary" data-dismiss="modal" onclick="update()">修改</button>
+		      </div>
+		    </div>
+		  </div>
+		</div> 
+
+		<!--删除确认框 -->
+		<div class="modal fade bs-example-modal-sm" id="delcfmModel"  tabindex="-1" role="dialog"  aria-labelledby="myModalLabel3">  
+		  <div class="modal-dialog modal-sm" id="modalDialog3">  
+		    <div class="modal-content message_align">  
+		      <div class="modal-header">  
+		        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>  
+		        <h4 class="modal-title">提示信息</h4>  
+		      </div>  
+		      <div class="modal-body"> 
+		      	<input type="hidden" id="url"/>  
+		        <p >您确认要删除吗？</p>  
+		      </div>  
+		      <div class="modal-footer">  
+		         <button type="button" class="btn btn-default" data-dismiss="modal">取消</button>  
+		         <a  onclick="del()" class="btn btn-success" data-dismiss="modal">确定</a>  
+		      </div>  
+		    </div><!-- /.modal-content -->  
+		  </div><!-- /.modal-dialog -->  
+		</div><!-- /.modal -->
+
+	</body>
+</html>

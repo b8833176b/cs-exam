@@ -1,0 +1,388 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta http-equiv="Content-Type" content="text/html;charset=UTF-8" />
+	<meta http-equiv="X-UA-Compatible" content="IE=edge,Chrome=1" />
+	<title>训练系统</title>
+	<link rel="stylesheet" type="text/css" href="assets/bootstrap/css/bootstrap.css">
+	<script src="assets/jquery/js/jquery-1.12.4.min.js"></script>
+	<script src="assets/bootstrap/js/bootstrap.js"></script>
+	<script type="text/javascript">
+		//载入信息
+    	function getInfo(){
+    		$.ajax({
+				type:"POST",
+				url: "home/getUserInfo",
+				dataType:"json",
+				success:function(data){
+					if(data.success){//成功
+					//	alert(data.data.username);
+						$('#username').text(data.data.username);
+					}else{          //失败
+						alert(data.msg);
+					}
+				}
+			});
+    	}
+		//登出
+    	function logout(){
+    		window.location.href="home/logout"+"?timestamp="+new Date().getTime();
+    	}
+
+    	$(document).ready(function(){
+	    		getInfo();
+	    		
+	    });
+	</script>
+	<style type="text/css">
+		.my-left{
+			margin-top: 65px;
+		}
+		.yc{
+			display: none;
+		}
+		.head{
+			margin: 70px 10px 20px 10px;
+		}
+		.content{
+			padding: 10px 10px 0px 40px;
+		}
+		/*  试题内容 */
+		.item > .content{
+			font-size: 20px;
+			margin: 20px 20px 0px 20px;
+			font-weight:bold;
+			
+		}
+		.item > .ts{
+			margin-left: 50px;
+		}
+		.item > .xx{
+			margin-left: 80px;
+		}
+		
+		.body{
+
+		}
+	</style>
+</head>
+<body>
+	<nav class="navbar navbar-default navbar-fixed-top">
+		<div class="container-fluid">
+			<div class="navbar-header">
+				<p class="navbar-text">训练系统</p>
+			</div>
+			<div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+				<ul class="nav navbar-nav navbar-right ul">
+					<li class="dropdown">
+						<a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false"><span id="username"></span> <span class="caret"></span></a>
+	          			<ul class="dropdown-menu">
+	            			<li><a href="#" onclick="logout()">退出</a></li>
+	            		</ul>
+	           		 </li>
+	           	</ul>
+           	</div>
+		</div>
+	</nav>
+	<div class="container-fluid my-left"> 
+		<div class="row">
+			<div class="col-xs-2 col-md-2">
+				<div class="panel panel-default">
+					  <div class="panel-heading">题库试题</div>
+					  <div class="panel-body">
+						  	<div class="form-group">
+							    <label for="questionBankName">题库名称</label>
+							 <!--    <input type="text" class="form-control" id="questionBankName"> -->
+							    <select class="form-control" name="questionBankName" id="questionBankName">
+							    </select>
+							</div>
+							<div class="form-group">
+							    <label for="questionBankID">题库ID</label>
+							    <input type="text" class="form-control" id="questionBankID">
+							</div>
+							<div class="form-group">
+							    <label for="questionType">试题类型</label>
+							    <select  class="form-control" name="questionType" id="questionType">
+							 		<option value="1">单选题</option>
+							 		<option value="2">多选题</option>
+							 		<option value="3">判断题</option>
+								</select>
+							</div>
+							<div class="form-group">
+							    <label for="questionCount">试题数量</label>
+							    <input type="email" class="form-control" id="questionCount">
+							</div>
+
+							<button type="button" class="btn btn-primary pull-right" onclick="getQuestion()">开始练习</button>
+					  </div> 
+				</div>
+			</div>
+			<div class="col-xs-10 col-md-10">
+				<div class="con" id="con">
+					 <!--单选题模板 -->
+					<div class="item radio-yl yc">  
+						<div class="content">
+							
+						</div>
+						<div class="my-radio xx">
+							<div class="radio">
+							  <p>
+							    <input type="radio" name="optionsRadios" id="optionsRadios1" value="A">
+
+							  	<label class="oA">A. </label>
+							  </p>
+							</div>
+							<div class="radio">
+							  <p>
+							    <input type="radio" name="optionsRadios" id="optionsRadios2" value="B">
+							   	<label class="oB">B. </label>
+							  </p>
+							</div>
+							<div class="radio">
+							  <p>
+							    <input type="radio" name="optionsRadios" id="optionsRadios3" value="C">
+							   	<label class="oC">C. </label>
+							  </p>
+							</div>
+							<div class="radio">
+							  <p>
+							    <input type="radio" name="optionsRadios" id="optionsRadios4" value="D">
+							  	<label class="oD">D. </label>
+							  </p>
+							</div>
+
+						</div>
+						<p style="color: red;" class="ts yc"></p>
+					</div>		
+					<!-- 多选题选题模板  -->
+					<div class="item multiple-yl yc">
+						<div class="content">
+							
+						</div>
+						<div class="my-checkbox xx">
+							<div class="checkbox">
+							  <p>
+							    <input type="checkbox" name="optionsRadios" id="optionsRadios11"  value="A">
+							    <label class="oA">A. </label>
+							  </p>
+							</div>
+							<div class="checkbox">
+							  <p>
+							    <input type="checkbox" name="optionsRadios" id="optionsRadios22" value="B">
+							   	<label class="oB">B. </label>
+							  </p>
+							</div>
+							<div class="checkbox">
+							  <p>
+							    <input type="checkbox" name="optionsRadios" id="optionsRadios222" value="C">
+							    <label class="oC">C. </label>
+							  </p>
+							</div>
+							<div class="checkbox">
+							  <p>
+							    <input type="checkbox" name="optionsRadios" id="optionsRadios2222" value="D">
+							   	<label class="oD">D. </label>
+							  </p>
+							</div>
+						</div>
+						<p style="color: red;" class="ts yc"></p>
+					</div>
+
+					<div class="item judgment-yl yc">
+						<div class="content" >
+							
+						</div>
+						<div class="my-judgmentRadio" style="margin-left: 75px; margin-bottom: 10px;">
+							<label class="radio-inline">
+							  <input type="radio" name="inlineRadioOptions" id="inlineRadio1" value="Y"> 正确
+							</label>
+							<label class="radio-inline">
+							  <input type="radio" name="inlineRadioOptions" id="inlineRadio2" value="N"> 错误
+							</label>
+						</div>
+						<p style="color: red;" class="ts yc"></p>
+					</div>
+
+					
+				</div>
+				<button type="button" id="tj" class="btn btn-primary yc" onclick="chenk()" style="margin-top: 2%;
+    margin-left: 60%;">提交</button>
+			</div>
+		</div>
+
+	</div>
+	<script type="text/javascript">
+		<!-- 加载下拉框    -->
+		(function loadQuestionList(){
+				function setInfo(data){
+					var ls=data.data;
+					var st=$('#questionBankName');
+					st.empty();
+					st.append($('<option></option>'));
+					for(var i=0;i<ls.length;i++){
+						st.append($('<option></option>').text(ls[i].questionBankName));
+					}
+				}
+				$.ajax({
+					type:"POST",
+					url: "QuestionBank/getIsDisplayList",
+					dataType:"json",
+					contentType : 'application/json;charset=utf-8',
+					success:function(data){
+						if(data.success){//成功
+							setInfo(data);
+							
+						}else{          //失败
+							alert(data.msg);
+						}
+					}
+				});
+		})();
+	</script>
+
+	<script type="text/javascript">
+		function getQuestion(){
+			var questionBankID=$('#questionBankID').val();
+			var questionBankName=$('#questionBankName').val();
+			var questionType=$('#questionType').val();
+			var questionCount=$('#questionCount').val();
+			var para={questionCount:questionCount,questionBankID:questionBankID,questionType:questionType,questionBankName:questionBankName};
+			$.ajax({
+				type:"POST",
+				url: "Exam/train",
+				dataType:"json",
+				data: JSON.stringify(para),
+				contentType : 'application/json;charset=utf-8',
+				success:function(data){
+					if(data.success){//成功
+						setInfo(data);
+						
+					}else{          //失败
+						alert(data.msg);
+					}
+				}
+			});
+
+		}
+		function setInfo(data){
+			var qs=data.data.questions;
+			$('#con > .as').empty();
+			for(var i=0;i<qs.length;i++){
+				if(qs[i].questionType==1){ //单选题
+					var item=$('.radio-yl').clone();
+	   				item.find('.content').text(qs[i].questionContent);
+	   				item.find('input:radio').attr('name',qs[i].questionID);
+	   				//目前写死四个选项
+	   				item.find('.oA').append(qs[i].optionA);
+	   				item.find('.oB').append(qs[i].optionB);
+	   				item.find('.oC').append(qs[i].optionC);
+	   				item.find('.oD').append(qs[i].optionD);
+	   				item.find('.ts').attr('data-da',qs[i].rightAnswer);
+	   				item.removeClass('yc');
+	   				item.removeClass('radio-yl');
+	   				item.addClass('as');
+	   				$('#con').append(item);
+	   				
+	   			}
+	   			if(qs[i].questionType==2){ //多选题
+					var item2=$('.multiple-yl').clone();
+	   				item2.find('.content').text(qs[i].questionContent);
+	   				item2.find('input:checkbox').attr('name',qs[i].questionID);
+	   				item2.find('.oA').append(qs[i].optionA);
+	   				item2.find('.oB').append(qs[i].optionB);
+	   				item2.find('.oC').append(qs[i].optionC);
+	   				item2.find('.oD').append(qs[i].optionD);
+	   				item2.find('.ts').attr('data-da',qs[i].rightAnswer);
+					item2.removeClass('yc');
+	   				item2.removeClass('multiple-yl');
+	   				item2.addClass('as');
+	   				$('#con').append(item2);
+	   			
+	   			}
+	   			if(qs[i].questionType==3){  //判断题
+	   				var item3=$('.judgment-yl').clone();
+	   				item3.find('.content').text(qs[i].questionContent);
+	   				item3.find('input:radio').attr('name',qs[i].questionID);
+	   				item3.find('.ts').attr('data-da',qs[i].rightAnswer);
+	   				item3.removeClass('yc');
+	   				item3.removeClass('judgment-yl');
+	   				item3.addClass('as');
+	   				$('#con').append(item3);
+	   			
+	   			}
+	   			$('#tj').removeClass('yc');
+			}
+		}
+		function chenk(){
+			function setTs(){ //获取答案
+				//获取单选题答案
+	   			$('.con .as .my-radio').each(function (index,e){
+	   			//	var id=$(e).find("input[type='radio']").attr('name');
+	   				var as=$(e).find("input[type='radio']:checked").val();
+	   				
+	   				var da=$(e).parent().find('.ts').attr('data-da');
+	   				if(as==da){
+	   					$(e).parent().find('.ts').text('正确');
+	   					$(e).parent().find('.ts').css('color','green');
+	   				}else{
+	   					$(e).parent().find('.ts').css('color','red');
+	   					$(e).parent().find('.ts').text('错误,正确答案是'+da);
+	   				}
+	   				$(e).parent().find('.ts').removeClass('yc');
+	   			//	ar.push({questionID: id,respondence: as});
+	   			
+	   			});
+	   			//获取多选题答案
+	   			$('.con .as .my-checkbox').each(function (index,e){
+	   		
+	   				var as='';
+	   				$(e).find("input[type='checkbox']:checked").each(function(){
+	   					as+=$(this).val()+',';
+	   				});
+	   				as=as.substring(0,as.length-1);
+	   				
+	   				var da=$(e).parent().find('.ts').attr('data-da');
+	   				if(as==da){
+	   					$(e).parent().find('.ts').css('color','green');
+	   					$(e).parent().find('.ts').text('正确');
+	   				}else{
+	   					$(e).parent().find('.ts').css('color','red');
+	   					$(e).parent().find('.ts').text('错误,正确答案是'+da);
+	   				}
+	   				$(e).parent().find('.ts').removeClass('yc');
+	   			
+	   			});
+	   			//获取判断题答案
+	   			$('.con .as .my-judgmentRadio').each(function(index,e){
+	   				
+	   				var as=$(e).find("input[type='radio']:checked").val();
+	   				var da=$(e).parent().find('.ts').attr('data-da');
+	   				if(as==da){
+	   					$(e).parent().find('.ts').css('color','green');
+	   					$(e).parent().find('.ts').text('正确');
+	   				}else{
+	   					$(e).parent().find('.ts').css('color','red');
+	   					$(e).parent().find('.ts').text('错误,正确答案是'+da);
+	   				}
+	   				$(e).parent().find('.ts').removeClass('yc');
+	   			});
+
+	   		
+			}
+			setTs();
+			
+		}
+	</script>
+	<!-- <div class="head">
+		<div class="panel panel-default">
+		  <div class="panel-heading">题库选择</div>
+		  <div class="panel-body">
+		  </div> 
+		  
+		</div>
+	</div>
+	<div class="body">	
+		
+	</div> -->
+</body>
+</html>

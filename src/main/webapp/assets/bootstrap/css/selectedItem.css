@@ -1,0 +1,78 @@
+.selecteHead{
+    margin: 20px 0 20px 0;
+    border-bottom: 2px solid #ddd;
+    font-size: 14px;
+    font-weight: bold;
+}
+.selecteHead span{
+    margin-right: 35px;
+    padding: 8px;
+}
+.selecteBody{
+    margin: 20px 0 15px 0;
+    font-size: 14px;
+}
+.selecteLfte,.type{
+    margin-right: 55px;
+    padding: 8px;
+}
+.selecteRight .id{
+    margin-right: 66px;
+    padding: 8px;
+}
+.selecteRight .name{
+    margin-right: 64px;
+    padding: 8px;
+}
+.selecteRight,.selecteRight input{
+    display: inline-block;
+    margin-bottom: 5px;
+}
+.selecteRight input{
+    width: 72px;
+    height: 25px;
+}
+.noThing{
+    margin-right: 100px;
+    padding: 8px;
+}
+.selectHover{
+    cursor: pointer;
+    background-color: #ddd;
+}
+/*预览部分题库信息样式*/
+.items{
+    border: 1px solid;
+    margin-bottom: 12px;
+}
+.items-selecte .allSelecte{
+    font-weight: bold;
+    padding: 2px;
+    padding-left: 14px;
+    display: inline-block;
+}
+.items-list{
+    height: 30px;
+    line-height: 30px;
+    border-top: 2px solid #ddd;
+}
+.items-num{
+    height: 45px;
+    line-height: 45px;
+    border-top: 1px solid #ddd;
+}
+.items-list span,.items-num span{
+    border-right: 1px solid #ddd;
+    padding-left: 14px;
+    display: inline-block;
+    width: 137px;
+}
+.items-num span:last-child,.items-list span:last-child{
+    border-right: 0px;
+}
+.items-selecte .allScore{
+    font-weight: bold;
+    display: inline-block;
+    float: right;
+    width: 126px;
+}

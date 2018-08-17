@@ -1,0 +1,779 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<meta http-equiv="X-UA-Compatible" content="IE=edge">
+    	<meta name="viewport" content="width=device-width, initial-scale=1">
+    	<meta http-equiv="Content-Type" content="multipart/form-data; charset=utf-8" />
+  		<link rel="stylesheet" type="text/css" href="../assets/bootstrap/css/bootstrap.min.css">
+		<script src="../assets/jquery/js/jquery-1.12.4.min.js"></script>
+    	<script src="../assets/jquery/js/jquery.form.js"></script>
+    	<script src="../assets/jquery/js/jquery-ui.min.js"></script>
+  		<script src="../assets/bootstrap/js/bootstrap.min.js"></script>
+  		<script src="../assets/my97data/WdatePicker.js"></script>
+		<script src="../assets/layer/layer.js"></script>
+    	<title>题库管理</title>
+    </head>
+    <style type="text/css">
+		/* 面板样式*/
+		.panel-default > .panel-heading{
+			background-color: #51585e;
+		    color: #eee;
+		}
+		.pull-right > a{
+			color: white;
+		}
+		.form-group {
+  			 padding: 10px;
+		}
+		.yc{
+			display: none;
+		}
+	</style>
+	<script type="text/javascript">
+		//加载下拉框
+		function load(){
+			$.ajax({
+				type:"POST",
+				url: "../QuestionBankType/getList",
+				dataType:"json",
+				data:{  },
+				success:function(data){
+					if(data.success){ //成功
+						var ls=data.data;
+						var qbt=$('.questionBankTypeName');
+					//	qbt.empty();
+						for(var i=0;i<ls.length;i++){
+							var opt=$('<option></option>').text(ls[i].questionBankTypeName);
+							//加入id参数
+							opt.attr('data-id',ls[i].questionBankTypeID);
+							opt.attr('value',ls[i].questionBankTypeID);
+							qbt.append(opt);
+						}
+					}else{
+				//		alert(data.);
+					}
+				}
+			});
+		}
+		load();
+
+		function toArray(params){
+			var formObject = {};
+			for (var item in params) {
+		    	formObject[params[item].name] = params[item].value;
+		   	}
+			return formObject;
+		}
+	
+		//添加题库
+		function add(){
+			//获得选中的下拉选择，把id参数写入隐藏框
+			var params = $('#addForm').serializeArray();
+			var formArray = toArray(params);
+			$.ajax({
+				type:"POST",
+				url:"../QuestionBank/add",
+				dataType: "json",
+				data:formArray,
+				success:function(data){
+					if(data.success){//成功
+						alert(data.msg);
+						QueryData();
+					}else{   //失败
+						alert(data.msg);
+					}
+				}
+			});
+		}
+		//删除题库
+		function del(){
+			var id=$('#url').val();
+			$.ajax({  
+				type:"POST",
+				url: "../QuestionBank/del",
+				dataType:"json",
+				data:{questionBankID:id },
+				success:function(data){
+					if(data.success){
+						alert(data.msg);
+						QueryData();
+					}else{
+						alert(data.msg);
+					}
+				}
+
+			});
+		}
+
+		function update(){
+			var questionBankName=$('#questionBankNameX').val();
+			var questionBankID=$('#questionBankIDX').val();
+			var questionBankTypeID=$('#questionBankTypeIDX').val();
+			var isDisplay=$('#isDisplayX').val();
+			$.ajax({  
+				type:"POST",
+				url: "../QuestionBank/update",
+				dataType:"json",
+				data:{questionBankID:questionBankID,questionBankName:questionBankName,questionBankTypeID:questionBankTypeID,isDisplay:isDisplay },
+				success:function(data){
+					if(data.success){
+						alert(data.msg);
+						QueryData();
+					}else{
+						alert(data.msg);
+					}
+				}
+
+			});
+		}
+
+		function QueryData(){
+			var params = $('#qForm').serializeArray();
+			var obj=toArray(params);
+	//		var json=JSON.parse(obj);
+			var json=JSON.stringify(obj);
+			QueryQuestionBank(json);
+		}
+		//查询题库
+		function QueryQuestionBank(json){
+			$.ajax({
+				type:"POST",
+				url: "../QuestionBank/getDtoList",
+				dataType:"json",
+				contentType: "application/json;charset=UTF-8",
+				data:json,
+				success:function(data){
+	
+					if(data.success){//成功
+						var ls=data.data;
+						var tbody=$('#tb');
+						//排序
+						ls.sort(function(a,b){return a.questionBankID-b.questionBankID});
+						//先清空表格
+						tbody.empty();
+						for(var i=0;i<ls.length;i++){
+							var tr=$('<tr></tr>');
+							tr.append($('<th scope="row"></th>').text(ls[i].questionBankID));
+							tr.append($('<td></td>').text(ls[i].questionBankName));
+							tr.append($('<td></td>').text(ls[i].questionBankTypeName));
+							tr.append($('<td></td>').text(ls[i].isDisplay));
+							tr.append($('<td></td>').text(ls[i].creationTime));
+							tr.append($('<td></td>').text(ls[i].founder));
+							tr.append($('<td></td>').text(ls[i].updateTime));
+							tr.append($('<td></td>').text(ls[i].updateMan));
+							
+							var td2=$('#mtd').clone();
+							//添加属性,直接把id绑定一个参数
+							td2.children('div').children('ul').attr('data-id',ls[i].questionBankID);
+							//把名称绑定，便于修改框弹出
+							td2.children('div').children('ul').attr('data-name',ls[i].questionBankName);
+                            td2.children('div').children('ul').attr('data-type-name',ls[i].questionBankTypeName);
+                            td2.children('div').children('ul').attr('data-is-display',ls[i].isDisplay);
+
+							td2.removeClass('yc');
+							tr.append(td2);
+							tbody.append(tr);
+						//	alert(i);
+						}
+						//导入题库按钮监听
+						$('#mtd #load').click(function(){
+							$('#questionBankNameD').val($(this).parent().parent().attr('data-name'));
+							$('#questionBankIDD').val($(this).parent().parent().attr('data-id'));
+							$('#myModal2').modal('show');
+						});
+						//删除按钮监听
+						$('#mtd #del').click(function(){
+							$('#url').val($(this).parent().parent().attr('data-id'));
+							$('#delcfmModel').modal('show');
+						}); 
+						//编辑
+						$('#mtd #edit').click(function(){
+						    var data_name = $(this).parent().parent().attr('data-name');//题库名称
+                            var data_type_name = $(this).parent().parent().attr('data-type-name');//题库类型名称
+                            var data_is_display = $(this).parent().parent().attr('data-is-display');//是否显示
+                            $('#questionBankNameX').val(data_name);
+                            $("#questionBankTypeIDX").val($("#questionBankTypeIDX").find("option:contains("+data_type_name+")").val());
+                            $("#isDisplayX").val($("#isDisplayX").find("option:contains("+data_is_display+")").val());
+
+							$('#questionBankIDX').val($(this).parent().parent().attr('data-id'));
+							$('#myModal3').modal('show');
+						});
+
+						//进入试题管理
+						$('#mtd #admin').click(function(){
+							var id=$(this).parent().parent().attr('data-id');
+							getQuestion(id);
+						});
+
+
+					}else{   //失败
+						alert(data.msg);
+					}
+				}
+	
+			});
+		}
+
+		QueryData();
+		$(document).ready(function(){
+			$("#modalDialog").draggable({ handle: ".modal-header"   });//为模态对话框添加拖拽
+	        $("#myModal").css("overflow", "hidden");//禁止模态对话框的半透明背景滚动
+	        $("#modalDialog2").draggable({ handle: ".modal-header"   });//为模态对话框添加拖拽
+	        $("#myModal2").css(" ", "hidden");//禁止模态对话框的半透明背景滚动
+	        $("#modalDialog3").draggable({ handle: ".modal-header"   });//为模态对话框添加拖拽
+	        $("#myModal3").css(" ", "hidden");//禁止模态对话框的半透明背景滚动
+			//	getTableData();
+		});
+
+		function submit(){
+		    //判断是否选择文件
+            var upFileName = $("#file").val();
+            if(upFileName==null||upFileName==""){
+                layer.alert("上传文件为空!")
+				return;
+			}
+            var index1=upFileName.lastIndexOf(".");
+            var index2=upFileName.length;
+            var suffix=upFileName.substring(index1+1,index2);//后缀名
+			if(suffix!='xls'){
+                layer.alert("请上传xls文件!")
+                return;
+			}
+            layer.load(2,{time: 5*60*1000,shade: [0.5,'black']})//
+			$("#fileload").ajaxSubmit({
+		  		dataType:"text",
+			    beforeSend:start,
+			    success: resutlMsg,
+	        	error: errorMsg 
+		    });
+			function start(){
+				$("#icon").removeClass("fa-check fa-spin");
+				$("#icon").addClass("fa fa-spinner fa-spin  fa-3x");
+			}
+			function resutlMsg(result, statusText, xhr, $form){
+                layer.closeAll();
+                if(typeof result == 'string'){
+                    result = JSON.parse(result);
+                }
+                if(result.success!=undefined){
+                    if(result.success==false){
+                     layer.alert(result.msg);
+                     return false;
+					}
+				}
+                $("#file").val("");
+                layer.alert("成功");
+				//$("#icon").removeClass("fa-spinner fa-spin");
+				//$("#icon").addClass("fa-check fa-3x");
+			}
+			function errorMsg(){
+                layer.closeAll();
+				alert("导入excel出错！");
+			}
+	   }
+	   //获取试题列表
+	   function getQuestion(id){
+	   		function setQuestion(data){
+	   			//保存题库的id到隐藏文本框，方便刷新
+	   			$('#n_questionBankID').val(id);
+	   			var qs=data.data;
+	   			$('.my_qi').remove();
+	   			for(var i=0;i<qs.length;i++){
+	   				if(qs[i].questionType == 1){ //单选
+	   					var mb=$('.danxuan-mode').clone();
+	   					mb.removeClass('danxuan-mode');
+	   					mb.removeClass('yc');
+	   					mb.addClass('my_qi');
+	   					mb.find('.my-content').append(qs[i].questionContent);
+	   					mb.find('.my-oA').append(qs[i].optionA);
+	   					mb.find('.my-oB').append(qs[i].optionB);
+	   					mb.find('.my-oC').append(qs[i].optionC);
+	   					mb.find('.my-oD').append(qs[i].optionD);
+	   					mb.find('.rightanswer').append(qs[i].rightAnswer);
+	   					mb.find('button').attr('data-id',qs[i].questionID);
+	   					$('#danxuan').append(mb);
+	   				}else if(qs[i].questionType == 2){ //多选
+	   					var mb=$('.duoxuan-mode').clone();
+	   					mb.removeClass('duoxuan-mode');
+	   					mb.removeClass('yc');
+	   					mb.addClass('my_qi');
+	   					mb.find('.my-content').append(qs[i].questionContent);
+	   					mb.find('.my-oA').append(qs[i].optionA);
+	   					mb.find('.my-oB').append(qs[i].optionB);
+	   					mb.find('.my-oC').append(qs[i].optionC);
+	   					mb.find('.my-oD').append(qs[i].optionD);
+	   					mb.find('.rightanswer').append(qs[i].rightAnswer);
+	   					mb.find('button').attr('data-id',qs[i].questionID);
+	   					$('#duoxuan').append(mb);
+	   				}else if(qs[i].questionType == 3){ //判断
+	   					var mb=$('.panduan-mode').clone();
+	   					mb.removeClass('panduan-mode');
+	   					mb.removeClass('yc');
+	   					mb.addClass('my_qi');
+	   					mb.find('.my-content').append(qs[i].questionContent);
+	   					mb.find('.rightanswer').append(qs[i].rightAnswer);
+	   					mb.find('button').attr('data-id',qs[i].questionID);
+	   					$('#panduan').append(mb);
+	   				}else if(qs[i].questionType == 4){ //填空
+	   					var mb=$('.tiankong-mode').clone();
+	   					mb.removeClass('tiankong-mode');
+	   					mb.removeClass('yc');
+	   					mb.addClass('my_qi');
+	   					mb.find('.my-content').append(qs[i].questionContent);
+	   					mb.find('.rightanswer').append(qs[i].rightAnswer);
+	   					mb.find('button').attr('data-id',qs[i].questionID);
+	   					$('#tiankong').append(mb);
+	   				}else if(qs[i].questionType == 5){ //问答
+	   					var mb=$('.wenda-mode').clone();
+	   					mb.removeClass('wenda-mode');
+	   					mb.removeClass('yc');
+	   					mb.addClass('my_qi');
+	   					mb.find('.my-content').append(qs[i].questionContent);
+	   					mb.find('.rightanswer').append(qs[i].rightAnswer);
+	   					mb.find('button').attr('data-id',qs[i].questionID);		
+	   					$('#wenda').append(mb);
+	   				}
+	   			}
+	   			my_go();
+	   		}
+	   		$.ajax({  
+				type:"POST",
+				url: "../QuestionBank/getQuestions",
+				dataType:"json",
+				data:{questionBankID:id},
+				success:function(data){
+					if(data.success){
+						setQuestion(data);
+					}else{
+						alert(data.msg);
+					}
+				}
+			});
+	   }
+
+
+	   //跳转到试题管理
+	  function my_go(){
+	  		$('#row1').addClass('yc');
+	   		$('#row2').addClass('yc');
+	   		$('#row3').removeClass('yc');
+	  } 
+
+	   //返回到题库管理
+	   function my_break(){
+	   		$('#row1').removeClass('yc');
+	   		$('#row2').removeClass('yc');
+	   		$('#row3').addClass('yc');
+	   }
+	 	
+	 	//打开删除试题模态框
+	 	function open_delModel(obj){
+	 		$('#delquestionModel').find('#model_questionID').val($(obj).attr('data-id'));
+	 		$('#delquestionModel').modal('show');
+	 	}
+	   //删除
+		function del_question(){
+			var id=$('#delquestionModel').find('#model_questionID').val();
+			$.ajax({  
+				type:"POST",
+				url: "../Question/del",
+				dataType:"json",
+				data:{questionID:id},
+				success:function(data){
+					if(data.success){
+					//	alert(data.msg);
+						var qid=$('#n_questionBankID').val();
+						getQuestion(qid);
+					}else{
+						alert(data.msg);
+					}
+				}
+			})
+		}
+		//更新
+		function update_question(obj){
+
+		}	 
+	</script>
+	<body>
+		<div class="container-fluid">
+			<div class="row" id="row1">
+				<div class="col-md-12">
+					<div class="panel panel-default">
+						<div class="panel-heading">题库查询
+							<span class="pull-right">
+								<a  href="#"  rel="tooltip" title="查询"><i class="glyphicon glyphicon-search" onclick="QueryData()"></i></a>
+							</span>
+						</div>
+						<div class="panel-boy">
+							<form class="form-inline" id="qForm">
+
+								<div class="form-group">
+									<label for="questionBankName">题库名称</label>
+									<input type="text" class="form-control" id="questionBankName" name="questionBankName">
+								</div>
+
+								<div class="form-group">
+									<label for="questionBankID">题库ID</label>
+									<input type="text" class="form-control" id="questionBankID" name="questionBankID">
+								</div>
+
+								<div class="form-group">
+									<label for="questionBankTypeName">题库类型</label>
+									<select  class="form-control questionBankTypeName" id="questionBankTypeName" name="questionBankTypeID">
+										  <option></option>
+									</select>
+								</div>
+
+								<div class="form-group">
+									<label >显示状态</label>
+									<select  class="form-control" id="isDisplay" name="isDisplay">
+										<option></option>
+										<option value="1">显示</option>
+										<option value="0">不显示</option>
+									</select>
+								</div>
+
+								<div class="form-group">
+									<label for="startCreationTime">创建时间</label>
+									<input type="text" onFocus="WdatePicker({lang:'zh-cn'})" class="form-control " id="startCreationTime" name="startCreationTime">
+									<label for="endCreationTime">至</label>
+									<input type="text" onFocus="WdatePicker({lang:'zh-cn'})" class="form-control" id="endCreationTime" name="endCreationTime">
+								</div>
+
+							</form>
+						</div>
+					</div>
+				</div>
+			</div>
+			<div class="row" id="row2">
+				<div class="col-md-12">
+					<div class="panel panel-default">
+						<div class="panel-heading"> 查询结果
+							<span class="pull-right">
+								<a  href="#"  rel="tooltip" title="添加"><i class="glyphicon glyphicon-plus" data-toggle="modal" data-target="#myModal"></i></a>
+							</span>
+						</div>
+						<table class="table">
+							<thead>
+								<tr>
+									<th>题库ID</th>
+									<th>题库名称</th>
+									<th>题库类型</th>
+									<th>显示状态</th>
+									<th>创建时间</th>
+									<th>创建人</th>
+									<th>更新时间</th>
+									<th>更新人</th>
+									<th>操作</th>
+									<td class="yc" id="mtd">
+										<div role="presentation" class="dropdown">
+										    <button class="btn btn-default btn-xs dropdown-toggle" data-toggle="dropdown"  role="button" aria-haspopup="true" aria-expanded="false">
+										      操作 <span class="caret"></span>
+										    </button>
+										    <ul class="dropdown-menu">
+										      <li><a href="#"  id="load">导入试题</a></li>
+										      <li><a href='#' id="admin">管理试题</a></li>
+										      <li><a href="#"  id="edit">编辑</a></li>
+										      <li><a href="#"  id="del">删除</a></li>
+										    </ul>
+										  </div>
+									</td>
+								</tr>
+							</thead>
+							<tbody id="tb">
+								<tr>
+									<th scope="row">1231</th>
+									<td>测试题库</td>
+									<td>基础训练</td>
+									<td>显示</td>
+									<td>2017/02/15</td>
+									<td>桂林管理员</td>
+									<td>2017/02/15</td>
+									<td>桂林管理员</td>
+									<td>
+										<div role="presentation" class="dropdown">
+										 <button class="btn btn-default btn-xs dropdown-toggle" data-toggle="dropdown"	 role="button" aria-haspopup="true" aria-expanded="false">
+										      操作 <span class="caret"></span>
+										    </button>
+										    <ul class="dropdown-menu">
+										      <li><a href="">编辑</a></li>
+										      <li><a href="">删除</a></li>
+										    </ul>
+										 </div>
+									</td>
+								</tr>
+							</tbody>
+						</table>
+					</div>
+				</div>
+			</div>
+			<div class="row yc" id="row3">
+				<div class="col-md-12">
+					<input type="hidden" id="n_questionBankID" >
+					<ul class="nav nav-tabs" id="myTabs">
+					  <li role="presentation" class="active"><a href="#danxuan" data-toggle="tab">单选题</a></li>
+					  <li role="presentation"><a href="#duoxuan" data-toggle="tab">多选题</a></li>
+					  <li role="presentation"><a href="#panduan" data-toggle="tab">判断题</a></li>
+					  <li role="presentation"><a href="#tiankong" data-toggle="tab">填空题</a></li>
+					  <li role="presentation"><a href="#wenda" data-toggle="tab">问答题</a></li>
+					</ul>
+					<div class="tab-content" style="height: 600px;overflow-y: auto; border:1px;"><!-- border:0px 1px 1px 1px; -->
+					    <div role="tabpanel" class="tab-pane active" id="danxuan">
+							<div class="danxuan-mode yc" style="margin-left:20px;">
+									<div class="my-content" style="margin-top: 20px;margin-left:10px; font-size: 20px;">
+										
+									</div>
+									<div style="padding-left: 30px;font-size: 15px;">
+										<div class="my-oA">
+											A. 
+										</div>
+										<div class="my-oB">
+											B. 
+										</div>
+										<div class="my-oC">
+											C. 
+										</div>
+										<div class="my-oD">
+											D. 
+										</div>
+									</div>
+									<div class="rightanswer" style="color: green;padding-left:10px;">
+										正确答案： 
+									</div>
+									<div style="padding-left:5px; ">
+										<button type="button" class="btn btn-danger  btn-xs" class="del" onclick="open_delModel(this)">删除</button>
+										<button type="button" class="btn btn-primary btn-xs" class="update">修改</button>
+									</div>
+							</div>
+					    </div>
+					    <div role="tabpanel" class="tab-pane" id="duoxuan">
+							<div class="duoxuan-mode yc" style="margin-left:20px;">
+								<div class="my-content" style="margin-top: 20px;margin-left:10px; font-size: 20px;">
+								
+								</div>
+								<div style="padding-left: 30px;font-size: 15px;">
+									<div class="my-oA">
+										A. 
+									</div>
+									<div class="my-oB">
+										B. 
+									</div>
+									<div class="my-oC">
+										C. 
+									</div>
+									<div class="my-oD">
+										D. 
+									</div>
+								</div>
+								<div class="rightanswer" style="color: green;padding-left:10px;">
+									正确答案： 
+								</div>
+								<div style="padding-left:5px; ">
+									<button type="button" class="btn btn-danger  btn-xs" class="del" onclick="open_delModel(this)">删除</button>
+									<button type="button" class="btn btn-primary btn-xs" class="update">修改</button>
+								</div>
+							</div>
+					    </div>
+					    <div role="tabpanel" class="tab-pane" id="panduan">
+					    	<div class="panduan-mode yc" style="margin-left:20px;">
+								<div class="my-content" style="margin-top: 20px;margin-left:10px; font-size: 20px;">
+									
+								</div>
+								<div class="rightanswer" style="color: green;padding-left:10px;">
+									正确答案：
+								</div>
+								<div style="padding-left:5px; ">
+									<button type="button" class="btn btn-danger  btn-xs" class="del" onclick="open_delModel(this)">删除</button>
+									<button type="button" class="btn btn-primary btn-xs" class="update">修改</button>
+								</div>
+							</div>
+					    </div>
+					    <div role="tabpanel" class="tab-pane" id="tiankong">
+							<div class="tiankong-mode yc" style="margin-left:20px;">
+								<div class="my-content" style="margin-top: 20px;margin-left:10px; font-size: 20px;">
+								
+								</div>
+								<div class="rightanswer" style="color: green;padding-left:10px;">
+									正确答案：
+								</div>
+								<div style="padding-left:5px; ">
+									<button type="button" class="btn btn-danger  btn-xs" class="del" onclick="open_delModel(this)">删除</button>
+									<button type="button" class="btn btn-primary btn-xs" class="update">修改</button>
+								</div>
+							</div>
+					    </div>
+					    <div role="tabpanel" class="tab-pane" id="wenda">
+							<div class="wenda-mode yc" style="margin-left:20px;">
+								<div class="my-content" style="margin-top: 20px;margin-left:10px; font-size: 20px;">
+								
+								</div>
+								<div class="rightanswer" style="color: green;padding-left:10px;">
+									正确答案： 
+								</div>
+								<div style="padding-left:5px; ">
+									<button type="button" class="btn btn-danger  btn-xs" class="del" onclick="open_delModel(this)">删除</button>
+									<button type="button" class="btn btn-primary btn-xs" class="update">修改</button>
+								</div>
+							</div>
+					    </div>
+					 </div>
+					 <div class="pull-right">
+						<button type="button" class="btn btn-primary"  onclick="my_break()">返回</button>
+					 </div>
+				</div>
+			</div>
+		</div>
+		
+		<!--模态框，添加题库         -->
+		<div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+		  <div class="modal-dialog" id="modalDialog" role="document">
+		    <div class="modal-content">
+		      <div class="modal-header">
+		        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+		        <h4 class="modal-title" id="myModalLabel">添加题库</h4>
+		      </div>
+		      <div class="modal-body">
+		        <form id="addForm">
+		        	<div class="form-group">
+		        		<label for="questionBankName">题库名称</label>
+		        		<input type="text" class="form-control" name="questionBankName" id="questionBankName2" placeholder="类型名称"><!-- gyw -->
+					</div>
+					<div class="form-group">
+						
+						<label for="questionBankTypeName">题库类型</label>
+							<select  class="form-control questionBankTypeName" id="questionBankTypeName2" name="questionBankTypeID">
+						</select>
+					</div>
+					<div class="form-group">
+						<label>显示状态</label>
+						<select  class="form-control" id="isDisplay2" name="isDisplay"><!-- gyw2 -->
+							<option value="1">显示</option>
+							<option value="0">不显示</option>
+						</select>
+					</div>
+    			</form>
+		      </div>
+		      <div class="modal-footer">
+		        <button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
+		        <button type="button" class="btn btn-primary" data-dismiss="modal" onclick="add()">添加</button>
+		      </div>
+		    </div>
+		  </div>
+		</div>
+		<!--  导入试题模态框         -->
+		<div class="modal fade" id="myModal2" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+		  <div class="modal-dialog" id="modalDialog2" role="document">
+		    <div class="modal-content">
+		      <div class="modal-header">
+		        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+		        <h4 class="modal-title" id="myModalLabel2">导入试题</h4>
+		      </div>
+		      <div class="modal-body">
+		        <form id="fileload" method="post"  action="../uploadQuestionExcel/Upload"  accept-charset="UTF-8" >
+		       		<div class="form-group">
+		        		<label for="questionBankName">题库名称</label>
+		        		<input type="text" class="form-control"  id="questionBankNameD" placeholder="类型名称" disabled="disabled">
+		        		<input type="hidden" id="questionBankIDD" name="questionBankID"/>                      
+					</div>
+		        	<div class="form-group">
+					    <label for="file">选择文件</label>
+					    <input type="file" id="file" name="file">
+					    <p class="help-block">注意！题库中以存在的试题会被清空,请上传.xls文件</p>
+					</div>
+					<p align="center">
+				    	<i id="icon"></i>
+				    </p>
+					<a href="../file/question-template.xls" download="题库模板">题库模板-点击下载</a>
+				<!--     <button type="submit" class="btn btn-primary" onclick="submit()">导入</button> -->
+    			</form>
+		      </div>
+		      <div class="modal-footer">
+		        <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+		        <button type="button" class="btn btn-primary" onclick="submit()">导入</button>
+		      </div>
+		    </div>
+		  </div>
+		</div>
+		<!-- 模态框,修改                -->
+		<div class="modal fade" id="myModal3" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+		<div class="modal-dialog" id="modalDialog3" role="document">
+		    <div class="modal-content">
+		      <div class="modal-header">
+		        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+		        <h4 class="modal-title" id="myModalLabel3">修改题库</h4>
+		      </div>
+		      <div class="modal-body">
+		        <form id="addForm2">
+		        	<div class="form-group">
+		        		<label for="questionBankName">题库名称</label>
+		        		<input type="text" class="form-control" name="questionBankName" id="questionBankNameX" placeholder="类型名称">
+		        		<input type="hidden" name="questionBankID"  id="questionBankIDX">                      
+					</div>
+					<div class="form-group">
+						<!-- <input type="text" class="form-control" id="questionBankTypeIDX" name="questionBankTypeID" style="display:none;"> -->
+						<label for="questionBankTypeName">题库类型</label>
+							<select  class="form-control questionBankTypeName" id="questionBankTypeIDX" name="questionBankTypeName">
+						</select>
+					</div>
+					<div class="form-group">
+						<label >显示状态</label>
+						<select  class="form-control" id="isDisplayX" name="isDisplay">
+							<option value="1">显示</option>
+							<option value="0">不显示</option>
+						</select>
+					</div>
+    			</form>
+		      </div>
+		      <div class="modal-footer">
+		        <button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
+		        <button type="button" class="btn btn-primary" data-dismiss="modal" onclick="update()">修改</button>
+		      </div>
+		    </div>
+		  </div>
+		</div>
+
+		<!--删除确认框 -->
+		<div class="modal fade bs-example-modal-sm" id="delcfmModel"  tabindex="-1" role="dialog"  aria-labelledby="myModalLabel3">  
+		  <div class="modal-dialog modal-sm" id="modalDialog4">
+		    <div class="modal-content message_align">  
+		      <div class="modal-header">  
+		        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>  
+		        <h4 class="modal-title">提示信息</h4>  
+		      </div>  
+		      <div class="modal-body"> 
+		      	<input type="hidden" id="url"/>  
+		        <p >您确认要删除吗？</p>  
+		      </div>  
+		      <div class="modal-footer">  
+		         <button type="button" class="btn btn-default" data-dismiss="modal">取消</button>  
+		         <a  onclick="del()" class="btn btn-success" data-dismiss="modal">确定</a>  
+		      </div>  
+		    </div><!-- /.modal-content -->  
+		  </div><!-- /.modal-dialog -->  
+		</div><!-- /.modal -->
+
+		<!--试题删除确认框 -->
+		<div class="modal fade bs-example-modal-sm" id="delquestionModel"  tabindex="-1" role="dialog"  aria-labelledby="myModalLabel3">  
+		  <div class="modal-dialog modal-sm" id="modalDialog5">
+		    <div class="modal-content message_align">  
+		      <div class="modal-header">  
+		        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>  
+		        <h4 class="modal-title">提示信息</h4>  
+		      </div>  
+		      <div class="modal-body"> 
+		      	<input type="hidden" id="model_questionID"/>  
+		        <p >您确认要删除此试题吗？</p>  
+		      </div>  
+		      <div class="modal-footer">  
+		         <button type="button" class="btn btn-default" data-dismiss="modal">取消</button>  
+		         <a  onclick="del_question()" class="btn btn-success" data-dismiss="modal">确定</a>  
+		      </div>  
+		    </div><!-- /.modal-content -->  
+		  </div><!-- /.modal-dialog -->  
+		</div><!-- /.modal -->
+		
+
+	</body>
+ </html>

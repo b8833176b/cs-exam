@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+    PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ares.exam.dao.QuestionBankTypeDao">
+	<resultMap type="QuestionBankType" id="resultQuestionBankTypeMap">
+			<result property="questionBankTypeID" column="questionBankTypeID"/>
+			<result property="questionBankTypeName" column="questionBankTypeName"/>
+			<collection property="questionBanks" ofType="QuestionBank" column="questionBankTypeID">
+				<id property="questionBankID" column="questionBankID"/>
+				<result property="questionBankName" column="questionBankName"/>
+				<result property="isDisplay" column="isDisplay"/>
+				<result property="creationTime" column="creationTime"/>
+				<result property="founder" column="founder"/>
+				<result property="updateTime" column="updateTime"/>
+				<result property="updateMan" column="updateMan"/>
+			</collection>
+	</resultMap>
+	
+	<insert id="addQuestionBankType">
+		insert into ks_QuestionBankType(QuestionBankTypeName) 
+		values(#{questionBankTypeName})
+	</insert>
+
+	
+	<select id="queryQuestionBankType" resultType="QuestionBankType" parameterType="QuestionBankType">
+		select * from 
+		ks_QuestionBankType
+		<where>
+			<if test="questionBankTypeID != null">
+				questionBankTypeID = #{questionBankTypeID}
+			</if>
+			 <if test="questionBankTypeName != null">
+				and questionBankTypeName = #{questionBankTypeName}
+			</if>
+		</where> 
+	</select>
+	<select id="getQuestionBankType" resultMap="resultQuestionBankTypeMap" parameterType="long">
+		select  a.*,b.* from ks_questionbanktype a left join ks_questionbank b
+		 on a.questionbanktypeid=b.questionbanktypeid where a.questionbanktypeid=#{getQuestionBankTypeID}
+	</select>
+
+	<select id="getConutByName" resultType="int">
+		select count(*) from  ks_questionbanktype a where a.questionBankTypeName = #{questionBankTypeName}
+	</select>
+	
+	<delete id="delQuestionBankType" parameterType="QuestionBankType">
+		<if test="questionBankTypeID != null">                      
+			delete ks_questionbanktype where questionBankTypeID = #{questionBankTypeID}
+		</if>
+	</delete>
+	
+	<update id="updateQuestionBankType" parameterType="QuestionBankType">
+		update ks_questionbanktype set QUESTIONBANKTYPENAME = #{questionBankTypeName}  where QUESTIONBANKTYPEID = #{questionBankTypeID}
+	
+	</update>
+	
+
+</mapper>

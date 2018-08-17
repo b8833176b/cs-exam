@@ -1,0 +1,143 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+    PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ares.exam.dao.ExamDao">
+
+	<select id="countExamByNameWhenAdd" resultType="int" parameterType="String">
+		select COUNT(EXAMID) from ks_exam a
+		<where>
+			a.EXAMNAME = #{name}
+		</where>
+	</select>
+
+	<select id="countExamByNameWhenUpdate" resultType="int" parameterType="Exam">
+		select COUNT(EXAMID) from ks_exam a
+		WHERE a.EXAMNAME = #{examName}
+		AND a.EXAMID!=#{examID}
+	</select>
+
+	<insert id="addExam" parameterType="Exam" keyProperty="examID">
+		<selectKey resultType="Long" order="BEFORE" keyProperty="examID">
+			select KS_EXAM_SEQ.Nextval as examID from DUAL
+		</selectKey>
+		insert into ks_exam(examID,EXAMNAME,EXAMTYPEID,STARTTIME,ENDTIME,WHENLONG,DESCRIPTION,DISPLAY,FOUNDERID,RADIOSCORE,MULTIPLESCORE,JUDGMENTSCORE,CLOZESCORE,ANSWERSCORE,TYPINGSCORE,CANBLUR)
+  		values(
+  			#{examID,jdbcType=INTEGER},
+  			#{examName,jdbcType=VARCHAR},
+	  		#{examTypeID,jdbcType=INTEGER},
+	  		#{startTime,jdbcType=DATE},
+	  		#{endTime,jdbcType=DATE},
+	  		#{whenLong,jdbcType=INTEGER},
+	  		#{description,jdbcType=VARCHAR},
+	  		#{display,jdbcType=INTEGER},
+	  		#{founderID,jdbcType=INTEGER},
+	  		#{radioScore,jdbcType=FLOAT},
+	  		#{multipleScore,jdbcType=FLOAT},
+	  		#{judgmentScore,jdbcType=FLOAT},
+	  		#{clozeScore,jdbcType=FLOAT},
+	  		#{answerScore,jdbcType=FLOAT},
+	  		#{typingScore,jdbcType=FLOAT},
+	  		#{canBlur,jdbcType=INTEGER}
+  		)
+	</insert>
+	<delete id="delExam" parameterType="Exam">
+		delete ks_exam where EXAMID =#{examID}
+	</delete>
+	
+	<update id="updateExam" parameterType="Exam">
+		update ks_exam set
+		<trim suffixOverrides=",">
+			<if test="examName != null">examName = #{examName,jdbcType=VARCHAR},</if>
+			<if test="examTypeID != null">examTypeID = #{examTypeID,jdbcType=INTEGER},</if>
+			<if test="startTime != null">startTime = #{startTime,jdbcType=DATE},</if>
+			<if test="endTime != null">endTime = #{endTime,jdbcType=DATE},</if>
+			<if test="whenLong != null">whenLong = #{whenLong,jdbcType=INTEGER},</if>
+			<if test="description != null">description = #{description,jdbcType=VARCHAR},</if>
+			<if test="display != null">display =#{display,jdbcType=INTEGER},</if>
+			<if test="radioScore !=null">radioScore =#{radioScore,jdbcType=FLOAT},</if>
+			<if test="multipleScore !=null">multipleScore =#{multipleScore,jdbcType=FLOAT},</if>
+			<if test="judgmentScore !=null">judgmentScore =#{judgmentScore,jdbcType=FLOAT},</if>
+			<if test="clozeScore !=null">clozeScore =#{clozeScore,jdbcType=FLOAT},</if>
+			<if test="answerScore !=null">answerScore =#{answerScore,jdbcType=FLOAT},</if>
+			<if test="typingScore !=null">typingScore =#{typingScore,jdbcType=FLOAT},</if>
+			<if test="canBlur != null">canBlur =#{canBlur,jdbcType=INTEGER},</if>
+		</trim>
+		where examID = #{examID,jdbcType=INTEGER}
+	</update>
+	
+	<!-- 应用Exam 和 ExamType以及 PoliceInfo进行联合查询 -->
+	<sql id="queryExamDto">
+		select a.examid,a.examname,b.examtypename,a.examTypeID,a.starttime,a.endtime,a.whenlong,a.description,c.xm as founder,a.founderid,a.radioscore,a.multiplescore,a.judgmentScore,a.clozescore,a.answerscore,a.typingscore,a.display,a.canBlur
+		from ks_exam a left join ks_examtype b on a.examtypeid=b.examtypeid  left join lz_policeinfo c on a.founderid = c.userid
+	</sql>
+	
+	<!--  -->
+	<sql id="queryExamDtoWhere">
+		<where>
+			<if test="examID != null and examID != '' ">a.examID = #{examID,jdbcType=INTEGER}</if>
+			<if test="examName !=null and examName != '' ">and a.examName = #{examName,jdbcType=VARCHAR}</if>
+			<if test="examTypeID != null and examTypeID != '' ">and  a.examTypeID = #{examTypeID}</if>
+			<if test="examTypeName != null and examTypeName != '' ">and b.examTypeName = #{examTypeName,jdbcType=VARCHAR}</if>
+			<if test="startTime != null and startTime != '' ">and a.startTime &gt;= #{startTime}</if>
+ 			<if test="endTime !=null and endTime != ''">and a.endTime &lt;= #{endTime}</if>
+ 			<if test="founderID !=null and founderID != '' ">and founderID = #{founderID,jdbcType=INTEGER}</if>
+ 			<if test="founder !=null and founder != '' ">and c.xm = #{founder,jdbcType=VARCHAR}</if>
+		</where>
+	</sql>
+	
+
+	<select id="queryExamDto" parameterType="com.ares.exam.entity.Exam" resultType="com.ares.exam.dto.ExamDto">
+		<include refid="queryExamDto"></include>
+		<include refid="queryExamDtoWhere"></include>
+	</select>
+	
+	<select id="getExamDto" parameterType="com.ares.exam.entity.Exam" resultType="com.ares.exam.dto.ExamDto">
+		<include refid="queryExamDto"></include>
+		<where>
+			a.examID = #{examID,jdbcType=INTEGER}
+		</where>
+	</select>
+	
+	<select id="getExam" resultType="Exam">
+		select a.* from ks_exam a
+		<where>
+			a.examID = #{examID,jdbcType=INTEGER}
+		</where>
+	</select>
+	
+	<select id="getExamByName" resultType="Exam">
+		select a.* from ks_exam a
+		<where>
+			a.examName = #{examName,jdbcType=VARCHAR}
+		</where>
+	</select>
+	
+	
+	<!--  获取可以开始但没有开始的考试 -->
+	<select id="queryExamDtoByUser" parameterType="com.ares.exam.entity.PoliceInfo" resultType="com.ares.exam.dto.ExamDto">
+		select x.* from (<include refid="queryExamDto"></include>) x, KS_EXAMPOLICEINFO d    
+		WHERE d.examID = x.examID 
+		and d.userID = #{userID} 
+		and x.startTime &lt; (select sysdate from dual)
+		and x.endTime &gt;  (select sysdate from dual)
+		and d.isOver = 0
+	</select>
+	
+	<!-- 获取已经完成的考试 -->
+	<select id="queryBeforeExamDtoByUser" parameterType="com.ares.exam.entity.PoliceInfo" resultType="com.ares.exam.dto.ExamDto">
+		select x.* from (<include refid="queryExamDto"></include>) x, KS_EXAMPOLICEINFO d    
+		WHERE d.examID = x.examID 
+		and d.userID = #{userID} 
+		and d.isOver = 2
+	</select>
+	
+	<!--获取缺考的考试   -->
+	<select id="queryMissExamDtoByUser" parameterType="com.ares.exam.entity.PoliceInfo" resultType="com.ares.exam.dto.ExamDto">
+		select x.* from (<include refid="queryExamDto"></include>) x, KS_EXAMPOLICEINFO d    
+		WHERE d.examID = x.examID 
+		and d.userID = #{userID} 
+		and x.endTime &lt;  (select sysdate from dual)
+		and d.isOver != 2
+	</select>
+</mapper>

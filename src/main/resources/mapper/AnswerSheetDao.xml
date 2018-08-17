@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+    PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ares.exam.dao.AnswerSheetDao">
+	<select id="queryAnswerSheetDtoByID" resultType="com.ares.exam.dto.AnswerSheetDto">
+		select a.answersheetid,a.userid,a.examid,a.ismarking,b.xm,b.bmbh from ks_answersheet a,lz_policeinfo b where a.userid = b.userid and a.examid = #{examID,jdbcType=INTEGER}
+	</select>
+	<sql id="answerSheetColumns">
+		<trim suffixOverrides=",">
+			answerSheetID,userID,examID,
+			<if test="startTime != null">startTime,</if>
+			<if test="assignmentTime != null">assignmentTime,</if>
+			<if test="addressIP != null">addressIP,</if>
+			<if test="isMarking != null">isMarking,</if>
+			<if test="score != null"> score,</if>
+			<if test="isPass != null">isPass</if>
+		</trim>
+	</sql>
+	
+	<sql id="answerSheetValues">
+		<trim suffixOverrides=",">
+			#{answerSheetID},#{userID},#{examID},
+			<if test="startTime != null">#{startTime,jdbcType=DATE},</if>
+			<if test="assignmentTime != null">#{assignmentTime,jdbcType=DATE},</if>
+			<if test="addressIP != null">#{addressIP,jdbcType=VARCHAR},</if>
+			<if test="isMarking != null">#{isMarking},</if>
+			<if test="score != null"> #{score,jdbcType=FLOAT},</if>
+			<if test="isPass != null">#{isPass}</if>
+		</trim>
+	</sql>
+	
+	<insert id="add">
+		<selectKey resultType="Long" order="BEFORE" keyProperty="answerSheetID">
+			select ks_answerSheet_SEQ.Nextval as answerSheetID from DUAL
+		</selectKey>
+		insert into
+			ks_answersheet(<include refid="answerSheetColumns"></include>)
+			values(<include refid="answerSheetValues"></include>) 
+	</insert>
+	
+	<update id="update" parameterType="AnswerSheet">
+		update ks_answersheet set
+		<trim suffixOverrides=",">
+			<if test="startTime != null">startTime = #{startTime,jdbcType=DATE},</if>
+			<if test="assignmentTime != null">assignmentTime = #{assignmentTime,jdbcType=DATE},</if>
+			<if test="addressIP != null">addressIP = #{addressIP,jdbcType=VARCHAR},</if>
+			<if test="isMarking != null">isMarking = #{isMarking},</if>
+			<if test="score != null">score = #{score,jdbcType=FLOAT},</if>
+			<if test="isPass != null">isPass = #{isPass},</if>
+		</trim>
+		 where answerSheetID =#{answerSheetID}
+	</update>
+	
+	<delete id="del" >
+		delete ks_answersheet where answerSheetID =#{answerSheetID}
+	</delete>
+	
+	<select id="markSum" resultType="float">
+		select sum(a.score) from ks_answer a where a.isreview=1 and  answerSheetID =#{answerSheetID}
+	</select>
+	
+	<select id="queryAnswerSheet" parameterType="Long" resultType="AnswerSheet">
+		
+	</select>
+	
+	<select id="getAnswerSheet" resultType="AnswerSheet">
+		select a.* from ks_answersheet a where a.userID = #{userID,jdbcType=INTEGER} and a.examID = #{examID,jdbcType=INTEGER}
+	</select>
+	
+	<select id="get" resultType="AnswerSheet">
+		select a.* from ks_answersheet a where a.answerSheetID = #{answerSheetID,jdbcType=INTEGER}
+	</select>
+	
+	<!-- ExamResultDto 查询语句 -->
+	<sql id="selectExamResultDto">
+		select a.answersheetid,a.addressIP,b.jh,b.xm,a.score,a.ispass from ks_answersheet a,lz_policeinfo b
+	</sql>
+	
+	<!-- ExamResultDto 查询条件 -->
+	<sql id="whereExamResultDto">
+		<where>
+			a.userid = b.userid and  a.examid = #{examID,jdbcType=INTEGER}
+			<if test="jh != null and jh != ''">and b.jh = #{jh,jdbcType=INTEGER}</if>
+			<if test="xm != null and xm != ''">and b.xm = #{xm,jdbcType=VARCHAR}</if>
+		</where>
+	</sql>
+	
+	
+	<select id="queryExamResultDtos" resultType="com.ares.exam.dto.ExamResultDto" parameterType="com.ares.exam.dto.QueryAnswerSheetDto">
+		<include refid="selectExamResultDto"></include>
+		<include refid="whereExamResultDto"></include>
+	</select>
+	
+</mapper>

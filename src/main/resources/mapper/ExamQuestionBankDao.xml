@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+    PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ares.exam.dao.ExamQuestionBankDao">
+	<insert id="add" parameterType="ExamQuestionBank">
+		insert into ks_examquestionbank(USEEXAMID,USEQUESTIONBANKID,USEQUESTIONTYPE,QUESTIONCOUNT)
+		values(
+			#{useExamID,jdbcType=INTEGER},
+			#{useQuestionBankID,jdbcType=INTEGER},
+			#{useQuestionType,jdbcType=INTEGER},
+			#{questionCount,jdbcType=INTEGER}
+		)
+	</insert>
+	<delete id="del" parameterType="ExamQuestionBank">
+		delete ks_examquestionbank where examquestionbankid = #{examQuestionBankID,jdbcType=INTEGER}
+	</delete>
+	
+	<delete id="clean">
+		delete ks_examquestionbank where useExamID = #{examID,jdbcType=INTEGER}
+	</delete>
+	
+	<sql id="QuestionBankDto">
+		select a.questionbankid,a.questionbankname,b.questionbanktypename,(case a.ISDISPLAY when 0 then '不显示' else '显示' end) isDisplay,a.creationtime,a.founder,a.updatetime,a.updateman from ks_questionbank a,ks_questionbanktype b,ks_examquestionbank c,ks_exam d
+		
+	</sql>
+	
+	<select id="queryByExamID" resultType="ExamQuestionBank">
+		select a.* from ks_examquestionbank a ,ks_exam b where a.useexamid = b.examid and b.examid = #{examID,jdbcType=INTEGER}
+	</select>
+	
+	<select id="queryQuestionBankDtoByExam" parameterType="Exam" resultType="com.ares.exam.dto.ExamDto">
+		<include refid="QuestionBankDto"></include>
+		<where>
+			a.questionbanktypeid=b.questionbanktypeid and c.useexamid = d.examid and c.usequestionbankid = a.questionbankid  and d.examid = #{examID,jdbcType=INTEGER}
+		</where>
+	</select>
+	
+	<select id="queryQuestionBankDtoByExamID" parameterType="Long" resultType="com.ares.exam.dto.QuestionBankDto">
+		<include refid="QuestionBankDto"></include>
+		<where>
+			a.questionbanktypeid=b.questionbanktypeid and c.useexamid = d.examid and c.usequestionbankid = a.questionbankid  and d.examid = #{examID,jdbcType=INTEGER}
+		</where>
+	</select>
+	
+	<select id="queryExamQuestionBankDtoByExamID" parameterType="Long" resultType="com.ares.exam.dto.ExamQuestionBankDto">
+		SELECT a.examquestionbankid,a.useexamid,a.questioncount,a.usequestiontype,a.usequestionbankid,b.questionbankname,c.questionbanktypename FROM ks_examquestionbank a,ks_questionbank b,ks_questionbanktype c 
+		where a.usequestionbankid = b.questionbankid and b.questionbanktypeid = c.questionbanktypeid and a.useexamid = #{examID,jdbcType=INTEGER}
+	</select>
+	
+	
+	<!-- 批量添加 -->
+	<insert id="addExamQuestionBank"  parameterType="java.util.List" useGeneratedKeys="false">
+			insert into KS_EXAMQUESTIONBANK (EXAMQUESTIONBANKID,USEEXAMID,USEQUESTIONBANKID,USEQUESTIONTYPE,QUESTIONCOUNT)
+			select KS_EXAMQUESTIONBANK_SEQ.nextval as EXAMQUESTIONBANKID,A.* from (
+				<foreach collection="list" item="item" index="index"  separator="union all"> 
+					select 
+					#{item.useExamID,jdbcType=INTEGER} useExamID, 
+					#{item.useQuestionBankID,jdbcType=INTEGER} useQuestionBankID,
+					#{item.useQuestionType,jdbcType=INTEGER} useQuestionType,
+					#{item.questionCount,jdbcType=INTEGER} questionCount
+					from dual
+				</foreach>
+			) A
+	</insert>
+	
+	
+	
+</mapper>

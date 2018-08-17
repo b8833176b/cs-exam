@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+    PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ares.exam.dao.ExamTypeDao">
+	<select id="queryExamType" resultType="ExamType">
+		select * from ks_examType
+	</select>
+	
+	<select id="getConutByName" resultType="int">
+		select count(*) from ks_examtype a where a.examtypename = #{examTypeName}
+	</select>
+	
+	<select id="getExamTypeByName" resultType="ExamType">
+		select * from ks_examType where examTypeName = # {examTypeName}
+	</select>
+	
+	<insert id="addExamType">
+		insert into ks_examType(EXAMTYPENAME)
+		values(#{examTypeName})
+	</insert>
+	
+	<delete id="delExamType" parameterType="ExamType">
+		<if test="examTypeID != null">
+			delete ks_examType where examTypeID = #{examTypeID}
+		</if>
+	</delete>
+	
+	<update id="updateExamType" parameterType="ExamType">
+		update ks_examType set examTypeName = #{examTypeName} where examTypeID = #{examTypeID}
+	</update>
+	
+	
+</mapper>

@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<meta http-equiv="X-UA-Compatible" content="IE=edge,Chrome=1" />
+	<META HTTP-EQUIV="Pragma" CONTENT="no-cache"> 
+	<META HTTP-EQUIV="Cache-Control" CONTENT="no-cache"> 
+	<META HTTP-EQUIV="Expires" CONTENT="0"> 
+	<title>考生登陆</title>
+	<link rel="stylesheet" type="text/css" href="assets/bootstrap/css/bootstrap.css">
+	<script src="assets/jquery/js/jquery-1.12.4.min.js"></script>
+	<script src="assets/bootstrap/js/bootstrap.js"></script>
+	<script src="assets/layer/layer.js"></script>
+</head>
+<style type="text/css">
+	.head{
+		    padding-top: 90px;
+		    padding-left: 20%;
+		    padding-bottom: 3px;
+	}
+	.bj{
+		background-image: url(img/bj.jpg);
+		width: auto;
+		height: 636px;
+	}
+	.lb{
+
+		 font-size: 25px;
+		 
+		 font-family:Georgia, serif;
+	}
+	.dl{
+		border-radius:3px 3px 3px 3px;
+		position: fixed;
+	    width: 330px;
+	    height: 400px;
+	    
+	    top: 25%;
+	    right: 20%;
+	}
+	.dl > .dl_head{
+		border-radius:3px 3px 0px 0px;
+		width: 100%;
+		height: 55px;
+		background-color: #e3e4e6;
+	}
+	.dl > .dl_body{
+		width: 100%;
+		border-radius: 0px 0px 3px 3px;
+		height: 345px;
+		background-color: #fdf9f9;
+	}
+	.dl_head > .xz{
+
+		color: #333;
+	}
+	.dl_head > div {
+        display: inline-block;
+	    width: 143px;
+	    height: 40px;
+	    padding: 15px 0px 20px 40px;
+	    font-family: cursive;
+	    font-size: 18px;
+	    color: #AAA;
+	}
+	
+	.my_input{
+		 width: 283px;
+		height: 43px;
+		
+		/* padding: 5px 0px 5px 20px;  */
+	}
+	.my_btn{
+		width: 283px;
+		height: 43px;
+		margin-top: 20px;
+	}
+	.form-group{
+		padding: 5px 0px 5px 20px;
+	}
+	.yc{
+			display: none;
+	}
+	footer {
+	    font-size: 20px;
+		margin-top: 20px;
+	    text-align: center;
+	    height: 20px;
+	    line-height: 20px;
+	    color: hsla(0, 3%, 47%, 0.8);
+	}
+</style>
+<body>
+	<div class="head">  
+		<div class="lb">柳州市公安局考试系统</div>
+	</div>
+	<div class="bj" >
+		<div class="dl">
+			<div class="dl_head">
+				<div class="left xz" id="ksdl">
+					考生登录
+				</div>
+				<div class="right">
+					管理登录
+				</div>
+			</div>
+			<div class="dl_body">
+				 <div class="form-group">
+				   		<input type="email" class="form-control my_input" id="username" placeholder="用户名"  style="margin-top: 40px;">
+				  </div>
+				  <div class="form-group">
+				    	<input type="password" class="form-control my_input" id="userpwd" placeholder="密码">
+				  </div>
+				  <div class="form-group">
+				    	<button class="btn btn-primary my_btn" onclick="login()">登录</button>
+				  </div>
+				  <div id="btn-xz" class="btn-group"  data-toggle="buttons" style="margin-left: 165px;
+    margin-top: 11px;">
+						  <label class="btn btn-primary active" style="height: 25px;
+	    padding: 2px 5px 2px 5px;">
+						    <input type="radio" name="options" autocomplete="off" value="A" checked>考试系统
+						  </label>
+						  <label class="btn btn-primary" style="height: 25px;
+	    padding: 2px 5px 2px 5px;">
+						    <input type="radio" name="options" autocomplete="off" value="B" > 练习系统
+						  </label>
+					  
+				   </div>
+			</div>
+		</div>
+	</div>
+	<footer>柳州市公安局考试系统 版权所有@柳州市公安局</footer>
+
+</body>
+<script type="text/javascript">
+
+    //回车登陆
+    document.onkeydown = function(e){
+        var ev = document.all ? window.event : e;
+        if(ev.keyCode==13) {
+            $(".my_btn").click();
+        }
+    }
+
+	$('.dl_head  div').click(function (){
+		$('.dl_head  div').removeClass('xz');
+		$(this).addClass('xz');
+		if($(this).index()==0){
+			$('#btn-xz').removeClass('yc');
+		}else{
+			$('#btn-xz').addClass('yc');
+		}
+	});
+	function login(){
+		var user=$('#username').val();
+		var pwd=$('#userpwd').val();
+		if(user==''||user=='用户名'){
+			layer.msg('请输入用户名！');
+			$('#username').focus();
+		}else if(pwd==''||pwd=='******'){
+            layer.msg('请输入密码！');
+			$('#userpwd').focus();
+		}else{
+				if($('#ksdl').hasClass('xz')){
+					ksLogin(user,pwd);
+				}else{
+					adminLogin(user,pwd);
+				}
+		}
+	}
+	function ksLogin(user,pwd){
+		$.ajax({
+				type:"POST",
+				url: "home/login",
+				dataType:"json",
+				data:{ 
+						user:user, 
+						pwd:pwd,
+						loginType:'user'
+				},
+				beforeSend :function(xmlHttp){
+			        xmlHttp.setRequestHeader("If-Modified-Since","0");
+			        xmlHttp.setRequestHeader("Cache-Control","no-cache");
+			    },
+				success:function(data){
+					if(data.success){//成功
+						// 跳转页面
+						var x=$('#btn-xz').find("input[type='radio']:checked").val();
+						
+						if(x=='A'){
+							window.location.href="home/toHome"+"?timestamp="+new Date().getTime();
+						}else{
+							window.location.href="home/toTrain"+"?timestamp="+new Date().getTime();
+						}
+						//$.get("home/toAdmin");
+					}else{          //失败
+                        layer.msg(data.msg);
+					}
+				}
+			});
+	}
+	function adminLogin(user,pwd){
+		$.ajax({
+				type:"POST",
+				url: "home/login",
+				dataType:"json",
+				data:{ 
+						user:user, 
+						pwd:pwd,
+						loginType:'admin'
+				},
+				beforeSend :function(xmlHttp){
+			        xmlHttp.setRequestHeader("If-Modified-Since","0");
+			        xmlHttp.setRequestHeader("Cache-Control","no-cache");
+			    },
+				success:function(data){
+					if(data.success){//成功
+						// 跳转页面
+						window.location.href="home/toAdmin"+"?timestamp="+new Date().getTime();
+						//$.get("home/toAdmin");
+						
+					}else{          //失败
+                        layer.msg(data.msg);
+					}
+				}
+	
+			});
+	}
+</script>
+</html>

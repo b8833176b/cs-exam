@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<link rel="stylesheet" type="text/css" href="../assets/bootstrap/css/bootstrap.css">
+	<script src="../assets/jquery/js/jquery-1.12.4.min.js"></script>
+	<script src="../assets/bootstrap/js/bootstrap.js"></script> 
+	<title>人工阅卷</title>
+	
+</head>
+<style type="text/css">
+		/* 面板样式*/
+		.panel-default > .panel-heading{
+			background-color: #51585e;
+		    color: #eee;
+		}
+		.pull-right > a{
+			color: white;
+		}
+		.form-group {
+  			 padding: 10px;
+		}
+		.content-body{
+			overflow-y: auto;
+			/* height: 500px; */
+		}
+		.content-body > .item{
+			width:100%;
+			height:auto;
+			border-bottom:1px solid #000;
+			overflow:hidden;
+		}
+		.content-body > .item > .line{
+			padding: 10px 0px 15px 20px;
+		}
+		.red{
+			color: red;
+		}
+		.yc{
+			display: none;
+		}
+</style>
+<script type="text/javascript">
+	function getExamUser(){
+		var examID=$('#examID').val();
+		var examName=$('#examName').val();
+		$.ajax({
+			type:"POST",
+			url: "../AnswerSheet/getAnswerSheetDtosByExam",
+			dataType:"json",
+			data:{ examID:examID,examName:examName},
+			success:function(data){
+				if(data.success){//成功
+					setUsers(data.data);
+				}else{          //失败
+					alert(data.msg);
+				}
+			}
+		});
+	}
+	function setUsers(data){
+		var tb=$('#tb');
+		var ls=data;
+		tb.empty();
+		for(var i=0;i<ls.length;i++){
+			var tr=$('<tr></tr>');
+			var td1=$('<td></td>').text(ls[i].userID);
+			var td2=$('<td></td>').text(ls[i].xm);
+			var td3=$('<td></td>').text(ls[i].bmbh);
+			
+			
+			var btn_=$('<button class="btn btn-primary btn-xs" onclick="revokeAnswers(this)">重置</button>').attr('data-id',ls[i].answerSheetID);
+			var td_=$('<td></td>').append(btn_);
+			
+			var td4=$('<td></td>').text(ls[i].isMarking==0?'未阅':'已阅');
+			var btn=$('<button class="btn btn-primary btn-xs" onclick="getAnswers(this)">阅卷</button>').attr('data-id',ls[i].answerSheetID);
+			var td5=$('<td></td>').append(btn);
+			
+			tr.append(td1).append(td2).append(td3).append(td_).append(td4).append(td5);
+			tb.append(tr);
+		}
+	}
+
+	function revokeAnswers(obj){
+		var id=$(obj).attr('data-id');
+		$.ajax({
+			type:"POST",
+			url: "../Exam/revoke",
+			dataType:"json",
+			data:{ answerSheetID:id},
+			success:function(data){
+				if(data.success){//成功
+					alert(data.msg);
+					getExamUser();
+				}else{          //失败
+					alert(data.msg);
+				}
+			}
+		});
+	}
+
+	function getAnswers(obj){
+		var id=$(obj).attr('data-id');
+		$.ajax({
+			type:"POST",
+			url: "../AnswerSheet/getAnswerDtoList",
+			dataType:"json",
+			data:{ answerSheetID:id},
+			success:function(data){
+				if(data.success){//成功
+				//	alert(data.msg);
+					setAnswersInfo(data.data);
+				}else{          //失败
+					alert(data.msg);
+				}
+			}
+		});
+	}
+	function setAnswersInfo(data){
+		var ls=data;
+		var tb=$('#my-content');
+		tb.find('.it').remove()
+		for(var i=0;i<ls.length;i++){
+			if(ls[i].questionType == 4 || ls[i].questionType == 5){ 
+				var item=$('.my-yl').clone();
+				item.find('.qc').text(ls[i].questionContent);
+				item.find('.ck').text(ls[i].rightAnswer);
+				item.find('.ksda').text(ls[i].respondence);
+				item.find('.my-da').attr('name',ls[i].answerID);
+				if(ls[i].score!=null){
+					item.find('.my-da').val(ls[i].score);
+				}
+				item.removeClass('my-yl');
+				item.removeClass('yc');
+				item.addClass('it');
+				tb.append(item);
+			}
+		}
+	}
+	function submit(){
+		var ar = new Array(); 
+		$('.it').each(function(index,e){
+			var id=$(e).find("input[type='text']").attr('name');
+			var da=$(e).find("input[type='text']").val();
+			ar.push({answerID:id,score:da});
+		});
+		$.ajax({
+		    type: "POST",
+		    url: "../AnswerSheet/submit",  
+		    data: JSON.stringify(ar),                       
+		    dataType:"json",  
+		    contentType : 'application/json;charset=utf-8', 
+		    success: function(data){  
+		       alert(data.msg);
+		    },  
+		    error: function(data){  
+		       alert(data.msg); 
+		    }  
+		}); 	
+	}
+</script>
+<body>
+	<div class="container-fluid">
+		<div class="row">
+			<div class="col-md-12">
+				<div class="panel panel-default">
+					<div class="panel-heading">选择考生</div>
+					<div class="panel-boy">
+						<div class="form-inline">
+							<div class="form-group">
+								<label for="examID">考试ID</label>
+								<input type="text" class="form-control" id="examID">
+							</div>
+							<div class="form-group">
+								<label for="examName">考试名称</label>
+								<input type="text" class="form-control" id="examName">
+							</div>
+							<button class="btn btn-default" onclick="getExamUser()">查询</button>
+						</div>
+					</div>
+					<table class="table">
+						<thead>
+							<tr>
+								<th>用户ID</th>
+								<th>用户名称</th>
+								<th>所示区域</th>
+								<th>操作</th>
+								<th>阅卷状态</th>
+								<th>阅卷</th>
+							</tr>
+						</thead>
+						<tbody id="tb">
+							<!-- <tr>
+								<td>1232</td>
+								<td>新警23</td>
+								<td>公安厅</td>
+								<td>未阅</td>
+								<td><button class="btn btn-primary btn-xs">阅卷</button></td>
+							</tr> -->
+						</tbody>
+					</table>
+				</div>
+			</div>
+		</div>
+		<div class="row">
+			<div class="col-md-12">
+				<div class="panel panel-default">
+					<div class="panel-heading">考生答卷
+						<span class="pull-right">
+							<a  href="#"  rel="tooltip" title="提交"><i  class="glyphicon glyphicon-ok" data-toggle="modal" data-target="#myModal" onclick="submit()"></i></a>
+							&nbsp;
+						</span>
+					</div>
+					<div class="panel-boy content-body" id="my-content">
+						<div class="item yc my-yl">
+							<div class="line">
+								<strong>题目内容：</strong><span class="qc">强制隔离戒毒类法律文书有哪记录？</span>
+							</div>
+							<div class="line">
+								<strong>参考答案：</strong><span class="ck">1.这里是参考答案</span>
+							</div>
+							<div class="line">
+								<strong>考生答案：</strong><span class="ksda red">1.这里是考生答案</span>
+							</div>
+							<div class="pull-right">
+								<form class="form-inline">
+								  <div class="form-group">
+								    <label for="exampleInputName2">得分：</label>
+								    <input type="text" class="form-control my-da" placeholder="Jane Doe">
+								  </div>
+								</form>
+							</div>
+						</div>
+						
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+
+</body>
+
+</html>

@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:context="http://www.springframework.org/schema/context"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans
+    http://www.springframework.org/schema/beans/spring-beans.xsd
+    http://www.springframework.org/schema/context
+    http://www.springframework.org/schema/context/spring-context.xsd">
+    <!-- 1.配置数据库相关参数properties的属性：${url} -->
+    <context:property-placeholder location="classpath:jdbc.properties" />
+	<bean id="dataSource" class="com.alibaba.druid.pool.DruidDataSource">
+		<property name="driverClassName" value="${driverClassName}" /> 
+		<property name="url" value="${jdbc_url}" />
+		<property name="username" value="${jdbc_username}" />
+		<property name="password" value="${jdbc_password}" />
+		
+		<!-- druid 连接池的 -->
+		<property name="filters" value="stat" />
+		
+		<!-- 下面druid 和 dbcp 连接池通用的 ↓↓↓↓↓↓↓↓↓↓↓↓ -->
+		<!--maxActive: 最大连接数量 -->
+		<property name="maxActive" value="20" />
+		<!--initialSize: 初始化连接 -->
+		<property name="initialSize" value="5" />
+
+	</bean> 
+			
+	<!--  <bean id="dataSource" class="com.mchange.v2.c3p0.ComboPooledDataSource">
+        配置连接池属性
+        <property name="driverClass" value="${driverClassName}" />
+        <property name="jdbcUrl" value="${jdbc_url}" />
+        <property name="user" value="${jdbc_username}" />
+        <property name="password" value="${jdbc_password}" />
+
+        c3p0连接池的私有属性
+        <property name="maxPoolSize" value="20" />
+        <property name="minPoolSize" value="3" />
+        关闭连接后不自动commit
+        <property name="autoCommitOnClose" value="false" />
+        获取连接超时时间
+        <property name="checkoutTimeout" value="10000" />
+        当获取连接失败重试次数
+        <property name="acquireRetryAttempts" value="2" />
+    </bean> -->
+	<bean id="sqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
+		<property name="dataSource" ref="dataSource" />
+		<property name="configLocation" value="classpath:mybatis-config.xml" />
+		<property name="typeAliasesPackage" value="com.ares.exam.entity"/>
+		<property name="mapperLocations" value="classpath:mapper/*.xml"/>
+	</bean>
+	<bean class="org.mybatis.spring.mapper.MapperScannerConfigurer">
+		<property name="basePackage" value="com.ares.exam.dao" />
+		<property name="sqlSessionFactoryBeanName" value="sqlSessionFactory" />
+		               
+	</bean>
+</beans>
+    

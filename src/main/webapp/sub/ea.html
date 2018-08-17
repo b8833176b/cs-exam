@@ -1,0 +1,1688 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<meta http-equiv="X-UA-Compatible" content="IE=edge">
+    	<meta name="viewport" content="width=device-width, initial-scale=1">
+    	<link rel="stylesheet" type="text/css" href="../assets/bootstrap/css/bootstrap.min.css">
+    	<script src="../assets/jquery/js/jquery-1.12.4.min.js"></script>
+    	<script src="../assets/jquery/js/jquery-ui.min.js"></script> 
+    	<script src="../assets/jquery/js/jquery.form.js"></script>
+    	<script src="../assets/bootstrap/js/bootstrap.min.js"></script> 
+    	<script src="../assets/my97data/WdatePicker.js"></script>
+		<script src="../assets/layer/layer.js"></script>
+		<link href="../assets/bootstrap-table/bootstrap-table.min.css" rel="stylesheet">
+		<script src="../assets/bootstrap-table/bootstrap-table.min.js"></script>
+		<script src="../assets/bootstrap-table/bootstrap-table-mobile.min.js"></script>
+		<script src="../assets/bootstrap-table/locale/bootstrap-table-zh-CN.min.js"></script>
+		<link rel="stylesheet" href="../assets/bootstrap/css/selectedItem.css">
+    	<title>题库管理</title>
+    </head>
+    <style type="text/css">
+		/* 面板样式*/
+		.panel-default > .panel-heading{
+			background-color: #51585e;
+		    color: #eee;
+		}
+		.pull-right > a{
+			color: white;
+		}
+		.form-group {
+  			 padding: 10px;
+		}
+		.m-label{
+			padding-left: 5px;
+    		padding-right: 5px;
+		}
+		.yc{
+			display: none;
+		}
+		.errorMsg{
+			color: red;
+			font-size: 20px;
+			margin:10px; 
+		}
+		/** 考试信息预览页面表格样式        */
+		.my_table > thead > tr > td{
+			padding: 5px;
+		}
+
+	</style>
+
+	<script type="text/javascript">
+		 
+		$(document).on('show.bs.modal', '.modal', function(event) {
+	        $(this).appendTo($('body'));
+	    }).on('shown.bs.modal', '.modal.in', function(event) {
+	        setModalsAndBackdropsOrder();
+	    }).on('hidden.bs.modal', '.modal', function(event) {
+	        setModalsAndBackdropsOrder();
+	    });
+	    function setModalsAndBackdropsOrder() {  
+	        var modalZIndex = 1040;
+	        $('.modal.in').each(function(index) {
+	            var $modal = $(this);
+	            modalZIndex++;
+	            $modal.css('zIndex', modalZIndex);
+	            $modal.next('.modal-backdrop.in').addClass('hidden').css('zIndex', modalZIndex - 1);
+	        });
+	        $('.modal.in:visible:last').focus().next('.modal-backdrop.in').removeClass('hidden');
+	    }
+
+        //清空考试模态框的表单信息
+	    function cleanMyModal(){
+            //基础信息
+                $('#examID').val("");
+                $('#examName').val("");
+                $('#examType').val("");
+                $('#startTime').val("");
+                $('#endTime').val("");
+                $('#whenLong').val("");
+                $('#description').val("");
+                $('#display').val("");
+                $('#radioScore').val("");
+                $('#multipleScore').val("");
+                $('#judgmentScore').val("");
+                $('#clozeScore').val("");
+                $('#answerScore').val("");
+                $('#typingScore').val("");
+                $('#canBlur').val("");
+            //题库信息
+                $(".selecteRight").remove();
+            //考生信息 填入数据
+                $("#userSelectTable").bootstrapTable('removeAll');
+		}
+
+	    //打开修改
+	    function open_update(){
+	    	$('#myModalLabel').text('修改考试');
+	    	$('#btn_add').addClass('yc');
+			$('#btn_update').removeClass('yc');
+	    	$('#myModal').modal('show');
+            $('#errorInfo2').empty();
+	    }
+
+		//打开添加框
+		function open_add(){
+            cleanMyModal();//清空弹出框内容
+			$('#myModalLabel').text('添加考试');
+			$('#btn_update').addClass('yc');
+			$('#btn_add').removeClass('yc');
+			$('#myModal').modal('show');
+            $('#errorInfo2').empty();
+		}
+		//打开题库添加框
+		function open_qbAdd(){
+			$('#myModal2').modal('show');
+		}
+
+		//打开考生添加框
+		function open_UserAdd(){
+			$('#addUserModal').modal('show');
+		}
+
+		$(document).ready(function(){ 
+			$("#modalDialog").draggable({ handle: ".modal-header"   });//为模态对话框添加拖拽
+	        $("#myModal").css("overflow", "hidden");//禁止模态对话框的半透明背景滚动
+
+	        $("#modalDialog2").draggable({ handle: ".modal-header"   });//为模态对话框添加拖拽
+	        $("#myModal2").css("overflow", "hidden");//禁止模态对话框的半透明背景滚动
+
+	        $("#addUserModalDialog").draggable({ handle: ".modal-header"   });//为模态对话框添加拖拽
+	        $("#addUserModal").css("overflow", "hidden");//禁止模态对话框的半透明背景滚动
+	  	});
+
+	  	function toArray(params){
+			var formObject = {};
+			for (var item in params) {
+		    	formObject[params[item].name] = params[item].value;
+		   	}
+			return formObject;
+		}
+		function QueryData(){
+			var params = $('#formDate').serializeArray();
+			var obj=toArray(params);
+			var json=JSON.stringify(obj);
+			QueryExam(json);
+		}
+		function QueryExam(json){
+			$.ajax({
+				type:"POST",
+				url: "../Exam/getList",
+				dataType:"json",
+				contentType: "application/json;charset=UTF-8",
+				data:json,
+				success:function(data){
+					if(data.success){//成功
+						var ls=data.data;
+						var tbody=$('#tbody');
+						//排序
+						ls.sort(function(a,b){return a.examID-b.examID});
+						//先清空表格
+						tbody.empty();
+						for(var i=0;i<ls.length;i++){
+							var tr=$('<tr></tr>');
+							tr.append($('<th scope="row"></th>').text(ls[i].examID));
+							tr.append($('<td></td>').text(ls[i].examName));
+							tr.append($('<td></td>').text(ls[i].examTypeName));
+							tr.append($('<td></td>').text(ls[i].startTime));
+							tr.append($('<td></td>').text(ls[i].endTime));
+							tr.append($('<td></td>').text(ls[i].whenLong));
+							tr.append($('<td></td>').text(ls[i].founder));
+							tr.append($('<td></td>').text(ls[i].radioScore));
+							tr.append($('<td></td>').text(ls[i].multipleScore));
+							tr.append($('<td></td>').text(ls[i].judgmentScore));
+							tr.append($('<td></td>').text(ls[i].clozeScore));
+							tr.append($('<td></td>').text(ls[i].answerScore));
+							tr.append($('<td></td>').text(ls[i].typingScore));
+							tr.append($('<td></td>').text(ls[i].description));
+							tr.click(function(obj){
+								$(this).siblings().removeClass('info');
+								$(this).addClass('info');
+								/*if($(this).hasClass('info')){
+									$(this).removeClass('info');
+								}else{
+									$(this).addClass('info');
+								}*/
+							});
+							tbody.append(tr);
+						}
+					}else{
+						alert('no');
+					}	
+				}
+			});
+		}
+	</script>
+    <body>
+    	<div class="container-fluid">
+			<div class="row">
+				<div class="col-md-12">
+				<div class="panel panel-default">
+						<div class="panel-heading">考试查询
+							<span class="pull-right">
+								<a  href="#"  rel="tooltip" title="查询" onclick="QueryData()"><i class="glyphicon glyphicon-search" ></i></a>
+							</span>
+						</div>
+						<div class="panel-boy">
+							<form class="form-inline" id="formDate">
+								<div class="form-group">
+									<label for="qbn">考试名称</label>
+									<input type="text" class="form-control" name="examName" id="qbn">
+								</div>
+								<div class="form-group">
+									<label for="qbn">考试ID</label>
+									<input type="text" class="form-control" name="examID" >
+								</div>
+								<div class="form-group">
+									<label for="qbt">考试类型</label>
+									<select  class="form-control examType" name="examTypeID" id="qbt">
+										 <option></option>
+									</select>
+								</div>
+								<div class="form-group">
+									<label for="st">开始时间</label>
+									<input type="text" onFocus="WdatePicker({lang:'zh-cn'})" class="form-control" name="startTime" id="st" />
+									<label for="et">至</label>
+									<input type="text" onFocus="WdatePicker({lang:'zh-cn'})" class="form-control" name="endTime" id="et" />
+								</div>
+								<div class="form-group">
+									<label for="cid">创建人ID</label>
+									<input type="text" class="form-control" name="founderID" id="cid" />
+								</div>
+							</form>
+						</div>
+				</div>
+				</div>
+			</div>
+			<div class="row">
+				<div class="col-md-12">
+					<div class="panel panel-default" >
+						<div class="panel-heading">查询结果
+							<span class="pull-right">
+								<a  href="#"  rel="tooltip" title="添加" onclick="open_add()"><i class="glyphicon glyphicon-plus"></i></a>
+								<a  href="#"  rel="tooltip" title="删除" onclick="del()"><i class="glyphicon glyphicon-trash"></i></a>
+								<a  href="#"  rel="tooltip" title="修改" onclick="update()"><i class="glyphicon glyphicon-pencil"></i></a>
+							</span>
+						</div>
+						<div class="panel-body" style="overflow-x: auto;height: 500px;">
+							<table style="width: 2000px;" class="table table-hover">
+								<thead>
+									<tr>
+										<!-- <th>#</th> -->
+										<th>考试ID</th>
+										<th>考试名称</th>
+										<th>考试类型</th>
+										<th>开始时间</th>
+										<th>结束时间</th>
+										<th>考试时间</th>
+										<th>考试建立人</th>
+										<!-- <th>单选题数量</th> -->
+										<th>单选题分数</th>
+										<!-- <th>多选题数量</th> -->
+										<th>多选题分数</th>
+										<!-- <th>判断题数量</th> -->
+										<th>判断题分数</th>
+										<!-- <th>填空题数量</th> -->
+										<th>填空题分数</th>
+										<!-- <th>简答题数量</th> -->
+										<th>简单题分数</th>
+										<!-- <th>打字题数量</th> -->
+										<th>打字题分数</th>
+					                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    
+										<th>考试描述</th>
+									</tr>
+								</thead>
+								<tbody id="tbody">
+								</tbody>
+							</table>
+						 </div>
+					</div>
+				</div>
+			</div>
+		</div>
+		<!-- 模态框，添加,修改考试   -->
+		<div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+		  <div class="modal-dialog" id="modalDialog" role="document" style="width:1100px">
+		    <div class="modal-content">
+		      <div class="modal-header">
+		        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+		        <h4 class="modal-title" id="myModalLabel">添加考试</h4>
+		      </div>
+		      <div class="modal-body" style="height:500px;overflow:auto;">
+		       		<ul id="myTab" class="nav nav-tabs">
+						<li class="active">
+							<a href="#baseInfo" data-toggle="tab">
+								 基本信息
+							</a>
+						</li>
+						<li>
+							<a href="#databaseInfo" data-toggle="tab">
+								题库信息
+							</a>
+						</li>
+						<li>
+							<a href="#examInfo" data-toggle="tab">
+								考生信息
+							</a>
+						</li>
+						<li>
+							<a href="#errorInfo" data-toggle="tab" id="yl_tab">
+								预览
+							</a>
+						</li>
+						<li>
+							<a href="#errorInfo2" data-toggle="tab" id="yl_tab2">
+								错误信息
+							</a>
+						</li>
+					</ul>
+					<div id="myTabContent" class="tab-content">
+						<div class="tab-pane  active" id="baseInfo">
+							<form class="form-horizontal">
+
+							  <div class="form-group">
+							    <label for="examName"  class="col-sm-2 control-label">考试名称</label>
+							     <div class="col-sm-10">
+							    	<input type="text" class="form-control" id="examName" />
+							    	<input type="hidden" name="examID" id="examID"> 
+							     </div>
+							  </div>
+
+							  <div class="form-group">
+							    <label for="description"  class="col-sm-2 control-label">考试描述</label>
+							     <div class="col-sm-10">
+							    	<textarea class="form-control" rows="3" id="description"></textarea>
+							    </div>
+							  </div>
+
+							 <div class="form-group">
+							    <label for="examType"  class="col-sm-2 control-label">考试类型</label>
+							     <div class="col-sm-10">
+							    	<select  class="form-control examType" id="examType">
+										
+									</select>
+							    </div>
+							 </div>
+
+							 <div class="form-group">
+							     <label  class="col-sm-2 control-label">考试期间</label>
+						 		<div class="col-sm-10 form-inline" >
+							    	<input type="text" class="form-control" id="startTime" onFocus="WdatePicker({lang:'zh-cn'})"/>
+									<label for="et">至</label>
+									<input type="text" class="form-control" id="endTime" onFocus="WdatePicker({lang:'zh-cn'})"/>
+								</div>
+							</div>
+
+							  <div class="form-group">
+							    <label for="whenLong"  class="col-sm-2 control-label">考试时间</label>
+							     <div class="col-sm-10">
+							    	<!--<input type="text" class="form-control" id="whenLong" />-->
+									 <div class="input-group">
+									 <input type="text" class="form-control" id="whenLong">
+									 <span class="input-group-addon minute">分钟</span>
+								 </div>
+							   	</div>
+							  </div>
+
+							<div class="form-group">
+							    <label for="canBlur"  class="col-sm-2 control-label">可否切换</label>
+							    <div class="col-sm-10">
+							    	<select  class="form-control" id="canBlur" name="canBlur">
+							    		<option value="0">禁止切换</option>
+										<option value="1">可切换</option>
+									</select>
+							    </div>
+							</div>
+							  
+							  <div class="form-group">
+							    <label for="display"  class="col-sm-2 control-label">是否显示</label>
+							     <div class="col-sm-10">
+							    	<select  class="form-control" id="display" name="display">
+										<option value="1">显示</option>
+										<option value="0">不显示</option>
+									</select>
+							    </div>
+							  </div>
+
+							</form>
+						</div>
+						<div class="tab-pane " id="databaseInfo">
+						<div class="row">
+							<div class="col-md-9" style="height: 400px;border:1px solid;overflow-y: scroll;">
+								<!--<table class="table table-striped">
+  									<thead>
+										<tr>
+											<th>题目类型</th>
+											<th>题库ID</th>
+											<th>题库名称</th>
+											<th>题库类型</th>
+											<th>题目数量</th>
+										</tr>
+  									</thead>
+  									<tbody id="qb_table" class="xz">
+										<tr class="yc my-mb">
+											<td>单选题</td>
+										</tr>
+										<tr class="yc my-mb">
+											<td>多选题</td>
+										</tr>
+										<tr class="yc my-mb">
+											<td>判断题</td>
+										</tr>
+										<tr class="yc my-mb">
+											<td>填空题</td>
+										</tr>
+										<tr class="yc my-mb">
+											<td>问答题</td>
+										</tr>
+										<tr class="yc my-mb">
+											<td>打字题</td>
+										</tr>
+  									</tbody>
+								</table>-->
+								<div class="selectItem">
+									<div class="selecteHead">
+										<span>题目类型</span>
+										<span>题库ID</span>
+										<span>题库名称</span>
+										<span>题库类型</span>
+										<span>题目数量</span>
+									</div>
+									<div class="selecteBody">
+										<span class="selecteLfte" getSelecte="1" style="display: block;">单选题</span>
+									</div>
+									<div class="selecteBody">
+										<span class="selecteLfte" getSelecte="2" style="display: block;">多选题</span>
+									</div>
+									<div class="selecteBody">
+										<span class="selecteLfte" getSelecte="3" style="display: block;">判断题</span>
+									</div>
+									<div class="selecteBody">
+										<span class="selecteLfte" getSelecte="4" style="display: block;">填空题</span>
+									</div>
+									<div class="selecteBody">
+										<span class="selecteLfte" getSelecte="5" style="display: block;">问答题</span>
+									</div>
+									<div class="selecteBody">
+										<span class="selecteLfte" getSelecte="6" style="display: block;">打字题</span>
+									</div>
+								</div>
+								<div class="pull-right">
+									<button type="button" class="btn btn-default btn-xs" onclick="open_qbAdd()">添加</button>
+									&nbsp;
+									<button type="button" class="btn btn-default btn-xs" onclick="del_xx()">删除</button>
+								</div>
+							</div>
+							<div class="col-md-3" style="height: 400px;">
+								<form class="form-horizontal">
+									<div class="form-group">
+									    <label for="radioScore" class="col-sm-7 control-label m-label">单选题分数：</label>
+									    <div class="col-sm-5">
+									      <input type="text" class="form-control eachScore" id="radioScore">
+									    </div>
+									 </div>
+									 <div class="form-group">
+									    <label for="multipleScore" class="col-sm-7 control-label m-label">多选题分数：</label>
+									    <div class="col-sm-5">
+									      <input type="text" class="form-control eachScore" id="multipleScore">
+									    </div>
+									 </div>
+									 <div class="form-group">
+									    <label for="judgmentScore" class="col-sm-7 control-label m-label">判断题分数：</label>
+									    <div class="col-sm-5">
+									      <input type="text" class="form-control eachScore" id="judgmentScore">
+									    </div>
+									 </div>
+									 <div class="form-group">
+									    <label for="clozeScore" class="col-sm-7 control-label m-label">填空题分数：</label>
+									    <div class="col-sm-5">
+									      <input type="text" class="form-control eachScore" id="clozeScore">
+									    </div>
+									 </div>
+									 <div class="form-group">
+									    <label for="answerScore" class="col-sm-7 control-label m-label">简答题分数：</label>
+									    <div class="col-sm-5">
+									      <input type="text" class="form-control eachScore" id="answerScore">
+									    </div>
+									 </div>
+									 <div class="form-group">
+ 									    <label for="typingScore" class="col-sm-7 control-label m-label">打字题分数：</label>
+									    <div class="col-sm-5">
+									      <input type="text" class="form-control eachScore" id="typingScore">
+									    </div>
+									 </div>
+
+								</form>
+							</div>
+						</div>
+							
+						</div>
+						<div class="tab-pane" id="examInfo">
+							<div style="overflow-y:auto; width:100%;max-height:350px;">
+								<!--data-toolbar="#exampleToolbar" ToSelect data-show-columns="true" -->
+								<table id="userSelectTable" data-unique-id="userid"  data-toggle="table" data-height="" data-mobile-responsive="true"
+								data-click-to-select="true"  data-show-toggle="true" data-search="true" data-pagination="true" data-page-size="5" >
+								<thead>
+								<tr>
+									<!--<th data-formatter="indexFormatter">序号</th>-->
+									<th data-field="userid" data-visible="false">考生ID</th>
+									<th data-field="jh">考生警号</th>
+									<th data-field="xm">考生姓名</th>
+									<th data-field="xb">考生性别</th>
+									<th data-field="jxbh" data-visible="false">警衔编号</th>
+									<th data-field="jxmc">考生警衔</th>
+									<th data-field="bmbh" data-visible="false">部门编号</th>
+									<th data-field="bmmc">考生部门</th>
+									<th data-field="zwbh" data-visible="false">职务编号</th>
+									<th data-field="zwmc">考生职务</th>
+									<th data-field="dwbh" data-visible="false">单位编号</th>
+									<th data-field="dwmc">考生单位</th>
+								</tr>
+								</thead>
+								</table>
+							</div>
+							<div class="pull-right"> 
+								<button type="button" class="btn btn-default btn-xs" onclick="open_UserAdd()">添加</button>
+									&nbsp;
+								<button type="button" class="btn btn-default btn-xs" onclick="del_xx2()">全部删除</button>
+							</div>
+						</div>
+						<!-- 预览信息 ,切换到该界面时获取考试信息-->
+						<div class="tab-pane " id="errorInfo" style="height: 400px;">
+							<div  style="width: 100%;height: 100%;overflow-y: auto;margin-top: 5px;">
+								<!-- 基本信息部分 -->
+								<div class="panel panel-default" style="margin-bottom: 7px;margin-top: 5px;">
+								  <div class="panel-heading" style="padding: 3px;font-size: 14px;padding-left: 14px;">基本信息</div>
+								  <div class="panel-body" style="padding-top: 5px;padding-bottom: 5px;">
+								    <div class="" style="margin: 3px;">考试名称： <span class="yl_exam_name">添加测试</span></div>
+								    <div class="" style="margin: 3px;">考试描述： <span class="yl_exam_desc">添加测试</span></div>
+								    <div class="" style="margin: 3px;">考试类型： <span class="yl_exam_type">添加测试</span></div>
+								    <div class="" style="margin: 3px;">考试期间： <span class="yl_exam_time">添加测试</span></div>
+								    <div class="" style="margin: 3px;">考试时间： <span class="yl_exam_long">添加测试</span></div>
+									<div class="" style="margin: 3px;">可否切换： <span class="yl_exam_change">添加测试</span></div>
+									<div class="" style="margin: 3px;">是否显示： <span class="yl_exam_show">添加测试</span></div>
+								  </div>
+								</div>
+								<!-- 题库信息     -->
+								<div class="panel panel-default">
+								  <div class="panel-heading" style="padding: 3px;font-size: 14px;padding-left: 14px;">题库信息</div>
+								  <div class="panel-body" style="padding-top: 5px;padding-bottom: 5px;">
+									  <div class="items">
+										  <div class="items-selecte">
+											  <div class="allSelecte">单选题</div>
+											  <div class="allScore">总分：</div>
+										  </div>
+										  <div class="items-list">
+											  <span>题库ID</span>
+											  <span>题库名称</span>
+											  <span>题库类型</span>
+											  <span>题目数量</span>
+											  <span>每题分数</span>
+										  </div>
+									  </div>
+									  <div class="items">
+										  <div class="items-selecte">
+											  <div class="allSelecte">多选题</div>
+											  <div class="allScore">总分：</div>
+										  </div>
+										  <div class="items-list">
+											  <span>题库ID</span>
+											  <span>题库名称</span>
+											  <span>题库类型</span>
+											  <span>题目数量</span>
+											  <span>每题分数</span>
+										  </div>
+									  </div>
+									  <div class="items">
+										  <div class="items-selecte">
+											  <div class="allSelecte">判断题</div>
+											  <div class="allScore">总分：</div>
+										  </div>
+										  <div class="items-list">
+											  <span>题库ID</span>
+											  <span>题库名称</span>
+											  <span>题库类型</span>
+											  <span>题目数量</span>
+											  <span>每题分数</span>
+										  </div>
+									  </div>
+									  <div class="items">
+										  <div class="items-selecte">
+											  <div class="allSelecte">填空题</div>
+											  <div class="allScore">总分：</div>
+										  </div>
+										  <div class="items-list">
+											  <span>题库ID</span>
+											  <span>题库名称</span>
+											  <span>题库类型</span>
+											  <span>题目数量</span>
+											  <span>每题分数</span>
+										  </div>
+									  </div>
+									  <div class="items">
+										  <div class="items-selecte">
+											  <div class="allSelecte">问答题</div>
+											  <div class="allScore">总分：</div>
+										  </div>
+										  <div class="items-list">
+											  <span>题库ID</span>
+											  <span>题库名称</span>
+											  <span>题库类型</span>
+											  <span>题目数量</span>
+											  <span>每题分数</span>
+										  </div>
+									  </div>
+									  <div class="items">
+										  <div class="items-selecte">
+											  <div class="allSelecte">打字题</div>
+											  <div class="allScore">总分：</div>
+										  </div>
+										  <div class="items-list">
+											  <span>题库ID</span>
+											  <span>题库名称</span>
+											  <span>题库类型</span>
+											  <span>题目数量</span>
+											  <span>每题分数</span>
+										  </div>
+									  </div>
+								  </div>
+								</div>
+								<!-- 考生信息     -->
+								<div class="panel panel-default" style="margin-bottom: 7px;margin-top: 5px;">
+								  <div class="panel-heading" style="padding: 3px;font-size: 14px;padding-left: 14px;">考生信息</div>
+								  <div class="panel-body" style="padding-top: 5px;padding-bottom: 5px;">
+
+									  <table id="userShowTable" data-unique-id="userid"  data-toggle="table" data-height="" data-mobile-responsive="true"
+											 data-click-to-select="true"  data-show-toggle="true" data-search="true" data-pagination="true" data-page-size="10" >
+										  <thead>
+										  <tr>
+											  <!--<th data-formatter="indexFormatter">序号</th>-->
+											  <th data-field="userid" data-visible="false">考生ID</th>
+											  <th data-field="jh">考生警号</th>
+											  <th data-field="xm">考生姓名</th>
+											  <th data-field="xb">考生性别</th>
+											  <th data-field="jxbh" data-visible="false">警衔编号</th>
+											  <th data-field="jxmc">考生警衔</th>
+											  <th data-field="bmbh" data-visible="false">部门编号</th>
+											  <th data-field="bmmc">考生部门</th>
+											  <th data-field="zwbh" data-visible="false">职务编号</th>
+											  <th data-field="zwmc">考生职务</th>
+											  <th data-field="dwbh" data-visible="false">单位编号</th>
+											  <th data-field="dwmc">考生单位</th>
+										  </tr>
+										  </thead>
+									  </table>
+
+								  </div>
+								</div>
+							</div>
+
+						</div>
+						<!-- 错误信息-->
+						<div class="tab-pane " id="errorInfo2" style="height: 400px;">
+
+						</div>
+					</div>
+		      </div>
+		      <div class="modal-footer">
+		        <button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
+		        <button type="button" class="btn btn-primary"  onclick="addExam()" id="btn_add">添加</button>
+		        <button type="button" class="btn btn-primary"  onclick="updateExam()" id="btn_update">修改</button>
+		      </div>
+		    </div>
+		  </div>
+		</div>
+		<!-- 模态框，添加题库   -->
+		<div class="modal fade" id="myModal2" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+			<div class="modal-dialog" id="modalDialog2" role="document">
+				<div class="modal-content">
+					<div class="modal-header">
+						<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+		        		<h4 class="modal-title" id="myModalLabel2">添加题库</h4>
+					</div>
+					<div class="modal-body">
+						<div class="panel panel-default">
+						
+						  <div class="panel-body">
+						     
+						    	<div class="row">
+						    		<div class="col-xs-3">
+										<label for="questionBankID">题库ID</label>
+										<input type="text" class="form-control input-sm" id="questionBankID" />
+									</div>
+									<div class="col-xs-3">
+										<label for="qbn">题库名称</label>
+										<input type="text" class="form-control input-sm" id="questionBankName" />
+									</div>
+									<div class="col-xs-3">
+										<label for="qbt">题库类型</label>
+										<select  class="form-control input-sm questionBankType" id="questionBankTypeID">
+											<option>
+											</option>
+										</select>
+									</div>
+									<div class="col-xs-3">
+										<button class="btn btn-default btn-sm" style="margin-top: 25px;
+" onclick="queryQuestionBank()">查询</button>
+									</div>
+								</div>
+						  
+						  </div>
+						</div>
+						<div class="panel panel-default">
+							<div style="overflow-y:auto; width:100%;height:300px">
+							  <table class="table">
+							  	<thead>
+									<tr>
+										<th>题库ID</th>
+										<th>题库名称</th>
+										<th>题目描述</th>
+										<th>题库类型</th>
+									</tr>
+	  							</thead>
+	  							<tbody id="mtqb_tb" class="xz">
+	  							</tbody>
+	    					  </table>
+	    					 </div>
+						</div>
+					</div>
+					<div class="modal-footer">
+						  <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+						  <button type="button" class="btn btn-primary" onclick="move()">选择</button>
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<!--  模态框，添加考生  -->
+		<div class="modal fade" id="addUserModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+			<div class="modal-dialog" id="addUserModalDialog" role="document" style="width: 900px;">
+				<div class="modal-content" >
+					<div class="modal-header" >
+						<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+		        		<h4 class="modal-title" id="myModalLabel22">添加考生</h4>
+					</div>
+					<div class="modal-body" style="height: 500px;overflow: auto;">
+						<div class="panel panel-default">
+							<div class="panel-body">
+								<form class="form-inline" method="post" action="../PoliceInfo/queryUserSelect"  accept-charset="UTF-8" id="userQuery">
+									<div class="form-group">
+										<label for="jh">警号</label>
+										<input type="text" class="form-control" id="jh" name="jh" style="width: 90px;" />
+									</div>
+									<div class="form-group">
+										<label for="xm">姓名</label>
+										<input type="text" class="form-control" id="xm" name="xm" style="width: 90px;"/>
+									</div>
+									<div class="form-group">
+										<label for="xb">性别</label>
+										<select  class="form-control" id="xb" name="xb">
+											<option>
+											</option>
+											<option value="男">
+											 	男
+											</option>
+											<option value="女">
+											 	女
+											</option>
+										</select>
+									</div>
+									<div class="form-group">
+										<label for="jx">考生警衔</label>
+										<select  class="form-control jx" id="jx" name="jx">
+											<option>
+											</option>
+										</select>
+									</div>
+									<div class="form-group">
+										<label for="bm">考生部门</label>
+										<select  class="form-control bm" id="bm" name="bm">
+											<option>
+											</option>
+										</select>
+									</div>
+									<div class="form-group">
+										<label for="zw">考生职务</label>
+										<select  class="form-control zw" id="zw" name="zw">
+											<option>
+											</option>
+										</select>
+									</div>
+									<div class="form-group">
+										<label for="dw">考生单位</label>
+										<select  class="form-control dw" id="dw" name="dw">
+											<option>
+											</option>
+										</select>
+									</div>
+									<button class="btn btn-default" type="button" onclick="queryUser()">查询</button>
+								</form>
+							</div>
+						</div>
+						<!--<div class="panel panel-default">
+							<div class="panel-body">
+							     <form class="form-inline" id="userLoad" method="post"  action="../PoliceInfo/Upload"  accept-charset="UTF-8" >
+									    <input type="file" id="file" name="file" style="display:inline-block; ">
+									    <button type="button" class="btn btn-primary  btn-xs" onclick="queryUserByLoad()">上传</button>
+								 </form>
+							 </div>
+						</div>-->
+						<div style="overflow-y:auto; width:100%;height:300px">
+							<!--data-toolbar="#exampleToolbar" ToSelect data-show-columns="true" data-search="true" -->
+							<table id="userResultTable" data-unique-id="userid" data-toggle="table" data-height="" data-mobile-responsive="true"
+								   data-click-to-select="true" data-show-toggle="true"  data-pagination="true" data-page-size="5" >
+								<thead>
+								<tr>
+									<!--<th data-formatter="indexFormatter">序号</th>-->
+									<th data-field="userid" data-visible="false">考生ID</th>
+									<th data-field="jh">考生警号</th>
+									<th data-field="xm">考生姓名</th>
+									<th data-field="xb">考生性别</th>
+									<th data-field="jxbh" data-visible="false">警衔编号</th>
+									<th data-field="jxmc">考生警衔</th>
+									<th data-field="bmbh" data-visible="false">部门编号</th>
+									<th data-field="bmmc">考生部门</th>
+									<th data-field="zwbh" data-visible="false">职务编号</th>
+									<th data-field="zwmc">考生职务</th>
+									<th data-field="dwbh" data-visible="false">单位编号</th>
+									<th data-field="dwmc">考生单位</th>
+								</tr>
+								</thead>
+							</table>
+
+    					 </div>
+					</div>
+					<div class="modal-footer">
+				        <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+				        <!--<button type="button" class="btn btn-default" onclick="fx()">反选</button>-->
+				        <button type="button" class="btn btn-primary" onclick="move2()">添加</button>
+				    </div>
+				</div>
+			</div>
+		</div>
+
+		<!--删除确认框 -->
+		<div class="modal fade bs-example-modal-sm" id="delcfmModel"  tabindex="-1" role="dialog"  aria-labelledby="myModalLabel3">  
+		  <div class="modal-dialog modal-sm" id="modalDialog4">
+		    <div class="modal-content message_align">  
+		      <div class="modal-header">  
+		        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>  
+		        <h4 class="modal-title">提示信息</h4>  
+		      </div>  
+		      <div class="modal-body"> 
+		      	<input type="hidden" id="url"/>  
+		        <p >您确认要删除吗？</p>  
+		      </div>  
+		      <div class="modal-footer">  
+		         <button type="button" class="btn btn-default" data-dismiss="modal">取消</button>  
+		         <a  onclick="delExam()" class="btn btn-success" data-dismiss="modal">确定</a>  
+		      </div>  
+		    </div><!-- /.modal-content -->  
+		  </div><!-- /.modal-dialog -->  
+		</div><!-- /.modal -->
+
+		<script type="text/javascript">
+			//修改考试
+			function update(){  
+				//先查找选中项
+				var trs=$('#tbody .info');
+				if(trs.length==0){
+					alert('请选中其中一项考试');
+				}else if(trs.length>1){
+					alert('您选择了多项考试，请选择一项');
+				}else{
+                    cleanMyModal();//清空弹出框内容
+					var id=$(trs[0]).children('th').text();
+					getInfo(id);
+					open_update();
+				}
+			}
+
+			function del(){
+				var trs=$('#tbody .info');
+				if(trs.length==0){
+					alert('请选中其中一项考试');
+				}else if(trs.length>1){
+					alert('您选择了多项考试，请选择一项');
+				}else{
+					var id=$(trs[0]).children('th').text();
+					$('#url').val(id);
+					$('#delcfmModel').modal('show');
+				}
+			}
+			function delExam(){
+				var id=$('#url').val();
+				$.ajax({  //考试类型下拉框
+					type:"POST",
+					url: "../Exam/del",
+					dataType:"json",
+					data:{ExamID:id },
+					success:function(data){
+						if(data.success){
+							alert(data.msg);
+							QueryData();
+						}else{
+							alert(data.msg);
+						}
+						
+					}
+
+				});
+			}
+			//添加考试
+			function addExam(){
+				var examInfo = getExamInfo();
+				$.ajax({  //考试类型下拉框
+					type:"POST",
+					url: "../Exam/add",
+					dataType:"json",
+					data: JSON.stringify(examInfo),//将对象序列化成JSON字符串  
+			 		contentType : 'application/json;charset=utf-8', //设置请求头信息  
+					success:function(data){
+						if(data.success){
+							alert(data.msg);
+							QueryData();
+                            $('#errorInfo2').empty();
+						}else{
+							setErrorInfo(data.data);
+						}
+					}
+				});
+			}
+			//更新考试
+			function updateExam(){
+				var examInfo = getExamInfo();
+				$.ajax({  //考试类型下拉框
+					type:"POST",
+					url: "../Exam/update",
+					dataType:"json",
+					data: JSON.stringify(examInfo),//将对象序列化成JSON字符串  
+			 		contentType : 'application/json;charset=utf-8', //设置请求头信息
+					success:function(data){
+						if(data.success){
+							alert(data.msg);
+							QueryData();
+                            $('#errorInfo2').empty();
+						}else{
+							setErrorInfo(data.data);
+                            //	点击修改按钮的时候是否有错误信息
+                            $('.selectItem .selecteBody').each(function (index,e){//循环6个题目类型
+                                    var useQuestionName=$(e).find('.selecteLfte').text();//题目类型名称（单选题、多选题。。。）
+                                    var useQuestionType=$(e).find('.selecteLfte').attr("getselecte");//题目类型 编号（1、2。。。）
+                                    //获取所以题目分数
+                                    var allScores=[];   //定义一个数组
+                                    var radioScore =$('#radioScore').val();
+                                    var multipleScore =$('#multipleScore').val();
+                                    var judgmentScore =$('#judgmentScore').val();
+                                    var clozeScore =$('#clozeScore').val();
+                                    var answerScore =$('#answerScore').val();
+                                    var typingScore =$('#typingScore').val();
+                                    //将获取的所有分数放到数组中
+                                    allScores.push(radioScore,multipleScore,judgmentScore,clozeScore,answerScore,typingScore);
+                                    //获取到题库信息
+                                    if (allScores[index] == ""){
+                                        $(".eachScore").eq(index).css("border-color","red");
+                                        $(".eachScore").eq(index).focus(function () {
+                                            $(this).css("border-color","#ccc");
+                                        })
+                                    }
+                                    $(e).find('.selecteRight').each(function (index2,e2){//循环每个题目类型下面的数据
+                                        var useQuestionBankID=$(e2).find('.id').text();//题库id
+                                        var useQuestionBankName=$(e2).find('.name').text();//题库名称
+                                        var questionCount=$(e2).find('.count').val();//题目数量
+                                        var useQuestionBankType=$(e2).find('.type').text();//题库类型
+                                        //将获取的值做出判断
+                                        if (questionCount == ""){//判断题目数量是否为空
+                                            $(e2).find('.count').css("border-color","red");
+                                            $(e2).find('.count').focus(function(){
+                                                $(this).css("border-color","#ccc");
+                                            });
+                                        }
+                                    });
+                                });
+                        }
+					}
+				});
+			}
+			//设置错误信息
+			function setErrorInfo(data){
+				function getQuestionTest(index){
+					var array=new Array('单选题','多选题','判断题','填空题','问答题','打字题');
+					return array[index];
+				}
+                //console.log(data)
+				var mb=$('#errorInfo2');
+				mb.empty();
+				var ee=data.ee;
+				if(ee != null){      //基本信息错误
+					for(var i=0;i<ee.length;i++){
+						var h=$('<p class="errorMsg"> </p>');
+						$(h).text(ee[i].msg);
+						mb.append(h);
+					}
+				}
+				var eqbes=data.eqbes; //题库错误信息
+                //console.log(data,eqbes)
+				if(eqbes != null){
+					for(var i=0;i<eqbes.length;i++){
+
+						var h=$('<p class="errorMsg"> </p>');
+						if(eqbes[i].errorType==1){ //题库不足
+							$(h).text("题库ID为"+eqbes[i].useQuestionBankID+"的题库"+getQuestionTest(eqbes[i].userType-1)+"不足,总共有"+eqbes[i].hasNum+"题");
+						}
+						if(eqbes[i].errorType==2){ //没有引入题库
+							$(h).text("没有添加题库！");
+						}
+						mb.append(h);
+					}
+				}
+				var epie=data.epie;
+				if(epie != null){    //考生信息错误
+					var h=$('<p class="errorMsg"> </p>');
+					$(h).text(epie.msg);
+					mb.append(h);					
+				}
+				layer.msg("失败，请查看【错误信息】");
+                //$('#errorInfo2').tab('show');
+			}
+
+			function getExamInfo(){
+				function getBaseInfo(){
+					var exam={};
+					exam.examID= $('#examID').val();
+					exam.examName = $('#examName').val();
+					exam.examTypeID = $('#examType').find("option:selected").attr('data-id');
+					exam.startTime = $('#startTime').val();
+					exam.endTime = $('#endTime').val();
+					exam.whenLong = $('#whenLong').val();
+					exam.description = $('#description').val();
+					exam.display =  $('#display').val();
+					exam.radioScore = $('#radioScore').val();
+					exam.multipleScore = $('#multipleScore').val();
+					exam.judgmentScore = $('#judgmentScore').val();
+					exam.clozeScore = $('#clozeScore').val();
+					exam.answerScore = $('#answerScore').val();
+					exam.typingScore = $('#typingScore').val();
+					exam.canBlur = $('#canBlur').val();
+					return exam;
+				}
+				function getQuestionBankInfo(){
+					var eqbs=new Array();
+                    $('.selectItem .selecteBody').each(function (index,e){
+                        var useQuestionType=$(e).find('.selecteLfte').attr("getselecte");//题目类型 编号
+                        $(e).find('.selecteRight').each(function (index2,e2){
+                            var useQuestionBankID=$(e2).find('.id').text();//题库id
+                            var questionCount=$(e2).find('.count').val();//题目数量
+                            eqbs.push({useQuestionBankID:useQuestionBankID,useQuestionType:useQuestionType,questionCount:questionCount});
+						});
+                    });
+					/*$('#qb_table .my-item').each(function (index,e){
+						var useQuestionBankID=$(e).find('.id').text(); 
+						var useQuestionType=$(e).find('.my_type').find("option:selected").val();
+						var questionCount=$(e).find('.count').val();
+						eqbs.push({useQuestionBankID:useQuestionBankID,useQuestionType:useQuestionType,questionCount:questionCount});
+					});*/
+					return eqbs;
+				}
+				//转换 考生信息 为json对象
+				function getUserInfo(){
+                    var maps = $.map($("#userSelectTable").bootstrapTable('getData'),function(row){ //获取ids
+                        return row.userid;
+                    })
+					var epis = new Array();
+                    for(var i=0;i<maps.length;i++){
+                        epis.push({userID:maps[i]});
+                    }
+                    /*var epis=new Array();
+					$('#ep_table .my-item').each(function(index,e) {
+						var userID=$(e).children('td').eq(0).text();
+						epis.push({userID:userID});
+					});*/
+					return epis;
+				}
+				var examInfo = {};
+				examInfo.exam = getBaseInfo();
+				examInfo.eqbs= getQuestionBankInfo();
+				examInfo.epis=getUserInfo();
+				// console.log(examInfo.eqbs);
+				return examInfo;
+			}
+			function setExamInfo(obj){
+				var examDto=obj.examDto;
+				//var pis=obj.pis;
+                var pss=obj.pss;
+				var qbs=obj.qbs;
+				setBaseInfo(examDto);
+				setQustionBanks(qbs);
+				setUsers(pss);
+				//基础信息
+				function setBaseInfo(exam){
+					$('#examID').val(exam.examID);
+					$('#examName').val(exam.examName);
+					$('#examType').val(exam.examTypeID);
+					$('#startTime').val(exam.startTime);
+					$('#endTime').val(exam.endTime);
+					$('#whenLong').val(exam.whenLong);
+					$('#description').val(exam.description);
+					$('#display').val(exam.display);
+					$('#radioScore').val(exam.radioScore);
+					$('#multipleScore').val(exam.multipleScore);
+					$('#judgmentScore').val(exam.judgmentScore);
+					$('#clozeScore').val(exam.clozeScore);
+					$('#answerScore').val(exam.answerScore);
+					$('#typingScore').val(exam.typingScore);
+					$('#canBlur').val(exam.canBlur);
+				}
+
+				//题库信息 填入数据
+				function setQustionBanks(qbs){
+				    //清空数据
+					$(".selecteLfte").siblings(".selecteRight").empty();
+					//把qbs列表按题目类型分成6个数组
+                    var arr1 = $.map(qbs, function(row){
+                        //console.log(qbs,row)
+                        for (var i = 0;i<6;i++){
+                            if (row.useQuestionType == i){
+                                var cont = $(".selecteBody").eq(i-1);
+                                var tr2 =$("<div class='selecteRight'></div>");
+                                tr2.append($("<span class='noThing'></span>"))
+                                tr2.append($("<span class='id'></span>\n").text(row.useQuestionBankID));
+                                tr2.append($("<span class='name'></span>\n").text(row.questionBankName));
+                                tr2.append($("<span class='type'></span>\n").text(row.questionBankTypeName));
+                                tr2.append($("<input type='text' class='form-control input-sm count' />").val(row.questionCount));
+                                cont.append(tr2);
+                            }
+                        }
+                        return row;
+                    });
+                   /* //单选题部分 填入数据 待完成
+                    var arr2 = $.map(qbs, function(row){
+                        var tr2 =$("<div class='selecteRight'></div>");
+                        var selecteLfte = $(".selecteLfte").eq(1).attr("getselecte");
+                        if(row.useQuestionType==2){
+                            var cont = $(".selecteBody").eq(1);
+                            tr2.append($("<span class='noThing'></span>"))
+                            tr2.append($("<span class='id'></span>\n").text(row.useQuestionBankID));
+                            tr2.append($("<span class='name'></span>\n").text(row.questionBankName));
+                            tr2.append($("<span class='type'></span>\n").text(row.questionBankTypeName));
+                            tr2.append($("<input type='text' class='form-control input-sm count' />").val(row.questionCount));
+                            cont.append(tr2);
+						}
+                            return row;
+                    });
+                    var arr3 = $.map(qbs, function(row){
+                        var tr2 =$("<div class='selecteRight'></div>");
+                        var selecteLfte = $(".selecteLfte").eq(2).attr("getselecte");
+                        if(row.useQuestionType==3){
+                            var cont = $(".selecteBody").eq(2);
+                            tr2.append($("<span class='noThing'></span>"))
+                            tr2.append($("<span class='id'></span>\n").text(row.useQuestionBankID));
+                            tr2.append($("<span class='name'></span>\n").text(row.questionBankName));
+                            tr2.append($("<span class='type'></span>\n").text(row.questionBankTypeName));
+                            tr2.append($("<input type='text' class='form-control input-sm count' />").val(row.questionCount));
+                            cont.append(tr2);
+						}
+                            return row;
+                    });
+                    var arr4 = $.map(qbs, function(row){
+                        var tr2 =$("<div class='selecteRight'></div>");
+                        var selecteLfte = $(".selecteLfte").eq(3).attr("getselecte");
+                        if(row.useQuestionType==4 && selecteLfte == 4){
+                            var cont = $(".selecteBody").eq(3);
+                            tr2.append($("<span class='noThing'></span>"))
+                            tr2.append($("<span class='id'></span>\n").text(row.useQuestionBankID));
+                            tr2.append($("<span class='name'></span>\n").text(row.questionBankName));
+                            tr2.append($("<span class='type'></span>\n").text(row.questionBankTypeName));
+                            tr2.append($("<input type='text' class='form-control input-sm count' />").val(row.questionCount));
+                            cont.append(tr2);
+						}
+                            return row;
+                    });
+                    var arr5 = $.map(qbs, function(row){
+                        var tr2 =$("<div class='selecteRight'></div>");
+                        var selecteLfte = $(".selecteLfte").eq(4).attr("getselecte");
+                        if(row.useQuestionType==5 && selecteLfte == 5){
+                            var cont = $(".selecteBody").eq(4);
+                            tr2.append($("<span class='noThing'></span>"))
+                            tr2.append($("<span class='id'></span>\n").text(row.useQuestionBankID));
+                            tr2.append($("<span class='name'></span>\n").text(row.questionBankName));
+                            tr2.append($("<span class='type'></span>\n").text(row.questionBankTypeName));
+                            tr2.append($("<input type='text' class='form-control input-sm count' />").val(row.questionCount));
+                            cont.append(tr2);
+						}
+                            return row;
+                    });
+                    var arr6 = $.map(qbs, function(row){
+                        var tr2 =$("<div class='selecteRight'></div>");
+                        var selecteLfte = $(".selecteLfte").eq(5).attr("getselecte");
+                        if(row.useQuestionType==6  && selecteLfte == 6){
+                            var cont = $(".selecteBody").eq(5);
+                            tr2.append($("<span class='noThing'></span>"))
+                            tr2.append($("<span class='id'></span>\n").text(row.useQuestionBankID));
+                            tr2.append($("<span class='name'></span>\n").text(row.questionBankName));
+                            tr2.append($("<span class='type'></span>\n").text(row.questionBankTypeName));
+                            tr2.append($("<input type='text' class='form-control input-sm count' />").val(row.questionCount));
+                            cont.append(tr2);
+						}
+                            return row;
+                    });
+*/
+					/*var tb = $('#qb_table');
+					tb.find('.my-item').remove();
+					for(var i=0;i<qbs.length;i++){
+						var tr=$('.my-mb').clone();
+						tr.find('.id').text(qbs[i].useQuestionBankID);
+						tr.find('.name').text(qbs[i].questionBankName);
+						tr.find('.count').val(qbs[i].questionCount);
+						tr.find('.my_type').val(qbs[i].useQuestionType);
+						tr.removeClass('yc');
+						tr.removeClass('my-mb');
+						tr.addClass('my-item');
+						tr.click(function(obj){
+							if($(this).hasClass('info')){
+								$(this).removeClass('info');
+							}else{
+								$(this).addClass('info');
+							}	
+						});
+						var tr="<td class='id'></td>\n" +
+                           "<td class='name'></td>\n" +
+                           "<td class='type'></td>\n" +
+                           "<td><input type='text' class='form-control input-sm count' style='width: 72px;height: 25px;'/></td>";
+						tb.append(tr);
+					}*/
+				}
+				//考试信息 填入数据
+				function setUsers(pss){
+                    $("#userSelectTable").bootstrapTable('load', pss);
+				}
+			}
+			//修改考试 初始化弹出页面
+			function getInfo(id){
+				$.ajax({  //考试类型下拉框
+					type:"POST",
+					url: "../Exam/getExamInfo",
+					dataType:"json",
+					data:{ExamID:id},
+					success:function(data){
+						if(data.success){ //成功
+							//console.log(data.data);
+							setExamInfo(data.data);
+						}else{
+							alert(data.msg);
+						}
+					}
+				});
+			}
+
+			function load(){  
+				$.ajax({  //考试类型下拉框
+					type:"POST",
+					url: "../ExamType/getList",
+					dataType:"json",
+					data:{  },
+					success:function(data){
+						if(data.success){ //成功
+							var ls=data.data;
+							var et=$('.examType');
+							
+							for(var i=0;i<ls.length;i++){
+								var opt=$('<option></option>').text(ls[i].examTypeName);
+								//加入id参数
+								opt.attr('data-id',ls[i].examTypeID);
+								opt.attr('value',ls[i].examTypeID);
+								et.append(opt);
+                                opt.attr('value',ls[i].display);
+                                et.append(opt);
+                                opt.attr('value',ls[i].canBlur);
+                                et.append(opt);
+							}
+						}else{
+				
+						}
+					}
+				});
+
+				$.ajax({  //题库类型下拉框
+					type:"POST",
+					url: "../QuestionBankType/getList",
+					dataType:"json",
+					data:{  },
+					success:function(data){
+						if(data.success){ //成功
+							var ls=data.data;
+							var qbt=$('.questionBankType');
+							for(var i=0;i<ls.length;i++){
+								var opt=$('<option></option>').text(ls[i].questionBankTypeName);
+								//加入id参数
+								opt.attr('data-id',ls[i].questionBankTypeID);
+								opt.attr('value',ls[i].questionBankTypeID);
+								qbt.append(opt);
+							}
+						}else{
+
+						}
+					}
+				});
+
+				$.ajax({  //部门类型下拉框
+					type:"POST",
+					url: "../PoliceInfo/getDepartmentTypeList",
+					dataType:"json",
+					data:{  },
+					success:function(data){
+						if(data.success){ //成功
+							var ls=data.data;
+							var qbt=$('.bm');
+							for(var i=0;i<ls.length;i++){
+								var opt=$('<option></option>').text(ls[i].bmmc);
+								opt.attr('value',ls[i].bmbh);	//加入id参数
+								qbt.append(opt);
+							}
+						}else{
+							
+						}
+					}
+				});
+
+				$.ajax({  //警衔类型下拉框
+					type:"POST",
+					url: "../PoliceInfo/getPoliceRankTypeList",
+					dataType:"json",
+					data:{  },
+					success:function(data){
+						if(data.success){ //成功
+							var ls=data.data;
+							var qbt=$('.jx');
+							for(var i=0;i<ls.length;i++){
+								var opt=$('<option></option>').text(ls[i].jxmc);
+								opt.attr('value',ls[i].jxbh);	//加入id参数
+								qbt.append(opt);
+							}
+						}else{
+							
+						}
+					}
+				});
+
+				$.ajax({  //职务类型下拉框
+					type:"POST",
+					url: "../PoliceInfo/getPostTypeList",
+					dataType:"json",
+					data:{  },
+					success:function(data){
+						if(data.success){ //成功
+							var ls=data.data;
+							var qbt=$('.zw');
+							for(var i=0;i<ls.length;i++){
+								var opt=$('<option></option>').text(ls[i].zwmc);
+								opt.attr('value',ls[i].zwbh);	//加入id参数
+								qbt.append(opt);
+							}
+						}else{
+							
+						}
+					}
+				});
+
+				$.ajax({  //单位类型下拉框
+					type:"POST",
+					url: "../PoliceInfo/getUnitTypeList",
+					dataType:"json",
+					data:{  },
+					success:function(data){
+						if(data.success){ //成功
+							var ls=data.data;
+							var qbt=$('.dw');
+							for(var i=0;i<ls.length;i++){
+								var opt=$('<option></option>').text(ls[i].dwmc);
+								opt.attr('value',ls[i].dwbh);	//加入id参数
+								qbt.append(opt);
+							}
+						}else{
+							
+						}
+					}
+				});
+			}
+			load();
+
+			function queryQuestionBank(){
+				var questionBankID = $('#questionBankID').val();
+				var questionBankName = $('#questionBankName').val();
+				var questionBankTypeID = $('#questionBankTypeID').find("option:selected").val();
+				var obj={questionBankID:questionBankID,questionBankName:questionBankName,questionBankTypeID:questionBankTypeID};
+				var json=JSON.stringify(obj);
+				$.ajax({
+					type:"POST",
+					url: "../QuestionBank/getDtoList",
+					dataType:"json",
+					contentType: "application/json;charset=UTF-8",
+					data:json,
+					success:success
+				});
+				function success(data){ 
+					if(data.success){
+						var ls=data.data;
+						var tb=$('#mtqb_tb');
+						tb.empty();
+						for(var i=0;i<ls.length;i++){
+							var tr=$('<tr></tr>');
+							tr.append($('<td></td>').text(ls[i].questionBankID));
+							tr.append($('<td></td>').text(ls[i].questionBankName));
+							tr.append($('<td></td>').text(ls[i].questionBankTypeName));
+							tr.append($('<td></td>').text(ls[i].questionBankTypeName));
+							tr.click(function(obj){
+								if($(this).hasClass('info')){
+									$(this).removeClass('info');
+								}else{
+									$(this).addClass('info');
+								}
+								
+							});
+							tb.append(tr);
+						}
+
+					}else{   //失败
+						alert(data.msg);
+					}
+				}
+			}
+			
+			//获取选择项放入第一个模态框
+			var n = 0 ;
+			function move(){
+			    n++;
+				var tb = $('#qb_table');
+                $('#mtqb_tb .info').each(function(index,e){
+				    //console.log(index,e)
+					var questionBankID = $(e).children('td').eq(0).text();
+					var questionBankName= $(e).children('td').eq(1).text();
+					var questionBankTypeName = $(e).children('td').eq(3).text();
+					var tr=$('.my-mb').clone();
+                    tr.find('.id').text(questionBankID);
+                    tr.find('.name').text(questionBankName);
+                    tr.find('.type').text(questionBankTypeName);
+                    tr.removeClass('yc');
+                    //console.log(questionBankID)
+                    tr.removeClass('my-mb');
+                    tr.addClass('my-item');
+                    tr.click(function(obj){
+                        if($(this).hasClass('info')){
+                            $(this).removeClass('info');
+                        }else{
+                            $(this).addClass('info');
+                        }
+                    });
+                    //将获取的每项的值append到div中
+					if($("tr[name=info]").hasClass("info") == false){
+                        var cont = $(".selecteBody");
+                        var tr2 =$("<div class='selecteRight'></div>");
+                            tr2.append($("<span class='noThing' selecteId =''></span>"))
+                            tr2.append($("<span class='id'></span>\n").text(questionBankID));
+                            tr2.append($("<span class='name'></span>\n").text(questionBankName));
+                            tr2.append($("<span class='type'></span>\n").text(questionBankTypeName));
+                            tr2.append($("<input type='text' class='form-control input-sm count' />"));
+                            cont.append(tr2);
+					}
+                });
+            }
+
+            //点击选中某一项
+            var arrDOM = [];
+            $(".selecteBody").on("click",".selecteRight",function (e) {
+                if($(this).hasClass('selectHover')){
+                    $(this).removeClass('selectHover');
+                    arrDOM.pop($(this));
+                }else{
+                    $(this).addClass('selectHover');
+                    arrDOM.push($(this));
+                }
+            })
+			//点击删除按钮，删除选中的某项
+			function del_xx(){
+				for (var i=0;i<arrDOM.length;i++){
+                    arrDOM[i].remove();
+				}
+			}
+
+			//选表考生 的 添加按钮
+			function move2(){
+                var userResultData = $("#userResultTable").bootstrapTable('getData');//获取本次添加的user
+				var userids = $.map($("#userResultTable").bootstrapTable('getData'),function(row){ //获取ids
+				    return row.userid;
+				})
+                $("#userSelectTable").bootstrapTable('remove', {field: 'userid', values: userids});//选中表 移除再次添加的user
+                $("#userSelectTable").bootstrapTable('append', userResultData);//将本次选中user添加到 选中表
+                $("#userResultTable").bootstrapTable('removeAll');
+				//添加成功、给出提示，并询问是否继续添加。
+                layer.confirm('添加考生成功！继续添加？', {
+                    btn: ['继续','结束'] //按钮
+                }, function(){
+                    layer.msg('请继续添加考生。', {
+                        time: 2000 //1s后自动关闭
+                    });
+                }, function(){
+                    $('#addUserModal').modal('hide');
+                });
+			}
+
+			function del_xx2(){
+				$('#ep_table .info').remove();
+			}
+			//第二个模态框 反选
+			function fx(){
+				$('#utb > tr').each(function(index,e){
+					if($(this).hasClass('info')){
+						$(this).removeClass('info');
+					}else{
+						$(this).addClass('info');
+					}
+				});
+			}
+			/*$('.xz tr').click(function(obj){
+				if($(this).hasClass('info')){
+					$(this).removeClass('info');
+				}else{
+					$(this).addClass('info');
+				}
+			});*/
+			function queryUserByLoad(){ //上传excel查询用户
+				$("#userLoad").ajaxSubmit({
+			  		dataType:"json",
+				    beforeSend:start,
+				    success: resutlMsg,  
+		        	error: errorMsg 
+
+			    });
+				function start(){
+					
+				}
+				function resutlMsg(data){
+					var ls=data.data;
+					var tb=$('#utb');
+					tb.empty();
+					for(var i=0;i<ls.length;i++){
+						var tr=$('<tr></tr>');
+						tr.append($('<td></td>').text(ls[i].userID));
+						tr.append($('<td></td>').text(ls[i].xm));
+						tr.append($('<td></td>').text(ls[i].xb));
+						tr.append($('<td></td>').text(ls[i].CZDM));
+						tr.append($('<td></td>').text(ls[i].BMBH));
+						tr.append($('<td></td>').text(ls[i].JXBH));
+						tr.click(function(obj){
+							if($(this).hasClass('info')){
+								$(this).removeClass('info');
+							}else{
+								$(this).addClass('info');
+							}
+						});
+						tb.append(tr);
+					} 
+				}
+				function errorMsg(data){
+					alert(data.msg); 
+				}
+			}
+			function queryUser(){ //根据条件查询用户
+				$("#userQuery").ajaxSubmit({
+			  		dataType:"json",
+				    beforeSend:start,
+				    success: resutlMsg,  
+		        	error: errorMsg 
+			    });
+			    function start(){	
+				}
+				function resutlMsg(data){
+					var ls=data.data;
+                    $("#userResultTable").bootstrapTable('load', ls);
+					/*var tb=$('#utb');
+				    /!*	tb.empty();*!/
+					for(var i=0;i<ls.length;i++){
+						var tr=$('<tr></tr>');
+						tr.append($('<td></td>').text(ls[i].userID));
+						tr.append($('<td></td>').text(ls[i].xm));
+						tr.append($('<td></td>').text(ls[i].xb));
+						tr.append($('<td></td>').text(ls[i].CZDM));
+						tr.append($('<td></td>').text(ls[i].BMBH));
+						tr.append($('<td></td>').text(ls[i].JXBH));
+						tr.click(function(obj){
+							if($(this).hasClass('info')){
+								$(this).removeClass('info');
+							}else{
+								$(this).addClass('info');
+							}
+						});
+						tb.append(tr);
+					} */
+				}
+				function errorMsg(data){
+					alert(data.msg); 
+				}
+			}
+			//========= gyw add ========
+            $("#yl_tab").click(function(exam){
+                //移除表格信息
+                $(".items-list").siblings(".items-num").remove();
+				 //加载基本信息
+                 $(".yl_exam_name").html($("#examName").val());
+                 $(".yl_exam_desc").html($("#description").val());
+                $(".yl_exam_type").html(exam.examTypeID = $('#examType').find("option:selected").text());
+                $(".yl_exam_time").html($("#startTime").val()+"~"+$("#endTime").val());
+                 $(".yl_exam_long").html($("#whenLong").val()+$(".minute").text());
+                 $(".yl_exam_change").html(exam.canBlur =$("#canBlur").find("option:selected").text());
+                $(".yl_exam_show").html(exam.display =$("#display").find("option:selected").text());
+                //加载题库信息 whf
+                $('.selectItem .selecteBody').each(function (index,e){//循环6个题目类型
+                    var useQuestionName=$(e).find('.selecteLfte').text();//题目类型名称（单选题、多选题。。。）
+                    var useQuestionType=$(e).find('.selecteLfte').attr("getselecte");//题目类型 编号（1、2。。。）
+
+					//获取所以题目分数
+					var allScores=[];   //定义一个数组
+                    var radioScore =$('#radioScore').val();
+                    var multipleScore =$('#multipleScore').val();
+                    var judgmentScore =$('#judgmentScore').val();
+                    var clozeScore =$('#clozeScore').val();
+                    var answerScore =$('#answerScore').val();
+                    var typingScore =$('#typingScore').val();
+                    //将获取的所有分数放到数组中
+					allScores.push(radioScore,multipleScore,judgmentScore,clozeScore,answerScore,typingScore);
+                    var rowScores = 0;
+                    //获取到题库信息
+					$(e).find('.selecteRight').each(function (index2,e2){//循环每个题目类型下面的数据
+                        var useQuestionBankID=$(e2).find('.id').text();//题库id
+                        var useQuestionBankName=$(e2).find('.name').text();//题库名称
+                        var useQuestionBankType=$(e2).find('.type').text();//题库类型
+                        var questionCount=$(e2).find('.count').val();//题目数量
+						//将获取的值添加到表格中
+                        if (useQuestionType == (index+1)){//判断题目类型
+                            var cont = $(".items").eq(index);
+                            var itemsIput =$("<div class='items-num'></div>");
+                            if(questionCount == "" && allScores[index] == ""){
+                                itemsIput.append($("<span></span>").text(useQuestionBankID))
+                                itemsIput.append($("<span style='width: 140px; padding-left: 17px;'></span>\n").text(useQuestionBankName));
+                                itemsIput.append($("<span style='width: 141px; padding-left: 19px;'></span>\n").text(useQuestionBankType));
+                                itemsIput.append($("<span class='iNum'style='width: 141px; padding-left: 22px;'></span>\n").text("未填写"));
+                                itemsIput.append($("<span class='iCore' style='width: 117px; padding-left: 22px;'></span>\n").text("未填写"));
+                                cont.append(itemsIput);
+                            }else if (questionCount == ""){
+                                itemsIput.append($("<span></span>").text(useQuestionBankID))
+                                itemsIput.append($("<span style='width: 140px; padding-left: 17px;'></span>\n").text(useQuestionBankName));
+                                itemsIput.append($("<span style='width: 141px; padding-left: 19px;'></span>\n").text(useQuestionBankType));
+                                itemsIput.append($("<span class='iNum'style='width: 141px; padding-left: 22px;'></span>\n").text("未填写"));
+                                itemsIput.append($("<span class='iCore' style='width: 117px; padding-left: 22px;'></span>\n").text(allScores[index]));
+                                cont.append(itemsIput);
+                            }else if(allScores[index] == ""){
+                                itemsIput.append($("<span></span>").text(useQuestionBankID))
+                                itemsIput.append($("<span style='width: 140px; padding-left: 17px;'></span>\n").text(useQuestionBankName));
+                                itemsIput.append($("<span style='width: 141px; padding-left: 19px;'></span>\n").text(useQuestionBankType));
+                                itemsIput.append($("<span class='iNum'style='width: 141px; padding-left: 22px;'></span>\n").text(questionCount));
+                                itemsIput.append($("<span class='iCore' style='width: 117px; padding-left: 22px;'></span>\n").text("未填写"));
+                                cont.append(itemsIput);
+                            }else {
+                                itemsIput.append($("<span></span>").text(useQuestionBankID))
+                                itemsIput.append($("<span style='width: 140px; padding-left: 17px;'></span>\n").text(useQuestionBankName));
+                                itemsIput.append($("<span style='width: 141px; padding-left: 19px;'></span>\n").text(useQuestionBankType));
+                                itemsIput.append($("<span class='iNum'style='width: 141px; padding-left: 22px;'></span>\n").text(questionCount));
+                                itemsIput.append($("<span class='iCore' style='width: 117px; padding-left: 22px;'></span>\n").text(allScores[index]));
+                                cont.append(itemsIput);
+                                rowScores = rowScores+allScores[index]*questionCount;
+                            }
+                        }
+                    });
+                    $(".allScore").eq(index).text("总分："+ rowScores);
+                    //某类型题目总共的数量
+                });
+
+                //加载考生信息
+                $("#userShowTable").bootstrapTable('load',$("#userSelectTable").bootstrapTable('getData'));
+
+
+			});
+
+
+
+		</script>
+	</body>
+</html>

@@ -1,0 +1,118 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+    PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ares.exam.dao.QuestionBankDao">
+	<sql id="questionBankColumns">
+		<trim suffixOverrides=",">
+			QUESTIONBANKNAME,QUESTIONBANKTYPEID,
+			<if test="isDisplay != null">ISDISPLAY,</if>
+			<if test="creationTime !=null">CREATIONTIME,</if>
+			<if test="founder != null">FOUNDER,</if>
+			<if test="updateTime != null">UPDATETIME,</if>
+			<if test="updateMan != null">UPDATEMAN</if>
+		</trim>
+	</sql>
+	
+	<sql id="questionBankValues">
+		<trim suffixOverrides=",">
+			#{questionBankName,jdbcType=VARCHAR},#{questionBankTypeID,jdbcType=DOUBLE},
+			<if test="isDisplay != null">#{isDisplay,jdbcType=DOUBLE},</if>
+			<if test="creationTime !=null">#{creationTime,jdbcType=DATE},</if>
+			<if test="founder != null">#{founder,jdbcType=VARCHAR},</if>
+			<if test="updateTime != null">#{updateTime,jdbcType=DATE},</if>
+			<if test="updateMan != null">#{updateMan,jdbcType=VARCHAR}</if>
+		</trim>
+	</sql>
+	
+	<sql id="questionBankWhere">
+		<where>
+			<if test="questionBankID != null">QUESTIONBANKID = #{questionBankID}</if>
+			<if test="questionBankName !=null">and questionBankName =#{questionBankName,jdbcType=VARCHAR}</if>
+		    <if test="questionBankTypeID !=null">and questionBankTypeID =#{questionBankTypeID,jdbcType=INTEGER}</if> 
+			<if test="isDisplay != null">and isDisplay =#{isDisplay,jdbcType=DOUBLE}</if>
+			<if test="creationTime !=null">and creationTime=#{creationTime,jdbcType=DATE}</if>
+			<if test="founder != null">and founder=#{founder,jdbcType=VARCHAR}</if>
+			<if test="updateTime != null">and updateTime=#{updateTime,jdbcType=DATE}</if>
+			<if test="updateMan != null">and updateMan=#{updateMan,jdbcType=VARCHAR}</if>
+		</where>
+	</sql>
+	
+	<!--   利用子查询  -->
+	<sql id="questionBankDtoValues">
+		<trim suffixOverrides=",">
+			#{questionBankName,jdbcType=VARCHAR},select questionBankTypeID from ks_questionbank where questionBankTypeName =#{questionBankTypeName,jdbcType=VARCHAR},
+			<if test="isDisplay != null">#{isDisplay,jdbcType=DOUBLE},</if>
+			<if test="creationTime != null">#{creationTime,jdbcType=DATE},</if>
+			<if test="founder != null">#{founder,jdbcType=VARCHAR},</if>
+			<if test="updateTime != null">#{updateTime,jdbcType=DATE},</if>
+			<if test="updateMan != null">#{updateMan,jdbcType=VARCHAR}</if>
+		</trim>
+	</sql>
+	
+	<insert id="addQuestionBank" parameterType="QuestionBank">
+		insert into 
+			ks_questionbank(<include refid="questionBankColumns"></include>)
+			values(<include refid="questionBankValues"></include>)
+	</insert>
+	
+	<delete id="delQuestionBank" parameterType="QuestionBank">
+		<if test="questionBankID != null">
+			delete ks_questionBank where questionBankID =#{questionBankID}
+		</if>
+	</delete>
+	
+	<delete id="clean">
+		delete KS_QUESTION where QUESTIONBANKID =#{questionBankID}
+	</delete>
+	
+	<select id="queryQuestionBank" parameterType="QuestionBank" resultType="QuestionBank">
+		select * from KS_QUESTIONBANK
+		<include refid="questionBankWhere"></include>
+	</select>
+	
+	<!-- QuestionBankDao与QuestionBankTypeDao联合查询 -->
+	<sql id="questionBankDto">
+		select a.QUESTIONBANKID,a.QUESTIONBANKNAME,b.QUESTIONBANKTYPENAME,(case a.ISDISPLAY when 0 then '不显示' else '显示' end) ISDISPLAY,a.CREATIONTIME,a.FOUNDER,a.UPDATETIME,a.UPDATEMAN 
+		from KS_QUESTIONBANK a,KS_QUESTIONBANKTYPE b 
+	</sql>
+
+	<!-- questionBankDto查询条件  -->
+	<sql id="questionBankDtoWhere">
+		<where>
+			a.QUESTIONBANKTYPEID=b.QUESTIONBANKTYPEID
+			<if test="questionBankID != null">and a.questionBankID = #{questionBankID,jdbcType=INTEGER}</if>
+			<if test="questionBankName != null and questionBankName != ''">and a.QUESTIONBANKNAME LIKE '%'||#{questionBankName,jdbcType=VARCHAR}||'%'</if>
+			<if test="questionBankTypeID != null and questionBankTypeID != ''">and a.QUESTIONBANKTYPEID = #{questionBankTypeID,jdbcType=INTEGER}</if>
+		 	<if test="isDisplay != null">and a.ISDISPLAY = #{isDisplay}</if>
+ 			<if test="startCreationTime != null and startCreationTime != ''">and a.CREATIONTIME &gt;= #{startCreationTime}</if>
+ 			<if test="endCreationTime !=null and endCreationTime != ''">and a.CREATIONTIME &lt;= #{endCreationTime}</if> 
+		</where>
+	</sql>
+	
+	<select id="queryQuestionBankDto" parameterType="com.ares.exam.dto.QueryQuestionBankDto" resultType="com.ares.exam.dto.QuestionBankDto">
+		<include refid="questionBankDto"></include>
+		<include refid="questionBankDtoWhere"></include>
+	</select>
+	
+	<select id="queryCountByType" resultType="int">
+		select count(*) from ks_question where ks_question.questionType = #{type} and ks_question.questionBankID = #{quesionBankID}
+	</select>
+	
+	<select id="get" resultType="QuestionBank">
+		select * from KS_QUESTIONBANK a
+		where a.QUESTIONBANKID =#{questionBankID}
+	</select>
+	
+	<update id="updateQuestionBank" parameterType="QuestionBank">
+		update ks_questionbank set
+		<trim suffixOverrides=",">
+			<if test="questionBankName != null">questionBankName = #{questionBankName,jdbcType=VARCHAR}, </if>
+			<if test="questionBankTypeID != null">questionBankTypeID = #{questionBankTypeID,jdbcType=INTEGER}, </if>
+			<if test="isDisplay != null">isDisplay = #{isDisplay,jdbcType=INTEGER} </if>
+		</trim>
+		where questionBankID = #{questionBankID,jdbcType=INTEGER}
+	</update>
+	
+	
+</mapper>

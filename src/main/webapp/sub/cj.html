@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge,Chrome=1" />
+	<link rel="stylesheet" type="text/css" href="../assets/bootstrap/css/bootstrap.css">
+	<script src="../assets/jquery/js/jquery-1.12.4.min.js"></script>
+	<script src="../assets/bootstrap/js/bootstrap.js"></script> 
+	<title>人工阅卷</title>
+</head>
+<style type="text/css">
+	.panel-default > .panel-heading{
+		background-color: #51585e;
+		color: #eee;
+	}
+	.pull-right > a{
+		color: white;
+	}
+	.form-group {
+		padding: 10px;
+	}
+	.content-body{
+		overflow-y: auto;
+		height: 500px;
+	}
+</style>
+<script type="text/javascript">
+	function exPort(){
+		var form=$('#my-form');
+		form.submit();
+	}
+	function getCj(){
+		var examID=$('#examID').val();
+		var jh=$('#jh').val();
+		var xm=$('#xm').val();
+		$.ajax({
+			type:"POST",
+			url: "../AnswerSheet/queryExamResultDtos",
+			dataType:"json",
+			data:{ examID:examID,jh:jh,xm:xm},
+			success:function(data){
+				if(data.success){//成功
+					setCjs(data.data);
+				}else{          //失败
+					alert(data.msg);
+				}
+			}
+		});
+	}
+	function setCjs(ls){
+		var tb=$('#tb');
+		tb.empty();
+		for(var i=0;i<ls.length;i++){
+			var tr=$('<tr></tr>');
+			var td1=$('<td></td>').text(ls[i].answerSheetID);
+			var td2=$('<td></td>').text(ls[i].jh);
+			var td3=$('<td></td>').text(ls[i].xm);
+			var td4=$('<td></td>').text(ls[i].score);
+			tr.append(td1).append(td2).append(td3).append(td4);
+			tb.append(tr);
+		}
+	}
+	
+</script>
+<body>
+	<div class="container-fluid">
+		<div class="row">
+			<div class="col-md-12">
+				<div class="panel panel-default">
+					<div class="panel-heading">成绩查询
+						<span class="pull-right">
+							<a  href="#"  rel="tooltip" title="查询"><i class="glyphicon glyphicon-search" onclick="getCj()"></i></a>
+						</span>
+					</div>
+					<div class="panel-boy">
+						<form class="form-inline" id="my-form" method="post" action="../AnswerSheet/exportExcel">
+							<div class="form-group">
+								<label for="examID">选择考试</label>
+								<input type="text" class="form-control" id="examID" name="examID">
+							</div>
+							<div class="form-group">
+									<label for="jh">警号</label>
+									<input type="text" class="form-control" id="jh" name="jh">
+							</div>
+							<div class="form-group">
+									<label for="xm">姓名</label>
+									<input type="text" class="form-control" id="xm" name="xm">
+							</div>
+						</form>
+					</div>
+				</div>
+			</div>
+		</div>
+		<div class="row">
+			<div class="col-md-12">
+				<div class="panel panel-default">
+					<div class="panel-heading">查询结果
+						<span class="pull-right">
+							<a  href="#"  rel="tooltip" title="导出"><i class="glyphicon glyphicon-import" onclick="exPort()"></i></a>
+						</span>
+					</div>
+					<div class="panel-boy content-body" >
+						<table class="table table-bordered">
+							<thead>
+								<tr>
+									<th>记录号</th>
+									<th>警号</th>
+									<th>姓名</th>
+									<th>分数</th>
+								</tr>
+							</thead>
+							<tbody id="tb">
+
+							</tbody>
+						</table>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+
+</body>
+</html>

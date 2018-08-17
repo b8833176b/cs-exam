@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+    PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ares.exam.dao.QuestionDao">
+	<delete id="delQuestion" parameterType="long">
+			delete ks_question where questionID = #{questionID,jdbcType=INTEGER}
+	</delete>
+	
+	<update id="updateQuestion" parameterType="Question">
+	 	update ks_Question set
+	 	<trim suffixOverrides=",">
+	 		<if test="questionContent != null">questionContent =#{questionContent,jdbcType=VARCHAR},</if>
+	 		<if test="rightAnswer != null">rightAnswer = #{rightAnswer,jdbcType=VARCHAR},</if>
+	 		<if test="optionA != null">optionA = #{optionA,jdbcType=VARCHAR},</if>
+	 		<if test="optionB != null">optionB = #{optionB,jdbcType=VARCHAR},</if>
+	 		<if test="optionC != null">optionC = #{optionC,jdbcType=VARCHAR},</if>
+	 		<if test="optionD != null">optionD = #{optionD,jdbcType=VARCHAR},</if>
+	 		<if test="optionE != null">optionE = #{optionE,jdbcType=VARCHAR},</if>
+	 		<if test="optionF != null">optionF = #{optionF,jdbcType=VARCHAR}</if>
+	 	</trim>
+	 	where questionID = #{questionID,jdbcType=INTEGER}
+	</update>
+	
+	<select id="getQuestionById" resultMap="questionMap" parameterType="long">
+		select * from ks_question where QUESTIONID = #{questionID,jdbcType=INTEGER}
+	</select>
+	
+	<select id="queryQuestionByBankID" resultMap="questionMap" parameterType="long">
+		select * from ks_question  a where a.questionBankID = #{quesionBankID,jdbcType=INTEGER}
+	</select>
+	
+	<select id="randomQueryQuestion" resultMap="questionMap"> 
+		select * from(
+		  select a.* from ks_question a  where a.questiontype = #{type,jdbcType=INTEGER} and a.questionBankID=#{quesionBankID,jdbcType=INTEGER} order by SYS.dbms_random.value 
+		)where ROWNUM &lt;= #{count}
+	</select>
+	
+	<resultMap type="question" id="questionMap">
+		<id property="questionID" column="QUESTIONID"/>
+		<result property="questionType"  column="QUESTIONTYPE"/>
+		<result property="questionContent" column="QUESTIONCONTENT"/>
+		<result property="questionBankID" column="QUESTIONBANKID"/>
+		<result property="rightAnswer" column="RIGHTANSWER"/>
+		<discriminator javaType="integer" column="QUESTIONTYPE">
+			<case value="1" resultType="questionRadio">
+				<!-- 目前认为只有四个选项 -->
+				<result property="optionA" column="OPTIONA"/>
+				<result property="optionB" column="OPTIONB"/>
+				<result property="optionC" column="OPTIONC"/>
+				<result property="optionD" column="OPTIOND"/>
+			</case>
+			<case value="2" resultType="questionMultiple">
+				<!-- 目前认为只有四个选项 -->
+				<result property="optionA" column="OPTIONA"/>
+				<result property="optionB" column="OPTIONB"/>
+				<result property="optionC" column="OPTIONC"/>
+				<result property="optionD" column="OPTIOND"/>
+			</case>
+			<case value="3" resultType="questionJudgment">
+			</case>
+			<case value="4" resultType="questionCloze">
+			</case>
+			<case value="5" resultType="questionAnswer">
+			</case>
+			<case value="6" resultType="questionTyping">
+			</case>
+		</discriminator>
+	</resultMap>
+	<!-- 单选题 -->
+	<insert id="insertQuestion" parameterType="java.util.List" useGeneratedKeys="false">
+		insert into ks_question (QUESTIONID,QUESTIONTYPE,QUESTIONCONTENT,QUESTIONBANKID,RIGHTANSWER,OPTIONA,OPTIONB,OPTIONC,OPTIOND) 
+		select ks_Question_SEQ.nextval as QUESTIONID, A.* from (
+			<foreach collection="list" item="item" index="index"  separator="union all"> 
+				select 
+				#{item.questionType,jdbcType=INTEGER} questionType, 
+				#{item.questionContent,jdbcType=VARCHAR} questionContent,
+				#{item.questionBankID,jdbcType=INTEGER} questionBankID,
+				#{item.rightAnswer,jdbcType=VARCHAR} rightAnswer
+				
+				<if test="item.questionType == 1 or item.questionType == 2">
+				, #{item.optionA,jdbcType=VARCHAR} optionA,
+				#{item.optionB,jdbcType=VARCHAR} optionB,
+				#{item.optionC,jdbcType=VARCHAR} optionC,
+				#{item.optionD,jdbcType=VARCHAR} optionD</if>
+				<if test="item.questionType != 1 and item.questionType != 2">
+				, null optionA,
+				null optionB,
+				null optionC,
+				null optionD</if>
+				from dual
+			</foreach>
+		) A
+	</insert>
+	<!--多选题   -->
+	
+</mapper>

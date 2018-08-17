@@ -1,0 +1,139 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+    PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ares.exam.dao.PoliceInfoDao">
+
+	<select id="queryLzPoliceInfo" parameterType="long" resultType="LzPoliceInfo">
+		select
+		USERID	<!-- 警员编号 -->
+		,XM	<!-- 姓名 -->
+		,XB	<!-- 性别 -->
+		,NL	<!-- 年龄 -->
+		,LXDH <!-- 联系电话 -->
+		,CSRQ <!-- 出生日期 -->
+		,BZ	<!-- 备注 -->
+		,PWD <!-- 登录密码 -->
+		,ISADMIN <!-- 是否管理员 0-民警，1-超级管理员，2-分局管理员，3-基地管理员，4-教官 -->
+		,decode(ISADMIN, 0, '民警', 1, '超级管理员',2,'分局管理员',3,'基地管理员',4,'教官','其他')  AS YHLX <!-- 用户类型 -->
+		,JSSJ <!-- 晋升时间 -->
+		,BMBH <!-- 部门编号 -->
+		,(SELECT A.BMMC FROM LZ_BM A WHERE A.BMBH = B.BMBH ) AS BMMC <!-- 部门名称 -->
+		,DWBH <!-- 单位编号 -->
+		,(SELECT A.DWMC FROM LZ_DW A WHERE A.DWBH = B.DWBH ) AS DWMC <!-- 单位名称 -->
+		,JXBH <!-- 警衔编号 -->
+		,(SELECT A.JXMC FROM LZ_JX A WHERE A.JXBH = B.JXBH ) AS JXMC <!-- 警衔名称 -->
+		,ZWBH <!-- 职务编号 -->
+		,(SELECT A.ZWMC FROM LZ_ZW A WHERE A.ZWBH = B.ZWBH ) AS ZWMC <!-- 职务名称 -->
+		,ADDTIME <!-- 添加学员时间 -->
+		,decode(ZT, 0, '离职', 1, '在职','其他') AS ZT	<!-- 用户状态 0-无效,1-有效 -->
+		,MZ	<!-- 民族 -->
+		,JG	<!-- 籍贯 -->
+		,CSDM <!-- 出生地名 -->
+		,CZDM <!-- 成长地名 -->
+		,XX	<!-- 血型 -->
+		,JKZK <!-- 健康状况 -->
+		,JKZKMS <!-- 健康状况描述 -->
+		,GZDWQC <!-- 工作单位全称 -->
+		,CJGAGZRQ <!-- 参加公安工作日期 -->
+		,JCGZJLSJ <!-- 基础工作经历时间 -->
+		,CJZZRQ	<!-- 参加组织日期 -->
+		,RYLB <!-- 人员类别 -->
+		,JRGWYSJ <!-- 进入公务员队伍时间 -->
+		,HJSZD <!-- 户籍所在地 -->
+		,SFZHM <!-- 身份证号码 -->
+		,ZC <!-- 专长 -->
+		,RYSSBMJZ <!-- 人员所属部门警种 -->
+		,RYZT <!-- 人员状态 -->
+		,RYSF <!-- 人员身份 -->
+		,XMPY <!-- 姓名拼音 -->
+		,TJGXSZDW <!-- 统计关系所在单位 -->
+		,RYGZGW	<!-- 人员工作岗位 -->
+		,JDBH <!-- 管理基地编号 -->
+		,HJSZDBC <!-- 户籍所在地补充 -->
+		,GLLB <!-- 管理类别 -->
+		,JYKBZ <!-- 警员标志 -->
+		,CJGZRQ <!-- 参加工作日期 -->
+		,decode(ZZMM,1,'中共党员',2,'中共预备党员',3,'共青团员',4,'民革党员',5,'民盟盟员',6,'民建会员',7,'民进会员',8,'农工党党员',9,'致公党党员',10,'九三学社社员',11,'台盟盟员',12,'无党派人士',13,'群众','其他') AS ZZMM <!-- 政治面貌 -->
+		,JH <!-- 警号 -->
+		,DZYX <!-- 电子邮箱 -->
+		,TEACHERID <!-- 教官编号 -->
+		from lz_policeinfo B where userid = #{userID}
+	</select>
+
+	<select id="queryPoliceInfo" parameterType="long" resultType="PoliceInfo">
+		select * from lz_policeinfo where userid = #{userID}
+	</select>
+	
+	<select id="queryPoliceInfoByUserAndPwd" parameterType="PoliceInfo" resultType="PoliceInfo">
+		select * from lz_policeinfo a where a.jh = #{jh} and a.pwd = md5(#{pwd})
+		and a.zt=1
+	</select>
+	
+	<sql id="policeInfoWhere">
+		<where>
+			<if test="userID != null"> userID =#{userID}</if>
+			<if test="jh != null  and jh != '' ">and jh = #{jh,jdbcType=VARCHAR}</if>
+			<if test="xm != null and xm != '' ">and xm = #{xm,jdbcType=VARCHAR}</if>
+			<if test="xb != null and xb != '' ">and xb = #{xb}</if>
+			<if test="nl != null">and nl = #{nl,jdbcType=INTEGER}</if>
+			<if test="bmbh != null">and bmbh = #{bmbh,jdbcType=INTEGER}</if>
+			<if test="dwbh != null">and dwbh = #{dwbh,jdbcType=INTEGER}</if>
+			<if test="jxbh != null">and jxbh = #{jxbh,jdbcType=INTEGER}</if>
+			<if test="zwbh != null">and zwbh = #{zwbh,jdbcType=INTEGER}</if>
+		</where>
+	</sql>
+	
+	<select id="queryPoliceInfoList" parameterType="PoliceInfo" resultType="PoliceInfo">
+		select * from lz_policeinfo 
+		<include refid="policeInfoWhere"></include>
+	</select>
+
+	<!-- gyw add -->
+	<select id="getPoliceSelectList" parameterType="com.ares.exam.dto.PoliceSelectCondition" resultType="PoliceSelect">
+		select
+		userid
+		,jh
+		,xm
+		,xb
+		,jxbh
+		,(select jxmc from lz_jx where lz_jx.jxbh= t.jxbh) as jxmc
+		,bmbh
+		,(select bmmc from lz_bm where lz_bm.bmbh= t.bmbh) as bmmc
+		,zwbh
+		,(select zwmc from lz_zw where lz_zw.zwbh= t.zwbh) as zwmc
+		,dwbh
+		,(select dwmc from lz_dw where lz_dw.dwbh=t.dwbh ) as dwmc
+		from lz_policeinfo t
+		where t.zt = 1
+		and t.isadmin = 0
+		<if test="userid != null"> and userID =#{userid}</if>
+		<if test="jh != null  and jh != '' ">and jh = #{jh,jdbcType=VARCHAR}</if>
+		<if test="xm != null and xm != '' ">and xm = #{xm,jdbcType=VARCHAR}</if>
+		<if test="xb != null and xb != '' ">and xb = #{xb}</if>
+		<if test="bm != null and bm != '' " >and bmbh = #{bm,jdbcType=INTEGER}</if>
+		<if test="dw != null and dw != '' ">and dwbh = #{dw,jdbcType=INTEGER}</if>
+		<if test="jx != null and jx != '' ">and jxbh = #{jx,jdbcType=INTEGER}</if>
+		<if test="zw != null and zw != '' ">and zwbh = #{zw,jdbcType=INTEGER}</if>
+	</select>
+	
+	<select id="queryPoliceInfoDtoList" parameterType="PoliceInfo" resultType="com.ares.exam.dto.PoliceInfoDto">
+		select USERID,jh,xm,xb,nl,lxdh,BMMC,DWMC,JXMC,ZWMC from v_policeinfo 
+		<include refid="policeInfoWhere"></include>
+	</select>
+	
+	<select id="queryPoliceInfoListByExcel" resultType="PoliceInfo" parameterType="java.util.List">
+		select * from lz_policeinfo where userid in 
+		<foreach item="item" index="index" collection="list" open="(" separator="," close=")">  
+		  #{item}  
+		 </foreach> 
+	</select>
+	
+	<select id="queryPoliceInfoDtoListByExcel" resultType="com.ares.exam.dto.PoliceInfoDto" parameterType="java.util.List">>
+		select USERID,jh,xm,xb,nl,lxdh,BMMC,DWMC,JXMC,ZWMC from v_policeinfo  where userid in
+		<foreach item="item" index="index" collection="list" open="(" separator="," close=")">  
+		  #{item}  
+		</foreach>
+	</select>
+	
+</mapper>

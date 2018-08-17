@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+    PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ares.exam.dao.AnswerDao">
+	<insert id="inserAnswer" parameterType="java.util.List" useGeneratedKeys="false"> 
+		insert into ks_answer(answerID,answerSheetID,questionID,isReview,score,correct,respondence)
+		select ks_answer_SEQ.nextval as answerID, A.* from (
+			<foreach collection="list" item="item" index="index"  separator="union all">
+				select 
+					#{item.answerSheetID,jdbcType=INTEGER} answerSheetID,
+					#{item.questionID,jdbcType=INTEGER} questionID,
+					#{item.isReview,jdbcType=INTEGER} isReview,
+					#{item.score,jdbcType=INTEGER} score,
+					#{item.correct,jdbcType=INTEGER} correct,
+					#{item.respondence,jdbcType=VARCHAR} respondence
+				from dual
+			</foreach>
+		) A
+	</insert>
+	<select id="queryAnswerDto" resultType="com.ares.exam.dto.AnswerDto">
+		select b.questionid,b.questiontype,b.questioncontent,b.questionbankid,b.rightanswer,a.answerid,a.answersheetid,a.isreview,a.score,a.correct,a.respondence 
+		from ks_answer a,ks_question b where a.questionid = b.questionid and a.answersheetid = #{answerSheetID,jdbcType=INTEGER}
+	</select>
+	
+	<select id="getNoMarkCount" resultType="int">
+		select count(*) from ks_answer where isreview = 0 and answersheetid = #{answerSheetID,jdbcType=INTEGER}
+	</select>
+	
+	<select id="get" resultType="Answer">
+		select a.* from ks_answer  a where a.answerid = #{answerID,jdbcType=INTEGER}
+	</select>
+	
+	<delete id="clean">
+		delete ks_answer where answersheetid = #{answerSheetID,jdbcType=INTEGER}
+	</delete>
+	
+	<update id="updateAnswer" parameterType="java.util.List" useGeneratedKeys="false">
+		begin  
+		<foreach collection="list" item="item" index="index" separator=";" >
+			<if test="item.score != null and item.score != ''">
+			 <foreach collection="list" item="item" index="index" separator=";" > 
+	            update ks_answer 
+	            <set>
+		                score = #{item.score},
+						isReview = 1,	
+	            </set>
+	            where answerID = #{item.answerID}
+            </foreach>
+           </if>
+		</foreach>
+		;end;
+	</update>
+</mapper>
+    

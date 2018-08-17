@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+    PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ares.exam.dao.ExamPoliceInfoDao">
+	<insert id="add" parameterType="ExamPoliceInfo">
+	   insert into ks_exampoliceinfo(examID,userID) 
+       values(#{examID,jdbcType=INTEGER},
+       #{userID,jdbcType=INTEGER})
+	</insert>
+	<delete id="del" parameterType="ExamPoliceInfo">
+		delete ks_exampoliceinfo where exampoliceinfoid= #{examPoliceInfoID,jdbcType=INTEGER}
+	</delete>
+	
+	<delete id="clean">
+		delete ks_exampoliceinfo where examID =#{examID,jdbcType=INTEGER}
+	</delete>
+	
+	<select id="queryPoliceInfoDtoByExam" parameterType="Exam" resultType="com.ares.exam.entity.PoliceInfo">
+		select b.* from ks_exampoliceinfo a,v_policeinfo b,ks_exam c
+		<where>
+			a.examid=c.examid and a.userid = b.userid and  c.examid = #{examID}
+		</where>
+	</select>
+	
+	<!-- 根据ID -->
+	<select id="getPoliceInfoDtoByExamID" parameterType="Long" resultType="com.ares.exam.dto.PoliceInfoDto">
+		select b.USERID,b.jh,b.xm,b.xb,b.nl,b.lxdh,b.BMMC,b.DWMC,b.JXMC,b.ZWMC from ks_exampoliceinfo a,v_policeinfo b,ks_exam c
+		<where>
+			a.examid=c.examid and a.userid = b.userid and  c.examid = #{examID}
+		</where>
+	</select>
+
+	<!-- 根据考试ID 获取 考生信息 -->
+	<select id="getPoliceSelectByExamID" parameterType="Long" resultType="PoliceSelect">
+		select
+		 b.userid
+		,b.jh
+		,b.xm
+		,b.xb
+		,b.jxbh
+		,(select jxmc from lz_jx where lz_jx.jxbh= b.jxbh) as jxmc
+		,b.bmbh
+		,(select bmmc from lz_bm where lz_bm.bmbh= b.bmbh) as bmmc
+		,b.zwbh
+		,(select zwmc from lz_zw where lz_zw.zwbh= b.zwbh) as zwmc
+		,b.dwbh
+		,(select dwmc from lz_dw where lz_dw.dwbh= b.dwbh ) as dwmc
+		from ks_exampoliceinfo a,lz_policeinfo b,ks_exam c
+		<where>
+			a.examid=c.examid and a.userid = b.userid and  c.examid = #{examID}
+		</where>
+	</select>
+
+	<!--  根据考试id和用户id 获取-->
+	<select id="get" resultType="com.ares.exam.entity.ExamPoliceInfo">
+		select a.* from ks_exampoliceinfo a
+		<where>
+			a.examID = #{examID} and a.userID = #{userID}
+		</where>
+	</select>
+	
+	
+	<!--  批量插入 -->
+	<insert id="addExamPoliceInfo" parameterType="java.util.List" useGeneratedKeys="false">
+		insert into KS_EXAMPOLICEINFO (EXAMPOLICEINFOID,EXAMID,USERID)
+		select KS_EXAMPOLICEINFO_SEQ.nextval as EXAMPOLICEINFOID,A.* from(
+			<foreach collection="list" item="item" index="index"  separator="union all"> 
+				select 
+				#{item.examID,jdbcType=INTEGER} examID, 
+				#{item.userID,jdbcType=INTEGER} userID
+			
+				from dual
+			</foreach>
+		) A
+	</insert>
+	
+	<update id="updateState" parameterType="ExamPoliceInfo">
+		update ks_exampoliceinfo set isOver = #{isOver} where examPoliceInfoID = #{examPoliceInfoID}
+	</update>
+	
+	
+</mapper>

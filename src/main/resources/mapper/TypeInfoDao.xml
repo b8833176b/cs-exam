@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+    PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ares.exam.dao.TypeInfoDao">
+	<select id="getDepartmentTypeList" resultType="DepartmentType">
+		select * from lz_bm
+	</select>
+	
+	<select id="getPoliceRankTypeList" resultType="PoliceRankType">
+		select * from lz_jx
+	</select>
+	
+	<select id="getPostTypeList" resultType="PostType">
+		select * from lz_zw
+	</select>
+	
+	<select id="getUnitTypeList" resultType="UnitType">
+		select * from lz_dw
+	</select>
+
+</mapper>

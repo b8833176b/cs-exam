@@ -1,0 +1,463 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>考试页面</title>
+	<meta charset="utf-8"> 
+	<meta http-equiv="X-UA-Compatible" content="IE=edge,Chrome=1" />
+	<link rel="stylesheet" type="text/css" href="assets/bootstrap/css/bootstrap.min.css">
+	<script src="assets/jquery/js/jquery-1.12.4.min.js"></script>
+	<script src="assets/bootstrap/js/bootstrap.min.js"></script>
+	<script type="text/javascript">
+        window.onload=function(){
+		    document.onkeydown=function(){ 
+		        var e=window.event||arguments[0]; 
+		        if(e.keyCode==123){
+		            return false;
+		        }else if((e.ctrlKey)&&(e.shiftKey)&&(e.keyCode==73)){
+		        }else if((e.ctrlKey)&&(e.keyCode==85)){
+		            //追加  
+		            return false;
+		        }
+		    };
+		    document.oncontextmenu=function(){  
+		        return false; 
+		    };
+		}
+	</script>
+	<style type="text/css">
+		body {
+			height: 100%;
+		
+		}
+		.left-window{
+			display: inline-block;
+			width: 20%;
+			height: 100vh;
+			border-right: 2px solid #000;
+			float: left;
+		}
+		.left-menu{
+			margin-top: 20px;
+			margin-right: 50px;
+			margin-left: 20px;
+
+		}
+		.right-window{
+			display: inline-block;
+			width: 65%;  
+		}
+		.item{
+			width:100%;
+			height:auto;
+			margin: 30px;
+		}
+		
+		/*  试题内容 */
+		.item > .content{
+			font-size: 20px;
+			margin: 20px;
+			font-weight:bold;
+			
+		}
+		/* 试题选项 */
+		.item > .my-radio{
+			margin-left: 50px;
+		}
+
+		.yc{
+			display: none;
+		}
+		.my-time{
+			position: fixed;
+			width: 200px;
+			height: 150px;
+			right: 20px;
+			top: 150px;
+		}
+	</style>
+</head>
+<body>
+	<div>
+		<div class="left-window">
+			<div class="list-group left-menu" id="menu">
+				<a class="list-group-item active">
+				    <span class="badge" id="radioC">0</span>
+				    	单选题
+			  	</a>
+			  	<a class="list-group-item">
+				    <span class="badge" id="multipleC">0</span>
+				    	多选题
+			  	</a>
+			  	<a class="list-group-item">
+				    <span class="badge" id="judgmentC">0</span>
+				    	判断题
+			  	</a>
+			  	<a class="list-group-item">
+				    <span class="badge" id="clozeC">0</span>
+				    	填空题
+			  	</a>
+			  	<a class="list-group-item">
+				    <span class="badge" id="answerC">0</span>
+				    	问答题
+			  	</a>
+			</div>
+		</div>
+		<div class="right-window">
+			<div class="radio-box tabBodyItem" id="radio-box">
+				<div class="item radio-yl yc">
+					<div class="content">
+					
+					</div>
+					<div class="my-radio">
+						<div class="radio">
+						  <p>
+						    <input type="radio" name="optionsRadios" id="optionsRadios1" value="A">
+						  	<label class="oA"></label>
+						  </p>
+						</div>
+						<div class="radio">
+						  <p>
+						    <input type="radio" name="optionsRadios" id="optionsRadios2" value="B">
+						   	<label class="oB"></label>
+						  </p>
+						</div>
+						<div class="radio">
+						  <p>
+						    <input type="radio" name="optionsRadios" id="optionsRadios3" value="C">
+						   	<label class="oC"></label>
+						  </p>
+						</div>
+						<div class="radio">
+						  <p>
+						    <input type="radio" name="optionsRadios" id="optionsRadios4" value="D">
+						  	<label class="oD"></label>
+						  </p>
+						</div>
+					</div>
+				</div>				
+			</div>
+			<div class="multiple-box tabBodyItem yc" id="multiple-box">
+				<div class="item multiple-yl yc">
+					<div class="content">
+					</div>
+					<div class="my-checkbox" style="margin-left: 50px;">
+						<div class="checkbox">
+						  <p>
+						    <input type="checkbox" name="optionsRadios" id="optionsRadios1"  value="A">
+						    <label class="oA"></label>
+						  </p>
+						</div>
+						<div class="checkbox">
+						  <p>
+						    <input type="checkbox" name="optionsRadios" id="optionsRadios2" value="B">
+						   	<label class="oB"></label>
+						  </p>
+						</div>
+						<div class="checkbox">
+						  <p>
+						    <input type="checkbox" name="optionsRadios" id="optionsRadios2" value="C">
+						    <label class="oC"></label>
+						  </p>
+						</div>
+						<div class="checkbox">
+						  <p>
+						    <input type="checkbox" name="optionsRadios" id="optionsRadios2" value="D">
+						   	<label class="oD"></label>
+						  </p>
+						</div>
+					</div>
+				</div>
+			</div>
+			<div class="judgment-box tabBodyItem yc" id="judgment-box">
+				<div class="item judgment-yl yc">
+					<div class="content" >
+					</div>
+					<div class="my-judgmentRadio" style="margin-left: 22px;">
+						<label class="radio-inline">
+						  <input type="radio" name="inlineRadioOptions" id="inlineRadio1" value="T"> 正确
+						</label>
+						<label class="radio-inline">
+						  <input type="radio" name="inlineRadioOptions" id="inlineRadio2" value="N"> 错误
+						</label>
+					</div>
+				</div>
+			</div>
+			<div class="cloze-box tabBodyItem yc" id="cloze-box">
+				<div class="item cloze-yl yc">
+					<div class="content">
+					</div>
+					<div class="my-cloze" style="margin-left: 20px;">
+						<textarea class="form-control" rows="4" ></textarea>
+					</div>
+				</div>
+			</div>
+			<div class="answer-box tabBodyItem yc" id="answer-box">
+				<div class="item answer-yl yc">
+					<div class="content">
+					</div>
+					<div class="my-answer" style="margin-left: 20px;">
+						<textarea class="form-control" rows="4" ></textarea>
+					</div>
+
+				</div>
+			</div>
+		</div>
+		<div class="my-time" style="background: #f5f5f5;box-shadow: 3px 3px 2px #000;">
+				<div class="row">
+					<div class="col-xs-9 col-md-9" style="padding-right: 0px;">
+						<div style="margin: 20px;">
+							<p style="text-align: center;">
+								共40分钟
+							</p>
+							<p  style="text-align: center;">
+								剩余<span id="t_h"></span><span id="t_m"></span><span id="t_s"></span>
+
+							</p>
+						</div>
+						<div style="text-align: center;padding: 14px;">
+							<button type="button" class="btn btn-primary btn-sm" onclick="submint()">交卷</button>
+						</div>
+					</div>
+
+					<div class="col-xs-3 col-md-3" style="padding:0px 8px;">
+					   <div style="margin: 10px 8px 10px 0px;">
+						<button type="button" class="btn btn-default btn-xs"><span class="glyphicon glyphicon-plus" aria-hidden="true"></span></button>
+						<label style="height: 80px;text-align: center;padding-right: 9px;line-height: 42px;">
+							字 体
+						</label>
+						<button type="button" class="btn btn-default btn-xs"><span class="glyphicon glyphicon-minus" aria-hidden="true"></span></button> 
+					  </div>
+					</div>
+
+				</div>
+		</div>
+	</div>
+	<script>
+		var ok=false;
+		var i=0;
+		window.onfocus = function(){  
+		    // 切换到页面执行事件  
+		}  
+		window.onblur = function(){  
+		    // 切换出页面执行事件 
+		    i++;
+		    if(i==5 && !ok){
+		    	alert('切换或改变超过5此，直接交卷');
+		    	submint();
+		    }
+		}  
+		window.onresize = function(){
+ 			i++;
+		    if(i==5 && !ok){
+		    	alert('切换或改变超过5此，直接交卷');
+		    	submint();
+		    }
+		}
+		//题目类型切换
+	   $(".left-menu > .list-group-item").click(function(){
+			$(".tabBodyItem").addClass('yc');
+	        $($(".tabBodyItem")[$(this).index()]).removeClass('yc');
+
+	        $('.list-group-item').removeClass('active');
+	        $(this).addClass('active');
+		});
+		//返回登录页面
+	   function logout(){
+	    	window.location.href="home/logout"+"?timestamp="+new Date().getTime();
+	   }
+	   //获取试题信息，并隐藏没有指定类型得题目
+	   function getExamQuestionInfo(){
+	   		$.ajax({
+				type:"POST",
+				url: "Exam/getExamQuestionInfo",
+				dataType:"json",
+				success:function(data){
+					if(data.success){//成功
+						loadQuestionInfo(data.data);
+					}else{          //失败
+						alert(data.msg);
+					}
+				}
+			});
+	   }
+	   //设置试题信息
+	   function loadQuestionInfo(data){
+	   		var qs=data.questions;
+	   		var radioC=0;
+	   		var multipleC=0;
+	   		var judgmentC=0;
+	   		var clozeC=0;
+	   		var answerC=0;
+	   		for(var i=0;i<qs.length;i++){
+	   			if(qs[i].questionType==1){ //单选题
+					var item=$('.radio-yl').clone();
+	   				item.find('.content').text(qs[i].questionContent);
+	   				item.find('input:radio').attr('name',qs[i].questionID);
+	   				//目前写死四个选项
+	   				item.find('.oA').text(qs[i].optionA);
+	   				item.find('.oB').text(qs[i].optionB);
+	   				item.find('.oC').text(qs[i].optionC);
+	   				item.find('.oD').text(qs[i].optionD);
+	   				item.removeClass('yc');
+	   				item.removeClass('radio-yl');
+	   				item.addClass('as');
+	   				$('#radio-box').append(item);
+	   				radioC++;	
+	   			}
+	   			if(qs[i].questionType==2){ //多选题
+					var item2=$('.multiple-yl').clone();
+	   				item2.find('.content').text(qs[i].questionContent);
+	   				item2.find('input:checkbox').attr('name',qs[i].questionID);
+	   				item2.find('.oA').text(qs[i].optionA);
+	   				item2.find('.oB').text(qs[i].optionB);
+	   				item2.find('.oC').text(qs[i].optionC);
+	   				item2.find('.oD').text(qs[i].optionD);
+					item2.removeClass('yc');
+	   				item2.removeClass('multiple-yl');
+	   				item2.addClass('as');
+	   				$('#multiple-box').append(item2);
+	   				multipleC++;
+	   			}
+	   			if(qs[i].questionType==3){  //判断题
+	   				var item3=$('.judgment-yl').clone();
+	   				item3.find('.content').text(qs[i].questionContent);
+	   				item3.find('input:radio').attr('name',qs[i].questionID);
+	   				item3.removeClass('yc');
+	   				item3.removeClass('judgment-yl');
+	   				item3.addClass('as');
+	   				$('#judgment-box').append(item3);
+	   				judgmentC++;
+	   			}
+	   			if(qs[i].questionType==4){  //填空题
+	   				var item4=$('.cloze-yl').clone();
+	   				item4.find('.content').text(qs[i].questionContent);
+	   				item4.find('textarea').attr('name',qs[i].questionID);
+	   				item4.removeClass('yc');
+	   				item4.removeClass('cloze-yl');
+	   				item4.addClass('as');
+	   				$('#cloze-box').append(item4);
+	   				clozeC++;
+	   			}
+	   			if(qs[i].questionType==5){  //问答题
+	   				var item5=$('.answer-yl').clone();
+	   				item5.find('.content').text(qs[i].questionContent);
+	   				item5.find('textarea').attr('name',qs[i].questionID);
+	   				item5.removeClass('yc');
+	   				item5.removeClass('answer-yl');
+	   				item5.addClass('as');
+	   				$('#answer-box').append(item5);
+					answerC++;
+	   			}
+
+	   		}
+	   		$('#radioC').text(radioC);
+	   		$('#multipleC').text(multipleC);
+	   		$('#judgmentC').text(judgmentC);
+	   		$('#clozeC').text(clozeC);
+	   		$('#answerC').text(answerC);
+	   		var ed=data.ed;
+	   		loadExamTime(ed.whenLong);
+	   		setCanBlur(ed.canBlur);
+
+	   }
+	   function setCanBlur(canBlur){
+	   		if(canBlur==1){
+	   			ok=true;
+	   		}
+	   }
+
+	   function loadExamTime(m){
+	   		var time = new Date();
+	   		time.setMinutes(time.getMinutes()+m);
+	   		var interval = setInterval(function(){
+	   			var t=time.getTime()-new Date().getTime();
+	   			var h=0;
+	   			var m=0;
+	   			var s=0;
+	   			if(t>0){
+	   				 h=Math.floor(t/1000/60/60%24);
+				     m=Math.floor(t/1000/60%60);
+				     s=Math.floor(t/1000%60);
+				     if(h>0){
+						$('#t_h').text(h+"小时");
+				     }else{
+				     	$('#t_h').text("");
+				     }
+				     if(m>0){
+				     	$('#t_m').text(m+"分钟");
+				     }else{
+				     	$('#t_m').text("");
+				     }
+				     if(s>0){
+				     	$('#t_s').text(s+"秒");
+				     }else{
+				     	$('#t_s').text("");
+				     }
+	   			}else{
+	   				clearInterval(interval);
+	   				submint();
+	   			}
+	   		},100);
+	   }
+		//交卷
+	   function submint(){
+	   		function getDataInfo(){
+	   			var ar = new Array(); 
+	   			//获取单选题答案
+	   			$('.tabBodyItem .as .my-radio').each(function (index,e){
+	   				var id=$(e).find("input[type='radio']").attr('name');
+	   				var as=$(e).find("input[type='radio']:checked").val();
+	   				ar.push({questionID: id,respondence: as});
+	   			
+	   			});
+	   			//获取多选题答案
+	   			$('.tabBodyItem .as .my-checkbox').each(function (index,e){
+	   				var id=$(e).find("input[type='checkbox']").attr('name');
+	   				var as='';
+	   				$(e).find("input[type='checkbox']:checked").each(function(){
+	   					as+=$(this).val()+' ';
+	   				});
+	   				ar.push({questionID: id,respondence: as});
+	   			
+	   			});
+	   			//获取判断题答案
+	   			$('.tabBodyItem .as .my-judgmentRadio').each(function(index,e){
+	   				var id=$(e).find("input[type='radio']").attr('name');
+	   				var as=$(e).find("input[type='radio']:checked").val();
+	   				ar.push({questionID: id,respondence: as});
+	   			});
+	   			//获取填空题答案
+	   			$('.tabBodyItem .as .my-cloze').each(function(index,e){
+	   				var id=$(e).find("textarea").attr('name');
+	   				var as=$(e).find("textarea").val();
+	   				ar.push({questionID: id,respondence: as});
+	   			});
+	   			//获取问答题答案
+	   			$('.tabBodyItem .as .my-answer').each(function(index,e){
+	   				var id=$(e).find("textarea").attr('name');
+	   				var as=$(e).find("textarea").val();
+	   				ar.push({questionID: id,respondence: as});
+	   			});
+	   			return ar;
+
+	   		}
+	   		var da=getDataInfo();
+			$.ajax({  
+			    type: "POST",  
+			    url: "Exam/submit",  
+			    data: JSON.stringify(da),//将对象序列化成JSON字符串  
+			    dataType:"json",  
+			    contentType : 'application/json;charset=utf-8', //设置请求头信息  
+			    success: function(data){ 
+			    	alert(data.msg);
+			        logout();
+			    },  
+			    error: function(data){  
+			       alert(data.msg); 
+			    }  
+			}); 
+	   }
+	   getExamQuestionInfo();
+	</script>
+</body>
+</html>
