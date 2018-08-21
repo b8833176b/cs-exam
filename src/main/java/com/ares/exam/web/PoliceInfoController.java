@@ -91,7 +91,7 @@ public class PoliceInfoController {
 	 * @return
 	 */
 	@RequestMapping(value="/Upload",method={RequestMethod.GET,RequestMethod.POST})
-	public @ResponseBody Result<List<PoliceInfo>> uploadUserExcelQueryUserlist(@RequestParam(value = "file", required = false) MultipartFile file){
+	public @ResponseBody Result<List<PoliceSelect>> uploadUserExcelQueryUserlist(@RequestParam(value = "file", required = false) MultipartFile file){
 		InputStream in = null;
 		if(file==null||file.isEmpty()) {
 			return new Result<>(false,"文件不存在");
@@ -99,7 +99,7 @@ public class PoliceInfoController {
 		try {
 			in=file.getInputStream();
 			Workbook wb=new ImportExcelUtil().getWorkbook(in, file.getOriginalFilename());
-			List<PoliceInfo> pis=policeInfoService.getListByReadExcel(wb);
+			List<PoliceSelect> pis=policeInfoService.getListByReadExcel(wb);
 			if(pis==null) {
 				return new Result<>(true,"系统中没有匹配的考生");
 			}

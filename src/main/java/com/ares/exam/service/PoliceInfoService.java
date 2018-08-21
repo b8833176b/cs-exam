@@ -36,7 +36,7 @@ public interface PoliceInfoService {
 	 * @param hwb
 	 * @return
 	 */
-	public List<PoliceInfo> getListByReadExcel(Workbook hwb);
+	public List<PoliceSelect> getListByReadExcel(Workbook hwb);
 	
 	/**
 	 * 根据考试ID获取考试人员信息

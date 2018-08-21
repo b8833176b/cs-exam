@@ -6,6 +6,17 @@
 	<select id="queryAnswerSheetDtoByID" resultType="com.ares.exam.dto.AnswerSheetDto">
 		select a.answersheetid,a.userid,a.examid,a.ismarking,b.xm,b.bmbh from ks_answersheet a,lz_policeinfo b where a.userid = b.userid and a.examid = #{examID,jdbcType=INTEGER}
 	</select>
+
+	<select id="queryManualMark" resultType="com.ares.exam.dto.AnswerSheetDto" parameterType="com.ares.exam.dto.ManualMarkCondition">
+		select a.answersheetid,a.userid,a.examid,a.ismarking,b.xm,b.bmbh,b.jh,c.examName
+		from ks_answersheet a,lz_policeinfo b,ks_exam c
+		where a.userid = b.userid
+		and a.examid = c.examid
+		and a.examid = #{examID,jdbcType=INTEGER}
+		<if test="jh != null and jh != ''">and b.jh LIKE '%'||#{jh,jdbcType=VARCHAR}||'%'</if>
+		<if test="isMark != null">and a.ismarking = #{isMark,jdbcType=INTEGER}</if>
+	</select>
+
 	<sql id="answerSheetColumns">
 		<trim suffixOverrides=",">
 			answerSheetID,userID,examID,
@@ -88,8 +99,21 @@
 	
 	
 	<select id="queryExamResultDtos" resultType="com.ares.exam.dto.ExamResultDto" parameterType="com.ares.exam.dto.QueryAnswerSheetDto">
-		<include refid="selectExamResultDto"></include>
-		<include refid="whereExamResultDto"></include>
+       select  sign( NVL(cast(b.starttime AS DATE),trunc(sysdate)) - (select c.endtime from ks_exam c where c.examid=a.examid) ) as isMiss,
+		b.answersheetid,b.addressIP,d.jh,d.xm,b.score,b.ispass
+		from ks_exampoliceinfo a left join ks_answersheet b on a.examid=b.examid and a.userid=b.userid
+		left join lz_policeinfo d on a.userid=d.userid
+		where a.examid=#{examID}
+		<if test="jh != null and jh != ''">and d.jh = #{jh,jdbcType=INTEGER}</if>
+		<if test="xm != null and xm != ''">and d.xm = #{xm,jdbcType=VARCHAR}</if>
+		<if test="isMiss != null and isMiss == 0">
+			and NVL(cast(b.starttime AS DATE),trunc(sysdate))  <![CDATA[ <= ]]>  (select c.endtime from ks_exam c where c.examid=a.examid)
+		</if>
+		<if test="isMiss != null and isMiss == 1">
+			and NVL(cast(b.starttime AS DATE),trunc(sysdate)) > (select c.endtime from ks_exam c where c.examid=a.examid)
+		</if>
+		<!--<include refid="selectExamResultDto"></include>
+		<include refid="whereExamResultDto"></include>-->
 	</select>
 	
 </mapper>

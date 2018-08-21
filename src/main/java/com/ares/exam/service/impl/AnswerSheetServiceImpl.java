@@ -9,6 +9,9 @@ import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
+
+import com.ares.exam.dto.*;
+import com.ares.exam.exception.ParmException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -17,10 +20,6 @@ import com.ares.exam.dao.AnswerSheetDao;
 import com.ares.exam.dao.ExamDao;
 import com.ares.exam.dao.ExamPoliceInfoDao;
 import com.ares.exam.dao.QuestionDao;
-import com.ares.exam.dto.AnswerDto;
-import com.ares.exam.dto.AnswerSheetDto;
-import com.ares.exam.dto.ExamResultDto;
-import com.ares.exam.dto.QueryAnswerSheetDto;
 import com.ares.exam.entity.Answer;
 import com.ares.exam.entity.AnswerSheet;
 import com.ares.exam.entity.Exam;
@@ -82,18 +81,18 @@ public class AnswerSheetServiceImpl implements AnswerSheetService{
 
 	@Override
 	public int save(List<Answer> answers,Exam exam) throws ParameterNullException, NotExistException {
-		// TODO Auto-generated method stub
 		try {
 			List<Answer> ls= getMark(answers,exam);
 			//打印出来
-			for(Answer key:ls) {
+			/*for(Answer key:ls) {
 				System.out.println(key);
-			}
+			}*/
 			return answerDao.inserAnswer(ls);
 		} catch (ParameterNullException e) {
+			e.printStackTrace();
 			throw e;
 		} catch (NotExistException e) {
-			// TODO Auto-generated catch block
+			e.printStackTrace();
 			throw e;
 		}
 	}
@@ -119,7 +118,7 @@ public class AnswerSheetServiceImpl implements AnswerSheetService{
 							key.setIsReview(0);
 						}
 						Exam e=examDao.getExam(epi.getExamID());
-						int r=save(answers,e);
+						int r=save(answers,e);//自动评分
 						loadMark(as.getAnswerSheetID());
 						return r;
 					}else{
@@ -213,13 +212,11 @@ public class AnswerSheetServiceImpl implements AnswerSheetService{
 
 	@Override
 	public List<AnswerDto> queryAnswerDto(Long answerSheetID) throws ParameterNullException {
-		// TODO Auto-generated method stub
 		if(answerSheetID!=null) {
 			return answerDao.queryAnswerDto(answerSheetID);
 		}else {
 			throw new ParameterNullException("缺少参数");
 		}
-		
 	}
 
 	@Override
@@ -297,20 +294,26 @@ public class AnswerSheetServiceImpl implements AnswerSheetService{
 		}
 	}
 
+	@Override
+	public List<AnswerSheetDto> queryManualMark(ManualMarkCondition condition){
+		if(condition.getExamID()==null)
+			throw new ParmException("考试ID，参数为空！");
+		return answerSheetDao.queryManualMark(condition);
+	}
+
 
 	@Override
 	public void loadMark(Long answerSheetID) {
-		// TODO Auto-generated method stub
-		int r=answerDao.getNoMarkCount(answerSheetID);
-		if(r>0) { //什么也不做
-		}else {
+		int r=answerDao.getNoMarkCount(answerSheetID);//获得答卷中未打分的试题数量
+		if(r>0) { //当试卷还有未评分的题目，什么也不做
+		}else {//当该试卷全部都已经评分了
 			AnswerSheet as=answerSheetDao.get(answerSheetID);
 			if(as!=null) {
-				Float s=answerSheetDao.markSum(answerSheetID);
+				Float s=answerSheetDao.markSum(answerSheetID);//根据试卷id，计算该试卷已经评分的分数
 				if(s!=null) {
-					as.setScore(s);
-					as.setIsMarking(1);
-					answerSheetDao.update(as);
+					as.setScore(s);//设置总分
+					as.setIsMarking(1);//设置已阅
+					answerSheetDao.update(as);//更新该试卷的总分和状态
 				
 				}else {
 					System.out.println("????????");
@@ -342,15 +345,14 @@ public class AnswerSheetServiceImpl implements AnswerSheetService{
 			List<ExamResultDto>  erds=queryExamResultDtos(qasd);
 			exportExcel(erds, session, request, response);
 		} catch (ParameterNullException e) {
-			// TODO Auto-generated catch block
 			throw e;
 		}	
 	}
 	
 	private void exportExcel(List<ExamResultDto> erds,HttpSession session, HttpServletRequest request, HttpServletResponse response) {
-		String [] excelHeader = {"记录号","警号","姓名","IP地址","得分"};
-		String [] ds_titles = {"answerSheetID","jh","xm","addressIP","score"};
-		int [] ds_format = {2,2,2,2,2,2};
+		String [] excelHeader = {"记录号","警号","姓名","IP地址","得分","状态"};
+		String [] ds_titles = {"answerSheetID","jh","xm","addressIP","score","isMiss"};
+		int [] ds_format = {2,2,2,2,2,2,2};
 		List<Map<String, Object>> data =new ArrayList<>();
 		if(erds!=null&&!erds.isEmpty()) {
 			for(ExamResultDto key:erds) {
@@ -360,6 +362,7 @@ public class AnswerSheetServiceImpl implements AnswerSheetService{
 				map.put("xm", key.getXm());
 				map.put("score", key.getScore());
 				map.put("addressIP", key.getAddressIP());
+				map.put("isMiss", key.getIsMissStr());
 				map.put("isPass", key.getIsPass());
 				data.add(map);
 			}
@@ -367,7 +370,6 @@ public class AnswerSheetServiceImpl implements AnswerSheetService{
 		try {
 			ImportExcelUtil.export("成绩表", "数据", excelHeader, ds_titles, ds_format, null, data, request, response);
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 	}

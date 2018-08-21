@@ -17,6 +17,11 @@ public class AnswerSheetDto {
 	private String xm;
 	//部门编号
 	private Long bmbh;
+	//警号
+	private String jh;
+	//考试名称
+    private String examName;
+
 	public Long getAnswerSheetID() {
 		return answerSheetID;
 	}
@@ -53,6 +58,34 @@ public class AnswerSheetDto {
 	public void setBmbh(Long bmbh) {
 		this.bmbh = bmbh;
 	}
-	
 
+	public String getJh() {
+		return jh;
+	}
+
+	public void setJh(String jh) {
+		this.jh = jh;
+	}
+
+	public String getExamName() {
+		return examName;
+	}
+
+	public void setExamName(String examName) {
+		this.examName = examName;
+	}
+
+	@Override
+	public String toString() {
+		return "AnswerSheetDto{" +
+				"answerSheetID=" + answerSheetID +
+				", userID=" + userID +
+				", examID=" + examID +
+				", isMarking=" + isMarking +
+				", xm='" + xm + '\'' +
+				", bmbh=" + bmbh +
+				", jh='" + jh + '\'' +
+				", examName='" + examName + '\'' +
+				'}';
+	}
 }

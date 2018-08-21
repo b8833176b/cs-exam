@@ -6,10 +6,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
-import com.ares.exam.dto.AnswerDto;
-import com.ares.exam.dto.AnswerSheetDto;
-import com.ares.exam.dto.ExamResultDto;
-import com.ares.exam.dto.QueryAnswerSheetDto;
+import com.ares.exam.dto.*;
 import com.ares.exam.entity.Answer;
 import com.ares.exam.entity.AnswerSheet;
 import com.ares.exam.entity.Exam;
@@ -88,7 +85,9 @@ public interface AnswerSheetService{
 	 * @throws ParameterNullException
 	 */
 	public List<AnswerSheetDto> queryAnswerSheetDtosByExam(Exam exam) throws ParameterNullException;;
-	
+
+	List<AnswerSheetDto> queryManualMark(ManualMarkCondition condition);
+
 	/**
 	 * 根据考试ID，和用户ID获取答题
 	 * @param examID

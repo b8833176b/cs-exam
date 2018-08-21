@@ -66,7 +66,7 @@ public interface ExamDao {
 	
 	/**
 	 * 根据条件查询考试
-	 * @param exam
+	 * @param examDto
 	 * @return
 	 */
 	List<ExamDto> queryExamDto(ExamDto examDto);

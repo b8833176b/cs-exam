@@ -19,8 +19,14 @@
 		) A
 	</insert>
 	<select id="queryAnswerDto" resultType="com.ares.exam.dto.AnswerDto">
-		select b.questionid,b.questiontype,b.questioncontent,b.questionbankid,b.rightanswer,a.answerid,a.answersheetid,a.isreview,a.score,a.correct,a.respondence 
-		from ks_answer a,ks_question b where a.questionid = b.questionid and a.answersheetid = #{answerSheetID,jdbcType=INTEGER}
+		select b.questionid,b.questiontype,b.questioncontent,b.questionbankid,b.rightanswer,a.answerid,a.answersheetid,a.isreview,a.score,a.correct,a.respondence
+		<!-- ,d.radioscore,d.multiplescore,d.judgmentscore,d.clozescore,d.answerscore,d.typingscore -->
+		,decode(b.questiontype,1,d.radioscore,2,d.multiplescore,3,d.judgmentscore,4,d.clozescore,5,d.answerscore,6,d.typingscore) as questionscore
+		from ks_answer a,ks_question b ,ks_answersheet c,ks_exam d
+		where a.questionid = b.questionid
+          and a.answersheetid = c.answersheetid
+          and c.examid = d.examid
+		  and a.answersheetid = #{answerSheetID,jdbcType=INTEGER}
 	</select>
 	
 	<select id="getNoMarkCount" resultType="int">

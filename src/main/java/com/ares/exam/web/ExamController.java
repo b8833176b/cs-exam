@@ -39,7 +39,6 @@ public class ExamController extends BaseController{
 		try {
 			ls=examService.queryExamDto(examDto);
 		} catch (Exception e) {
-			// TODO: handle exception
 			e.printStackTrace();
 			return new Result<List<ExamDto>>(false,"错误!");
 		}
@@ -178,6 +177,23 @@ public class ExamController extends BaseController{
 			return new Result<>(false,"没有开始考试!");
 		}
 	}
+
+	//gyw add,判断考试是否超时，防止用户关闭，或者后退页面后再次考试。
+	/*@RequestMapping(value="/isExamOverTime",method= {RequestMethod.GET,RequestMethod.POST})
+	public @ResponseBody Result isExamOverTime(){
+		HttpSession session=getSession();
+		Long examID=(Long) session.getAttribute(Constants.NOWEXAMID_KEY);//获取考试ID
+		Long userID=(Long) session.getAttribute(Constants.USERID_KEY);//获取当前考生id
+		if(examID!=null) {
+			ExamQuestionInfoDto eqid=examService.getExamQestionInfoDto(examID);
+			//获取考试交卷时间（先获取用户在该考试开始答题的时间，再加上该考试设置的时长）
+			//判断交卷时间是否超过当前系统时间，超过则直接提交试卷。
+
+			return new Result<>(true,"考试时到!自动交卷！");
+		}
+		return new Result<>(false,"未超时!");
+
+	}*/
 	
 	@RequestMapping(value="/train",method= {RequestMethod.GET,RequestMethod.POST})
 	public @ResponseBody Result<ExamQuestionInfoDto> getTrain(@RequestBody TrainParaDto trainParaDto){

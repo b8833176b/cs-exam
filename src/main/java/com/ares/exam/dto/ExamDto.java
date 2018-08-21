@@ -44,6 +44,10 @@ public class ExamDto {
 		private Integer display;
 		//能否失去焦点
 		private Integer canBlur;
+
+		//gyw add
+	    //考试最终得分
+		private String examScore;
 		public Integer getCanBlur() {
 			return canBlur;
 		}
@@ -162,14 +166,37 @@ public class ExamDto {
 		public void setExamTypeID(Long examTypeID) {
 			this.examTypeID = examTypeID;
 		}
-		@Override
-		public String toString() {
-			return "ExamDto [examID=" + examID + ", examName=" + examName + ", examType=" + examTypeName + ", startTime="
-					+ startTime + ", endTime=" + endTime + ", whenLong=" + whenLong + ", description=" + description
-					+ ", founder=" + founder + ", founderID=" + founderID + ", radioScore=" + radioScore
-					+ ", multipleScore=" + multipleScore + ", judgmentScore=" + judgmentScore + ", ClozeScore="
-					+ clozeScore + ", AnswerScore=" + answerScore + ", TypingScore=" + typingScore + ", display="
-					+ display + "]";
-		}
-		
+
+	public String getExamScore() {
+		return examScore;
+	}
+
+	public void setExamScore(String examScore) {
+		this.examScore = examScore;
+	}
+
+	@Override
+	public String toString() {
+		return "ExamDto{" +
+				"examID=" + examID +
+				", examName='" + examName + '\'' +
+				", examTypeName='" + examTypeName + '\'' +
+				", examTypeID=" + examTypeID +
+				", startTime=" + startTime +
+				", endTime=" + endTime +
+				", whenLong=" + whenLong +
+				", description='" + description + '\'' +
+				", founder='" + founder + '\'' +
+				", founderID=" + founderID +
+				", radioScore=" + radioScore +
+				", multipleScore=" + multipleScore +
+				", judgmentScore=" + judgmentScore +
+				", clozeScore=" + clozeScore +
+				", answerScore=" + answerScore +
+				", typingScore=" + typingScore +
+				", display=" + display +
+				", canBlur=" + canBlur +
+				", examScore='" + examScore + '\'' +
+				'}';
+	}
 }

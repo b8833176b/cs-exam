@@ -17,6 +17,9 @@ public class ExamResultDto {
 	private String addressIP;
 	//是否及格
 	private Integer isPass;
+    //是否缺考
+	private Integer isMiss;
+
 	public Long getAnswerSheetID() {
 		return answerSheetID;
 	}
@@ -54,9 +57,26 @@ public class ExamResultDto {
 	public void setAddressIP(String addressIP) {
 		this.addressIP = addressIP;
 	}
+
+	public Integer getIsMiss() {
+		return isMiss;
+	}
+
+	public String getIsMissStr() {
+		if( isMiss<=0 )
+			return "正常";
+		return "缺考";
+	}
+
+	public void setIsMiss(Integer isMiss) {
+		this.isMiss = isMiss;
+	}
+
 	@Override
 	public String toString() {
-		return "ExamResultDto [answerSheetID=" + answerSheetID + ", jh=" + jh + ", xm=" + xm + ", score=" + score
+		return "ExamResultDto [answerSheetID=" + answerSheetID + ", jh=" + jh + ", xm=" + xm
+				+ ", score=" + score
+				+ ", isMiss=" + isMiss
 				+ ", isPass=" + isPass + "]";
 	}
 	

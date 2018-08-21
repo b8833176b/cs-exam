@@ -128,6 +128,30 @@
 		  #{item}  
 		 </foreach> 
 	</select>
+
+	<!-- gyw add -->
+	<select id="getPoliceSelectListByExcel" parameterType="java.util.List" resultType="PoliceSelect">
+		select
+		userid
+		,jh
+		,xm
+		,xb
+		,jxbh
+		,(select jxmc from lz_jx where lz_jx.jxbh= t.jxbh) as jxmc
+		,bmbh
+		,(select bmmc from lz_bm where lz_bm.bmbh= t.bmbh) as bmmc
+		,zwbh
+		,(select zwmc from lz_zw where lz_zw.zwbh= t.zwbh) as zwmc
+		,dwbh
+		,(select dwmc from lz_dw where lz_dw.dwbh=t.dwbh ) as dwmc
+		from lz_policeinfo t
+		where t.zt = 1
+		and t.isadmin = 0
+		and userid in
+		<foreach item="item" index="index" collection="list" open="(" separator="," close=")">
+			#{item}
+		</foreach>
+	</select>
 	
 	<select id="queryPoliceInfoDtoListByExcel" resultType="com.ares.exam.dto.PoliceInfoDto" parameterType="java.util.List">>
 		select USERID,jh,xm,xb,nl,lxdh,BMMC,DWMC,JXMC,ZWMC from v_policeinfo  where userid in

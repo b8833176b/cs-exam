@@ -47,7 +47,7 @@
         }
 
     	$(document).ready(function(){
-	    		getInfo();
+	    		getInfo();//当前登陆人姓名
 	    		getExamInfo();
                 getLzPoliceInfo();//个人信息
 	    });
@@ -120,8 +120,11 @@
     			var td2=$('<td></td>').text(l2[i].examName);
     			var td3=$('<td></td>').text(l2[i].startTime);
     			var td4=$('<td></td>').text(l2[i].endTime);
-    			var btn=$('<button type="button" class="btn btn-primary btn-sm" onclick="">查看分数</button>');
-    			btn.attr('data-id',l2[i].examID);
+                var btn =$('<td></td>').text("阅卷中");
+    			if(l2[i].examScore!=null){
+                    btn=$('<button type="button" class="btn btn-primary btn-sm" onclick="showScore(&quot;'+l2[i].examScore+'&quot;)">查看分数</button>');
+                    btn.attr('data-id',l2[i].examID);
+				}
 
     			var td5=$('<td></td>');
     			td5.append(btn);
@@ -134,7 +137,7 @@
     			var td2=$('<td></td>').text(l3[i].examName);
     			var td3=$('<td></td>').text(l3[i].startTime);
     			var td4=$('<td></td>').text(l3[i].endTime);
-    			var btn=$('<button type="button" class="btn btn-primary btn-sm" onclick="">查看分数</button>');
+    			var btn=$('<button type="button" class="btn btn-primary btn-sm" onclick="">缺考</button>');
     			btn.attr('data-id',l3[i].examID);
 
     			var td5=$('<td></td>');
@@ -410,6 +413,7 @@
 	        $($(".ta")[$(this).index()]).removeClass("yc");
     	});
 
+		//个人信息
         function getLzPoliceInfo(){
             $.ajax({
                 type:"POST",
@@ -453,6 +457,11 @@
             else
                 return dateStr;
         }
+
+        //查看分数
+        function showScore(score){
+            alert("得分："+score+"分");
+		}
 
 	</script>
 </body>

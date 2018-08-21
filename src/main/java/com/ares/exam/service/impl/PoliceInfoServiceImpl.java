@@ -54,7 +54,7 @@ public class PoliceInfoServiceImpl implements PoliceInfoService{
 	}
 	
 	@Override
-	public List<PoliceInfo> getListByReadExcel(Workbook hwb) {
+	public List<PoliceSelect> getListByReadExcel(Workbook hwb) {
 		HSSFSheet sheet=(HSSFSheet) hwb.getSheet("data");
 		List<Long> ids=new ArrayList<>();
 		if(sheet != null) {
@@ -74,7 +74,8 @@ public class PoliceInfoServiceImpl implements PoliceInfoService{
 					}	
 				}
 			}
-			return policeInfoDao.queryPoliceInfoListByExcel(ids);
+			//return policeInfoDao.queryPoliceInfoListByExcel(ids);
+			return policeInfoDao.getPoliceSelectListByExcel(ids);
 		}
 		return null;
 	}

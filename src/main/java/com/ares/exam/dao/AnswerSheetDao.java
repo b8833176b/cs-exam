@@ -2,6 +2,7 @@ package com.ares.exam.dao;
 
 import java.util.List;
 
+import com.ares.exam.dto.ManualMarkCondition;
 import org.apache.ibatis.annotations.Param;
 
 import com.ares.exam.dto.AnswerSheetDto;
@@ -82,7 +83,8 @@ public interface AnswerSheetDao {
 	 * @return
 	 */
 	List<AnswerSheetDto> queryAnswerSheetDtoByID(@Param("examID") Long examID);
-	
+
+	List<AnswerSheetDto> queryManualMark(ManualMarkCondition condition);
 	
 	/**
 	 * 查询考试成绩

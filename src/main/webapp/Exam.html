@@ -7,14 +7,16 @@
 	<link rel="stylesheet" type="text/css" href="assets/bootstrap/css/bootstrap.min.css">
 	<script src="assets/jquery/js/jquery-1.12.4.min.js"></script>
 	<script src="assets/bootstrap/js/bootstrap.min.js"></script>
+	<script src="assets/layer/layer.js"></script>
 	<script type="text/javascript">
         window.onload=function(){
 		    document.onkeydown=function(){ 
 		        var e=window.event||arguments[0]; 
-		        if(e.keyCode==123){
+		        if(e.keyCode==123){//禁用f12
 		            return false;
-		        }else if((e.ctrlKey)&&(e.shiftKey)&&(e.keyCode==73)){
-		        }else if((e.ctrlKey)&&(e.keyCode==85)){
+		        }else if((e.ctrlKey)&&(e.shiftKey)&&(e.keyCode==73)){//禁止ctrl+shift+I
+                    return false;
+		        }else if((e.ctrlKey)&&(e.keyCode==85)){//禁止ctrl+U
 		            //追加  
 		            return false;
 		        }
@@ -214,7 +216,7 @@
 							</p>
 						</div>
 						<div style="text-align: center;padding: 14px;">
-							<button type="button" class="btn btn-primary btn-sm" onclick="submint()">交卷</button>
+							<button type="button" class="btn btn-primary btn-sm" onclick="submintConfrim()">交卷</button>
 						</div>
 					</div>
 
@@ -398,6 +400,14 @@
 	   			}
 	   		},100);
 	   }
+
+	   //确认交卷
+        function submintConfrim(){
+            layer.confirm('您确定要交卷吗?',{btn: ['确定', '取消'],title:"提示"}, function(){
+                submint();
+            });
+		}
+
 		//交卷
 	   function submint(){
 	   		function getDataInfo(){

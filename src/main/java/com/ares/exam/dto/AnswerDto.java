@@ -27,6 +27,23 @@ public class AnswerDto {
 	private Integer correct;
 	//考生作答
 	private String respondence;
+
+	//每题分数
+	private String questionscore;
+
+	//单选题分数
+	private String radioscore;
+	//多选题分数
+	private String multiplescore;
+	//判断题分数
+	private String judgmentscore;
+	//填空题分数
+	private String clozescore;
+	//问答题分数
+	private String answerscore;
+	//打字题分数
+	private String typingscore;
+
 	public Long getQuestionID() {
 		return questionID;
 	}
@@ -93,7 +110,84 @@ public class AnswerDto {
 	public void setRespondence(String respondence) {
 		this.respondence = respondence;
 	}
-	
-	
-	
+
+	public String getRadioscore() {
+		return radioscore;
+	}
+
+	public void setRadioscore(String radioscore) {
+		this.radioscore = radioscore;
+	}
+
+	public String getMultiplescore() {
+		return multiplescore;
+	}
+
+	public void setMultiplescore(String multiplescore) {
+		this.multiplescore = multiplescore;
+	}
+
+	public String getJudgmentscore() {
+		return judgmentscore;
+	}
+
+	public void setJudgmentscore(String judgmentscore) {
+		this.judgmentscore = judgmentscore;
+	}
+
+	public String getClozescore() {
+		return clozescore;
+	}
+
+	public void setClozescore(String clozescore) {
+		this.clozescore = clozescore;
+	}
+
+	public String getAnswerscore() {
+		return answerscore;
+	}
+
+	public void setAnswerscore(String answerscore) {
+		this.answerscore = answerscore;
+	}
+
+	public String getTypingscore() {
+		return typingscore;
+	}
+
+	public void setTypingscore(String typingscore) {
+		this.typingscore = typingscore;
+	}
+
+	public String getQuestionscore() {
+		return questionscore;
+	}
+
+	public void setQuestionscore(String questionscore) {
+		this.questionscore = questionscore;
+	}
+
+	@Override
+	public String toString() {
+		return "AnswerDto{" +
+				"questionID=" + questionID +
+				", questionType=" + questionType +
+				", questionContent='" + questionContent + '\'' +
+				", questionBankID=" + questionBankID +
+				", rightAnswer='" + rightAnswer + '\'' +
+				", answerID=" + answerID +
+				", answerSheetID=" + answerSheetID +
+				", isReview=" + isReview +
+				", score=" + score +
+				", correct=" + correct +
+				", respondence='" + respondence + '\'' +
+				", questionscore='" + questionscore + '\'' +
+				", radioscore='" + radioscore + '\'' +
+				", multiplescore='" + multiplescore + '\'' +
+				", judgmentscore='" + judgmentscore + '\'' +
+				", clozescore='" + clozescore + '\'' +
+				", answerscore='" + answerscore + '\'' +
+				", typingscore='" + typingscore + '\'' +
+				'}';
+	}
 }

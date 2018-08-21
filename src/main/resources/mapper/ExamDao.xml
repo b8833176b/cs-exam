@@ -76,13 +76,14 @@
 	<sql id="queryExamDtoWhere">
 		<where>
 			<if test="examID != null and examID != '' ">a.examID = #{examID,jdbcType=INTEGER}</if>
-			<if test="examName !=null and examName != '' ">and a.examName = #{examName,jdbcType=VARCHAR}</if>
+			<if test="examName !=null and examName != '' ">and a.examName LIKE '%'||#{examName,jdbcType=VARCHAR}||'%'</if>
 			<if test="examTypeID != null and examTypeID != '' ">and  a.examTypeID = #{examTypeID}</if>
 			<if test="examTypeName != null and examTypeName != '' ">and b.examTypeName = #{examTypeName,jdbcType=VARCHAR}</if>
 			<if test="startTime != null and startTime != '' ">and a.startTime &gt;= #{startTime}</if>
  			<if test="endTime !=null and endTime != ''">and a.endTime &lt;= #{endTime}</if>
  			<if test="founderID !=null and founderID != '' ">and founderID = #{founderID,jdbcType=INTEGER}</if>
  			<if test="founder !=null and founder != '' ">and c.xm = #{founder,jdbcType=VARCHAR}</if>
+			<if test="display !=null">and a.display = #{display,jdbcType=INTEGER}</if>
 		</where>
 	</sql>
 	
@@ -90,6 +91,7 @@
 	<select id="queryExamDto" parameterType="com.ares.exam.entity.Exam" resultType="com.ares.exam.dto.ExamDto">
 		<include refid="queryExamDto"></include>
 		<include refid="queryExamDtoWhere"></include>
+		order by a.examid DESC
 	</select>
 	
 	<select id="getExamDto" parameterType="com.ares.exam.entity.Exam" resultType="com.ares.exam.dto.ExamDto">
@@ -112,24 +114,28 @@
 			a.examName = #{examName,jdbcType=VARCHAR}
 		</where>
 	</select>
-	
+
 	
 	<!--  获取可以开始但没有开始的考试 -->
 	<select id="queryExamDtoByUser" parameterType="com.ares.exam.entity.PoliceInfo" resultType="com.ares.exam.dto.ExamDto">
 		select x.* from (<include refid="queryExamDto"></include>) x, KS_EXAMPOLICEINFO d    
 		WHERE d.examID = x.examID 
 		and d.userID = #{userID} 
-		and x.startTime &lt; (select sysdate from dual)
-		and x.endTime &gt;  (select sysdate from dual)
-		and d.isOver = 0
+		and x.startTime &lt;= trunc(sysdate)
+		and x.endTime &gt;=  trunc(sysdate)
+		and d.isOver in (0,1)
+		and x.display = 1
 	</select>
 	
 	<!-- 获取已经完成的考试 -->
 	<select id="queryBeforeExamDtoByUser" parameterType="com.ares.exam.entity.PoliceInfo" resultType="com.ares.exam.dto.ExamDto">
-		select x.* from (<include refid="queryExamDto"></include>) x, KS_EXAMPOLICEINFO d    
-		WHERE d.examID = x.examID 
-		and d.userID = #{userID} 
+		select e.score AS examScore,x.* from (<include refid="queryExamDto"></include>) x, KS_EXAMPOLICEINFO d ,ks_answersheet e
+		WHERE d.examID = x.examID
+		and e.examID = x.examID
+		and d.userID = #{userID}
+		and e.userID = d.userID
 		and d.isOver = 2
+		and x.display = 1
 	</select>
 	
 	<!--获取缺考的考试   -->
@@ -137,7 +143,8 @@
 		select x.* from (<include refid="queryExamDto"></include>) x, KS_EXAMPOLICEINFO d    
 		WHERE d.examID = x.examID 
 		and d.userID = #{userID} 
-		and x.endTime &lt;  (select sysdate from dual)
+		and x.endTime &lt;  trunc(sysdate)
 		and d.isOver != 2
+		and x.display = 1
 	</select>
 </mapper>

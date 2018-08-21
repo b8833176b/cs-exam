@@ -50,7 +50,6 @@ public class ExamServiceImpl implements ExamService{
 	private AnswerDao answerDao;
 	@Override
 	public List<ExamDto> queryExamDto(ExamDto examDto) {
-		// TODO Auto-generated method stub
 		return examDao.queryExamDto(examDto);
 	}
 	@Transactional
@@ -97,8 +96,10 @@ public class ExamServiceImpl implements ExamService{
 					}else {
 						throw new ExamNotStartException("不在考试时间段内！");
 					}
+				}else  if(epi.getIsOver()==1){
+					throw new ExamNotStartException("考试已经开始过!可联系管理员重置您的试卷!");
 				}else {
-					throw new ExamNotStartException("考试已经开始过!");
+					throw new ExamNotStartException("该考试已经交卷!");
 				}
 			}
 		}

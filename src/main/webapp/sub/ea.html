@@ -157,13 +157,14 @@
 						var ls=data.data;
 						var tbody=$('#tbody');
 						//排序
-						ls.sort(function(a,b){return a.examID-b.examID});
+						//ls.sort(function(a,b){return a.examID-b.examID});
 						//先清空表格
 						tbody.empty();
 						for(var i=0;i<ls.length;i++){
 							var tr=$('<tr></tr>');
 							tr.append($('<th scope="row"></th>').text(ls[i].examID));
 							tr.append($('<td></td>').text(ls[i].examName));
+                            tr.append($('<td></td>').text(ls[i].display==0?'不显示':'显示'));
 							tr.append($('<td></td>').text(ls[i].examTypeName));
 							tr.append($('<td></td>').text(ls[i].startTime));
 							tr.append($('<td></td>').text(ls[i].endTime));
@@ -221,6 +222,14 @@
 									</select>
 								</div>
 								<div class="form-group">
+									<label for="display">状态</label>
+									<select  class="form-control" name="display">
+										<option value=""></option>
+										<option value="1">显示</option>
+										<option value="0">不显示</option>
+									</select>
+								</div>
+								<div class="form-group">
 									<label for="st">开始时间</label>
 									<input type="text" onFocus="WdatePicker({lang:'zh-cn'})" class="form-control" name="startTime" id="st" />
 									<label for="et">至</label>
@@ -252,6 +261,7 @@
 										<!-- <th>#</th> -->
 										<th>考试ID</th>
 										<th>考试名称</th>
+										<th>是否显示</th>
 										<th>考试类型</th>
 										<th>开始时间</th>
 										<th>结束时间</th>
@@ -800,14 +810,18 @@
 								</form>
 							</div>
 						</div>
-						<!--<div class="panel panel-default">
+						<!--excel 导入用户 -->
+						<div class="panel panel-default">
 							<div class="panel-body">
 							     <form class="form-inline" id="userLoad" method="post"  action="../PoliceInfo/Upload"  accept-charset="UTF-8" >
-									    <input type="file" id="file" name="file" style="display:inline-block; ">
-									    <button type="button" class="btn btn-primary  btn-xs" onclick="queryUserByLoad()">上传</button>
+									 <div class="row">
+										  <div class="col-sm-4"><input type="file" id="file" name="file" style="display:inline-block; "></div>
+										 <div class="col-sm-4"><button type="button" class="btn btn-primary  btn-xs" onclick="queryUserByLoad()">上传</button></div>
+										 <div class="col-sm-4"><a href="../file/user-template.xls" download="考生导入模板">下载模板</a></div>
+									  </div>
 								 </form>
 							 </div>
-						</div>-->
+						</div>
 						<div style="overflow-y:auto; width:100%;height:300px">
 							<!--data-toolbar="#exampleToolbar" ToSelect data-show-columns="true" data-search="true" -->
 							<table id="userResultTable" data-unique-id="userid" data-toggle="table" data-height="" data-mobile-responsive="true"
@@ -912,6 +926,7 @@
 			}
 			//添加考试
 			function addExam(){
+                layer.load(2,{time: 5*60*1000,shade: [0.5,'black']})//
 				var examInfo = getExamInfo();
 				$.ajax({  //考试类型下拉框
 					type:"POST",
@@ -920,13 +935,18 @@
 					data: JSON.stringify(examInfo),//将对象序列化成JSON字符串  
 			 		contentType : 'application/json;charset=utf-8', //设置请求头信息  
 					success:function(data){
+					    layer.closeAll();
 						if(data.success){
 							alert(data.msg);
 							QueryData();
                             $('#errorInfo2').empty();
+                            $('#myModal').modal('hide'); //关闭考试弹出框
 						}else{
 							setErrorInfo(data.data);
 						}
+					},
+					error:function(e){
+                        layer.closeAll();
 					}
 				});
 			}
@@ -944,6 +964,7 @@
 							alert(data.msg);
 							QueryData();
                             $('#errorInfo2').empty();
+                            $('#myModal').modal('hide');//关闭考试弹出框
 						}else{
 							setErrorInfo(data.data);
                             //	点击修改按钮的时候是否有错误信息
@@ -1273,10 +1294,10 @@
 								opt.attr('data-id',ls[i].examTypeID);
 								opt.attr('value',ls[i].examTypeID);
 								et.append(opt);
-                                opt.attr('value',ls[i].display);
+                                /*opt.attr('value',ls[i].display);
                                 et.append(opt);
                                 opt.attr('value',ls[i].canBlur);
-                                et.append(opt);
+                                et.append(opt);*/
 							}
 						}else{
 				
@@ -1509,7 +1530,8 @@
 			}
 
 			function del_xx2(){
-				$('#ep_table .info').remove();
+                $('#userSelectTable').bootstrapTable("removeAll");
+                //$('#ep_table .info').remove();
 			}
 			//第二个模态框 反选
 			function fx(){
@@ -1529,19 +1551,49 @@
 				}
 			});*/
 			function queryUserByLoad(){ //上传excel查询用户
+                //判断是否选择文件
+                var upFileName = $("#file").val();
+                if(upFileName==null||upFileName==""){
+                    layer.alert("上传文件为空!")
+                    return;
+                }
+                var index1=upFileName.lastIndexOf(".");
+                var index2=upFileName.length;
+                var suffix=upFileName.substring(index1+1,index2);//后缀名
+                if(suffix!='xls'){
+                    layer.alert("请上传xls文件!")
+                    return;
+                }
+                layer.load(2,{time: 5*60*1000,shade: [0.5,'black']})//
 				$("#userLoad").ajaxSubmit({
 			  		dataType:"json",
 				    beforeSend:start,
 				    success: resutlMsg,  
-		        	error: errorMsg 
-
+		        	error: errorMsg
 			    });
 				function start(){
 					
 				}
-				function resutlMsg(data){
-					var ls=data.data;
-					var tb=$('#utb');
+				function resutlMsg(result){
+                    layer.closeAll();
+                    if(typeof result == 'string'){
+                        result = JSON.parse(result);
+                    }
+                    if(result.success!=undefined){
+                        if(result.success==false){
+                            layer.alert(result.msg);
+                            return false;
+                        }
+                    }
+                    var userResultData=result.data;//获取本次添加的user
+                    var userids = userResultData.map(function(item,index,array){//获取ids
+                        return item.userid+"";
+					});
+                    //添加导入的用户到 userResultTable 中，重复的替换掉
+                    $("#userResultTable").bootstrapTable('remove',{field : 'userid',values : userids});//选中表 移除再次添加的user
+                    $("#userResultTable").bootstrapTable('append', userResultData);//将本次选中user添加到 选中表
+                    $("#file").val("");//清空上传xls文件
+					/*var tb=$('#utb');
 					tb.empty();
 					for(var i=0;i<ls.length;i++){
 						var tr=$('<tr></tr>');
@@ -1559,9 +1611,10 @@
 							}
 						});
 						tb.append(tr);
-					} 
+					}*/
 				}
 				function errorMsg(data){
+                    layer.closeAll();
 					alert(data.msg); 
 				}
 			}

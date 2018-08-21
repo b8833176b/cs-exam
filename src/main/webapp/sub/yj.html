@@ -45,12 +45,18 @@
 <script type="text/javascript">
 	function getExamUser(){
 		var examID=$('#examID').val();
+        if (examID == null || examID == '') {
+            alert("考试ID，不能为空")
+            return false;
+        }
 		var examName=$('#examName').val();
+		var jh = $('#jh').val();
+        var isMark = $('#isMark').val();
 		$.ajax({
 			type:"POST",
 			url: "../AnswerSheet/getAnswerSheetDtosByExam",
 			dataType:"json",
-			data:{ examID:examID,examName:examName},
+			data:{ examID:examID,examName:examName,jh:jh,isMark:isMark},
 			success:function(data){
 				if(data.success){//成功
 					setUsers(data.data);
@@ -66,10 +72,11 @@
 		tb.empty();
 		for(var i=0;i<ls.length;i++){
 			var tr=$('<tr></tr>');
-			var td1=$('<td></td>').text(ls[i].userID);
+			//var td1=$('<td></td>').text(ls[i].userID);
+            var td1=$('<td></td>').text(ls[i].examName);
 			var td2=$('<td></td>').text(ls[i].xm);
-			var td3=$('<td></td>').text(ls[i].bmbh);
-			
+			//var td3=$('<td></td>').text(ls[i].bmbh);
+            var td3=$('<td></td>').text(ls[i].jh);
 			
 			var btn_=$('<button class="btn btn-primary btn-xs" onclick="revokeAnswers(this)">重置</button>').attr('data-id',ls[i].answerSheetID);
 			var td_=$('<td></td>').append(btn_);
@@ -126,6 +133,12 @@
 			if(ls[i].questionType == 4 || ls[i].questionType == 5){ 
 				var item=$('.my-yl').clone();
 				item.find('.qc').text(ls[i].questionContent);
+				var qType= "";
+				if(ls[i].questionType == 4)
+				    qType="填空题：";
+				else if(ls[i].questionType == 5)
+				    qType = "问答题：";
+                item.find('.item-score').text(qType+ls[i].questionscore);//题目类型+每题分数 gyw add
 				item.find('.ck').text(ls[i].rightAnswer);
 				item.find('.ksda').text(ls[i].respondence);
 				item.find('.my-da').attr('name',ls[i].answerID);
@@ -154,6 +167,7 @@
 		    contentType : 'application/json;charset=utf-8', 
 		    success: function(data){  
 		       alert(data.msg);
+                getExamUser();//刷新查询结果列表
 		    },  
 		    error: function(data){  
 		       alert(data.msg); 
@@ -173,9 +187,21 @@
 								<label for="examID">考试ID</label>
 								<input type="text" class="form-control" id="examID">
 							</div>
-							<div class="form-group">
+							<div class="form-group" style="display:none">
 								<label for="examName">考试名称</label>
 								<input type="text" class="form-control" id="examName">
+							</div>
+							<div class="form-group" >
+								<label for="examName">警号</label>
+								<input type="text" class="form-control" id="jh" name="jh">
+							</div>
+							<div class="form-group">
+								<label for="isMark">状态</label>
+								<select  class="form-control" id="isMark" name="isMark">
+									<option value=""></option>
+									<option value="0">未阅</option>
+									<option value="1">已阅</option>
+								</select>
 							</div>
 							<button class="btn btn-default" onclick="getExamUser()">查询</button>
 						</div>
@@ -183,9 +209,9 @@
 					<table class="table">
 						<thead>
 							<tr>
-								<th>用户ID</th>
+								<th>考试名称</th>
 								<th>用户名称</th>
-								<th>所示区域</th>
+								<th>警号</th>
 								<th>操作</th>
 								<th>阅卷状态</th>
 								<th>阅卷</th>
@@ -217,6 +243,7 @@
 						<div class="item yc my-yl">
 							<div class="line">
 								<strong>题目内容：</strong><span class="qc">强制隔离戒毒类法律文书有哪记录？</span>
+								<strong>（<span class="item-score"></span>分）</strong>
 							</div>
 							<div class="line">
 								<strong>参考答案：</strong><span class="ck">1.这里是参考答案</span>
@@ -227,8 +254,8 @@
 							<div class="pull-right">
 								<form class="form-inline">
 								  <div class="form-group">
-								    <label for="exampleInputName2">得分：</label>
-								    <input type="text" class="form-control my-da" placeholder="Jane Doe">
+								    <label>得分：</label>
+								    <input type="text" class="form-control my-da" placeholder="请填写分数">
 								  </div>
 								</form>
 							</div>

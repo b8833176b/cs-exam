@@ -12,6 +12,8 @@ public class QueryAnswerSheetDto {
 	private Long jh;
 	//姓名
 	private String xm;
+	//状态（是否缺考）
+	private Integer isMiss;
 	public Long getExamID() {
 		return examID;
 	}
@@ -29,5 +31,23 @@ public class QueryAnswerSheetDto {
 	}
 	public void setXm(String xm) {
 		this.xm = xm;
+	}
+
+	public Integer getIsMiss() {
+		return isMiss;
+	}
+
+	public void setIsMiss(Integer isMiss) {
+		this.isMiss = isMiss;
+	}
+
+	@Override
+	public String toString() {
+		return "QueryAnswerSheetDto{" +
+				"examID=" + examID +
+				", jh=" + jh +
+				", xm='" + xm + '\'' +
+				", isMiss=" + isMiss +
+				'}';
 	}
 }
