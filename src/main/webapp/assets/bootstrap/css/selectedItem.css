@@ -1,10 +1,10 @@
 .selecteHead{
-    margin: 20px 0 20px 0;
+    /*margin: 20px 0 20px 0;*/
     border-bottom: 2px solid #ddd;
     font-size: 14px;
     font-weight: bold;
 }
-.selecteHead span{
+/*.selecteHead span{
     margin-right: 35px;
     padding: 8px;
 }
@@ -24,17 +24,18 @@
     margin-right: 64px;
     padding: 8px;
 }
-.selecteRight,.selecteRight input{
-    display: inline-block;
-    margin-bottom: 5px;
-}
-.selecteRight input{
-    width: 72px;
-    height: 25px;
-}
 .noThing{
     margin-right: 100px;
     padding: 8px;
+}*/
+/*.selecteRight,.selecteRight input{
+    display: inline-block;
+    margin-bottom: 5px;
+}*/
+.selecteRight input{
+    display: inline-block;
+    width: 72px;
+    height: 25px;
 }
 .selectHover{
     cursor: pointer;
@@ -66,6 +67,11 @@
     padding-left: 14px;
     display: inline-block;
     width: 137px;
+
+    word-break: keep-all;
+    overflow: hidden;
+    text-overflow: ellipsis;
+
 }
 .items-num span:last-child,.items-list span:last-child{
     border-right: 0px;

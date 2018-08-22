@@ -22,6 +22,8 @@ public interface ExamDao {
 	 * @return
 	 */
 	long addExam(Exam exam);
+
+	int insertBatchExam(List<Exam> list);
 	
 	/**
 	 * 删除考试

@@ -1,13 +1,20 @@
 package com.ares.exam.web;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import javax.servlet.http.HttpSession;
+
+import com.ares.exam.entity.*;
+import com.ares.exam.exception.*;
+import com.ares.exam.util.ImportExcelUtil;
+import com.ares.exam.util.StringUtil;
+import org.apache.poi.ss.usermodel.Workbook;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.bind.annotation.*;
 import com.ares.exam.dto.ExamDto;
 import com.ares.exam.dto.ExamErrorInfo;
 import com.ares.exam.dto.ExamInfoDto;
@@ -15,16 +22,10 @@ import com.ares.exam.dto.ExamInfoPara;
 import com.ares.exam.dto.ExamQuestionInfoDto;
 import com.ares.exam.dto.Result;
 import com.ares.exam.dto.TrainParaDto;
-import com.ares.exam.entity.Answer;
-import com.ares.exam.entity.ExamPoliceInfo;
-import com.ares.exam.entity.PoliceInfo;
-import com.ares.exam.entity.Question;
-import com.ares.exam.exception.ExamNotStartException;
-import com.ares.exam.exception.NotExistException;
-import com.ares.exam.exception.ParameterNullException;
 import com.ares.exam.service.AnswerSheetService;
 import com.ares.exam.service.ExamService;
 import com.ares.exam.util.Constants;
+import org.springframework.web.multipart.MultipartFile;
 
 @Controller
 @RequestMapping("/Exam")
@@ -56,7 +57,6 @@ public class ExamController extends BaseController{
 				return new Result<>(true,"添加成功!");
 			}
 		} catch (ParameterNullException e) {
-			// TODO Auto-generated catch block
 			return new Result<>(false,"缺少参数");
 		}
 	}
@@ -72,7 +72,6 @@ public class ExamController extends BaseController{
 				return new Result<>(true,"修改成功!");
 			}
 		} catch (ParameterNullException e) {
-			// TODO Auto-generated catch block
 			return new Result<>(false,"缺少参数");
 		}	
 	}
@@ -91,7 +90,6 @@ public class ExamController extends BaseController{
 					return new Result<>(false,"参数为空");
 				}
 			} catch (Exception e) {
-				// TODO: handle exception
 				return new Result<>(false,"有其它关联的成绩信息,无法删除！");
 			}
 		}
@@ -118,11 +116,9 @@ public class ExamController extends BaseController{
 			session.setAttribute(Constants.NOWEXAMID_KEY, epi.getExamID());
 			return new Result<>(true,"考试已经开始");
 		} catch (ParameterNullException e) {
-			// TODO Auto-generated catch block
-		//	e.printStackTrace();
+			e.printStackTrace();
 			return new Result<>(false,e.getMessage());
 		} catch (ExamNotStartException e) {
-			// TODO Auto-generated catch block
 			return new Result<>(false,e.getMessage());
 		}catch(Exception e) {
 			return new Result<>(false,"IP获取异常");
@@ -136,11 +132,8 @@ public class ExamController extends BaseController{
 			examService.revokeExam(answerSheetID);
 			return new Result<>(true,"试卷记录已经重置");
 		} catch (ParameterNullException e) {
-			// TODO Auto-generated catch block
-			
 			return new Result<>(false,e.getMessage());
 		} catch (NotExistException e) {
-			// TODO Auto-generated catch block
 			return new Result<>(false,e.getMessage());
 		}
 	}
@@ -201,10 +194,8 @@ public class ExamController extends BaseController{
 			ExamQuestionInfoDto eqid=examService.trian(trainParaDto);
 			return new Result<>(true,"查询成功",eqid);
 		} catch (ParameterNullException e) {
-			// TODO Auto-generated catch block
 			return new Result<>(false,"请填写完整！");
 		} catch (NotExistException e) {
-			// TODO Auto-generated catch block
 			return new Result<>(false,"对应题库不存在!");
 		}	
 	}
@@ -222,7 +213,28 @@ public class ExamController extends BaseController{
 			return new Result<>(false,"你需要登陆！");
 		}
 	}
-	
-	
+
+	//@Transactional
+	@RequestMapping(value="/Upload",method={RequestMethod.GET,RequestMethod.POST})
+	public @ResponseBody  Result<String> uploadExcel(@RequestParam(value = "examFile") MultipartFile file)  {
+		InputStream in = null;
+		if(file.isEmpty())
+			return new Result<>(false,"文件不存在");
+		try {
+			HttpSession httpSession=getSession();
+			//String name=(String) httpSession.getAttribute(Constants.USERNAME_KEY);
+			Long userId=(Long) httpSession.getAttribute(Constants.USERID_KEY);
+			in=file.getInputStream();
+			Workbook wb=new ImportExcelUtil().getWorkbook(in, file.getOriginalFilename());
+			List<Exam> exams=examService.getExamsByXls(wb,userId);
+			examService.insertBatchExam(exams);//批量插入exams
+			return new Result<>(true,"保存成功！");
+		}catch (ParmException e) {
+			return new Result<>(false,e.getMessage());
+		}catch (Exception e){
+			e.printStackTrace();
+			return new Result<>(false,"保存失败！");
+		}
+	}
 	
 }

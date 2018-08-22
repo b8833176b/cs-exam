@@ -41,6 +41,40 @@
 	  		#{canBlur,jdbcType=INTEGER}
   		)
 	</insert>
+
+	<insert id="insertBatchExam" parameterType="java.util.List" useGeneratedKeys="false">
+		INSERT INTO ks_exam(
+		examID,EXAMNAME,EXAMTYPEID,STARTTIME,ENDTIME,WHENLONG,DISPLAY
+		,DESCRIPTION
+		,FOUNDERID
+		,RADIOSCORE
+		,MULTIPLESCORE
+		,JUDGMENTSCORE
+		,CLOZESCORE
+		,ANSWERSCORE
+		,TYPINGSCORE
+		,CANBLUR
+		)
+		select KS_EXAM_SEQ.Nextval as examID, A.* from (
+		<foreach collection="list" item="item" index="index"  separator="union all">
+			select
+			#{item.examName,jdbcType=VARCHAR} EXAMNAME,#{item.examTypeID,jdbcType=INTEGER} EXAMTYPEID
+			,#{item.startTime,jdbcType=DATE} STARTTIME,#{item.endTime,jdbcType=DATE} ENDTIME
+			,#{item.whenLong,jdbcType=INTEGER} WHENLONG,#{item.display,jdbcType=INTEGER} DISPLAY
+			,#{item.description,jdbcType=VARCHAR} DESCRIPTION
+			,#{item.founderID,jdbcType=INTEGER} FOUNDERID
+			,#{item.radioScore,jdbcType=FLOAT} RADIOSCORE
+			,#{item.multipleScore,jdbcType=FLOAT} MULTIPLESCORE
+			,#{item.judgmentScore,jdbcType=FLOAT} JUDGMENTSCORE
+			,#{item.clozeScore,jdbcType=FLOAT} CLOZESCORE
+			,#{item.answerScore,jdbcType=FLOAT} ANSWERSCORE
+			,#{item.typingScore,jdbcType=FLOAT} TYPINGSCORE
+			,#{item.canBlur,jdbcType=INTEGER} CANBLUR
+			from dual
+		</foreach>
+		) A
+	</insert>
+
 	<delete id="delExam" parameterType="Exam">
 		delete ks_exam where EXAMID =#{examID}
 	</delete>

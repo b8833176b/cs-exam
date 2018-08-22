@@ -18,6 +18,7 @@ import com.ares.exam.entity.PoliceInfo;
 import com.ares.exam.exception.ExamNotStartException;
 import com.ares.exam.exception.NotExistException;
 import com.ares.exam.exception.ParameterNullException;
+import org.apache.poi.ss.usermodel.Workbook;
 
 import javax.servlet.http.HttpSession;
 
@@ -56,7 +57,7 @@ public interface ExamService {
 	
 	/**
 	 * 获取考试试题等信息
-	 * @param ExamID
+	 * @param examID
 	 * @return
 	 */
 	ExamQuestionInfoDto getExamQestionInfoDto(Long examID);
@@ -72,7 +73,7 @@ public interface ExamService {
 	
 	/**
 	 * 检查考试信息
-	 * @param eid  
+	 * @param eip
 	 * @return
 	 * @throws ParameterNullException 
 	 */
@@ -128,5 +129,9 @@ public interface ExamService {
 	
 	
 	ExamQuestionBank examQuestionBankDtoTopo(ExamQuestionBankDto examQuestionBankDto);
+
+	List<Exam> getExamsByXls(Workbook wb,Long userId);
+
+	int insertBatchExam(List list);
 	
 }

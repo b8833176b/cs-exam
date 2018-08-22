@@ -46,6 +46,32 @@
 		.my_table > thead > tr > td{
 			padding: 5px;
 		}
+		.span-width-10{
+			width: 10%;
+			display: inline-block;
+			word-break: keep-all;
+			overflow: hidden;
+			text-overflow: ellipsis;
+		}
+		.span-width-18{
+			width: 18%;
+			display: inline-block;
+			word-break: keep-all;
+			overflow: hidden;
+			text-overflow: ellipsis;
+		}
+		.span-width-28{
+			width: 28%;
+			display: inline-block;
+			word-break: keep-all;
+			overflow: hidden;
+			text-overflow: ellipsis;
+		}
+		.span-width-30{
+			width: 30%;
+			display: inline-block;
+		}
+
 
 	</style>
 
@@ -249,8 +275,12 @@
 					<div class="panel panel-default" >
 						<div class="panel-heading">查询结果
 							<span class="pull-right">
+								<a  href="#"  rel="tooltip" title="上传" onclick="open_exam_upload()"><i class="glyphicon glyphicon-cloud-upload"></i></a>
+								&nbsp;&nbsp;
 								<a  href="#"  rel="tooltip" title="添加" onclick="open_add()"><i class="glyphicon glyphicon-plus"></i></a>
+								&nbsp;&nbsp;
 								<a  href="#"  rel="tooltip" title="删除" onclick="del()"><i class="glyphicon glyphicon-trash"></i></a>
+								&nbsp;&nbsp;
 								<a  href="#"  rel="tooltip" title="修改" onclick="update()"><i class="glyphicon glyphicon-pencil"></i></a>
 							</span>
 						</div>
@@ -433,11 +463,11 @@
 								</table>-->
 								<div class="selectItem">
 									<div class="selecteHead">
-										<span>题目类型</span>
-										<span>题库ID</span>
-										<span>题库名称</span>
-										<span>题库类型</span>
-										<span>题目数量</span>
+										<span class="span-width-10">题目类型</span>
+										<span class="span-width-10">题库ID</span>
+										<span class="span-width-28">题库名称</span>
+										<span class="span-width-28">题库类型</span>
+										<span class="span-width-18">题目数量</span>
 									</div>
 									<div class="selecteBody">
 										<span class="selecteLfte" getSelecte="1" style="display: block;">单选题</span>
@@ -564,11 +594,11 @@
 											  <div class="allScore">总分：</div>
 										  </div>
 										  <div class="items-list">
-											  <span>题库ID</span>
-											  <span>题库名称</span>
-											  <span>题库类型</span>
-											  <span>题目数量</span>
-											  <span>每题分数</span>
+											  <span >题库ID</span>
+											  <span >题库名称</span>
+											  <span >题库类型</span>
+											  <span >题目数量</span>
+											  <span >每题分数</span>
 										  </div>
 									  </div>
 									  <div class="items">
@@ -577,11 +607,11 @@
 											  <div class="allScore">总分：</div>
 										  </div>
 										  <div class="items-list">
-											  <span>题库ID</span>
-											  <span>题库名称</span>
-											  <span>题库类型</span>
-											  <span>题目数量</span>
-											  <span>每题分数</span>
+											  <span >题库ID</span>
+											  <span >题库名称</span>
+											  <span >题库类型</span>
+											  <span >题目数量</span>
+											  <span >每题分数</span>
 										  </div>
 									  </div>
 									  <div class="items">
@@ -590,11 +620,11 @@
 											  <div class="allScore">总分：</div>
 										  </div>
 										  <div class="items-list">
-											  <span>题库ID</span>
-											  <span>题库名称</span>
-											  <span>题库类型</span>
-											  <span>题目数量</span>
-											  <span>每题分数</span>
+											  <span >题库ID</span>
+											  <span >题库名称</span>
+											  <span >题库类型</span>
+											  <span >题目数量</span>
+											  <span >每题分数</span>
 										  </div>
 									  </div>
 									  <div class="items">
@@ -603,11 +633,11 @@
 											  <div class="allScore">总分：</div>
 										  </div>
 										  <div class="items-list">
-											  <span>题库ID</span>
-											  <span>题库名称</span>
-											  <span>题库类型</span>
-											  <span>题目数量</span>
-											  <span>每题分数</span>
+											  <span >题库ID</span>
+											  <span >题库名称</span>
+											  <span >题库类型</span>
+											  <span >题目数量</span>
+											  <span >每题分数</span>
 										  </div>
 									  </div>
 									  <div class="items">
@@ -616,11 +646,11 @@
 											  <div class="allScore">总分：</div>
 										  </div>
 										  <div class="items-list">
-											  <span>题库ID</span>
-											  <span>题库名称</span>
-											  <span>题库类型</span>
-											  <span>题目数量</span>
-											  <span>每题分数</span>
+											  <span >题库ID</span>
+											  <span >题库名称</span>
+											  <span >题库类型</span>
+											  <span >题目数量</span>
+											  <span >每题分数</span>
 										  </div>
 									  </div>
 									  <div class="items">
@@ -629,11 +659,11 @@
 											  <div class="allScore">总分：</div>
 										  </div>
 										  <div class="items-list">
-											  <span>题库ID</span>
-											  <span>题库名称</span>
-											  <span>题库类型</span>
-											  <span>题目数量</span>
-											  <span>每题分数</span>
+											  <span >题库ID</span>
+											  <span >题库名称</span>
+											  <span >题库类型</span>
+											  <span >题目数量</span>
+											  <span >每题分数</span>
 										  </div>
 									  </div>
 								  </div>
@@ -876,7 +906,86 @@
 		  </div><!-- /.modal-dialog -->  
 		</div><!-- /.modal -->
 
+		<!-- 考试批量上传 模态框 -->
+		<div class="modal fade bs-example-modal-sm" id="uploadExamModel"  tabindex="-1" role="dialog" >
+			<div class="modal-dialog modal-sm" id="modalDialog5" style="width:700px;" >
+				<div class="modal-content message_align">
+					<div class="modal-header">
+						<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>
+						<h4 class="modal-title">考试上传</h4>
+					</div>
+					<div class="modal-body">
+
+						<form class="form-inline" id="examUploadForm" method="post"  action="../Exam/Upload"  accept-charset="UTF-8" >
+							<div class="row">
+								<div class="col-sm-6"><input type="file" id="examFile" name="examFile" style="display:inline-block; "></div>
+								<div class="col-sm-3"><button type="button" class="btn btn-primary  btn-xs" onclick="uploadExam()">上传</button></div>
+								<div class="col-sm-3"><a href="../file/exam-template.xls" download="考试导入模板">下载模板</a></div>
+							</div>
+						</form>
+						<!--<p >请上传</p>-->
+					</div>
+					<div class="modal-footer">
+						<!--<a  onclick="uploadExam()" class="btn btn-primary" data-dismiss="modal">确定</a>-->
+						<button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+					</div>
+				</div><!-- /.modal-content -->
+			</div><!-- /.modal-dialog -->
+		</div><!-- /.modal -->
+
 		<script type="text/javascript">
+			//打开考试上传 模态框
+			function open_exam_upload() {
+                $('#uploadExamModel').modal('show');
+            }
+
+            //上传考试excel
+            function uploadExam() {
+                //判断是否选择文件
+                var upFileName = $("#examFile").val();
+                if(upFileName==null||upFileName==""){
+                    layer.alert("上传文件为空!");
+                    return;
+                }
+                var index1=upFileName.lastIndexOf(".");
+                var index2=upFileName.length;
+                var suffix=upFileName.substring(index1+1,index2);//后缀名
+                if(suffix!='xls'){
+                    layer.alert("请上传xls文件!");
+                    return;
+                }
+                layer.load(2,{time: 5*60*1000,shade: [0.5,'black']})//
+                $("#examUploadForm").ajaxSubmit({
+                    dataType:"json",
+                    beforeSend:start,
+                    success: resutlMsg,
+                    error: errorMsg
+                });
+                function start(){
+
+                }
+                function resutlMsg(result){
+                    layer.closeAll();
+                    if(typeof result == 'string'){
+                        result = JSON.parse(result);
+                    }
+                    if(result.success!=undefined){
+                        if(result.success==false){
+                            layer.alert(result.msg);
+                            return false;
+                        }
+                    }
+                    $("#examFile").val("");//清空上传xls文件
+					layer.alert("成功");
+                }
+                function errorMsg(data){
+                    layer.closeAll();
+                    alert(data.msg);
+                }
+
+
+            }
+
 			//修改考试
 			function update(){  
 				//先查找选中项
@@ -1147,10 +1256,10 @@
                             if (row.useQuestionType == i){
                                 var cont = $(".selecteBody").eq(i-1);
                                 var tr2 =$("<div class='selecteRight'></div>");
-                                tr2.append($("<span class='noThing'></span>"))
-                                tr2.append($("<span class='id'></span>\n").text(row.useQuestionBankID));
-                                tr2.append($("<span class='name'></span>\n").text(row.questionBankName));
-                                tr2.append($("<span class='type'></span>\n").text(row.questionBankTypeName));
+                                tr2.append($("<span class='noThing span-width-10'></span>"))
+                                tr2.append($("<span class='id span-width-10'></span>\n").text(row.useQuestionBankID));
+                                tr2.append($("<span class='name span-width-28'></span>\n").text(row.questionBankName));
+                                tr2.append($("<span class='type span-width-28'></span>\n").text(row.questionBankTypeName));
                                 tr2.append($("<input type='text' class='form-control input-sm count' />").val(row.questionCount));
                                 cont.append(tr2);
                             }
@@ -1480,10 +1589,10 @@
 					if($("tr[name=info]").hasClass("info") == false){
                         var cont = $(".selecteBody");
                         var tr2 =$("<div class='selecteRight'></div>");
-                            tr2.append($("<span class='noThing' selecteId =''></span>"))
-                            tr2.append($("<span class='id'></span>\n").text(questionBankID));
-                            tr2.append($("<span class='name'></span>\n").text(questionBankName));
-                            tr2.append($("<span class='type'></span>\n").text(questionBankTypeName));
+                            tr2.append($("<span class='noThing span-width-10' selecteId =''></span>"))
+                            tr2.append($("<span class='id span-width-10'></span>\n").text(questionBankID));
+                            tr2.append($("<span class='name span-width-28'></span>\n").text(questionBankName));
+                            tr2.append($("<span class='type span-width-28'></span>\n").text(questionBankTypeName));
                             tr2.append($("<input type='text' class='form-control input-sm count' />"));
                             cont.append(tr2);
 					}

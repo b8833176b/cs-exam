@@ -1,11 +1,18 @@
 package com.ares.exam.service.impl;
 import java.sql.Date;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import com.ares.exam.entity.*;
+import com.ares.exam.exception.ParmException;
 import com.ares.exam.util.Constants;
+import com.ares.exam.util.StringUtil;
+import org.apache.poi.hssf.usermodel.HSSFCell;
+import org.apache.poi.hssf.usermodel.HSSFRow;
+import org.apache.poi.hssf.usermodel.HSSFSheet;
+import org.apache.poi.ss.usermodel.Workbook;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -385,6 +392,48 @@ public class ExamServiceImpl implements ExamService{
 		eqb.setUseQuestionType(examQuestionBankDto.getUseQuestionType());
 		eqb.setUseQuestionBankID(examQuestionBankDto.getUseQuestionBankID());
 		return eqb;
+	}
+
+	@Override
+	public List<Exam> getExamsByXls(Workbook wb,Long userId) {
+		HSSFSheet sheet=(HSSFSheet) wb.getSheet("data");
+		if(sheet==null)
+			throw new ParmException("excel不存在data表！");
+		List<Exam> exams = new ArrayList<>();
+		try {
+			int fi = sheet.getFirstRowNum();
+			int li = sheet.getLastRowNum();
+			for (int i = (fi + 1); i <= li; i++) {
+                HSSFRow hr = sheet.getRow(i);
+                Exam exam = new Exam();
+                exam.setExamName(hr.getCell(0).getStringCellValue().trim());//考试名称
+                if (hr.getCell(1).getCellType() == HSSFCell.CELL_TYPE_NUMERIC) //考试类型ID
+                    exam.setExamTypeID(Math.round(hr.getCell(1).getNumericCellValue()));
+                else if (hr.getCell(1).getCellType() == HSSFCell.CELL_TYPE_STRING)
+                    exam.setExamTypeID(Long.parseLong(hr.getCell(1).getStringCellValue().trim()));
+                exam.setStartTime(new Date(hr.getCell(2).getDateCellValue().getTime()));//考试开始日期
+                exam.setEndTime(new Date(hr.getCell(3).getDateCellValue().getTime()));//考试结束日期
+                if (hr.getCell(4).getCellType() == HSSFCell.CELL_TYPE_NUMERIC) //考试时长
+                    exam.setWhenLong((int) hr.getCell(4).getNumericCellValue());
+                else if (hr.getCell(4).getCellType() == HSSFCell.CELL_TYPE_STRING)
+                    exam.setWhenLong(Integer.parseInt(hr.getCell(4).getStringCellValue().trim()));
+                exam.setCanBlur("是".equals(hr.getCell(5).getStringCellValue().trim()) ? 1 : 0);//可否切换
+                exam.setDisplay("是".equals(hr.getCell(6).getStringCellValue().trim()) ? 1 : 0);//是否显示
+                exam.setDescription(hr.getCell(7).getStringCellValue().trim());//考试描述
+				exam.setFounderID(userId);//登陆用户id
+                exams.add(exam);
+            }
+		} catch (Exception e) {
+			e.printStackTrace();
+			throw new ParmException("数据读取失败，请检查数据格式。");
+		}
+		return exams;
+	}
+
+	@Transactional
+	@Override
+	public int insertBatchExam(List list) {
+		return examDao.insertBatchExam(list);
 	}
 
 	@Override
