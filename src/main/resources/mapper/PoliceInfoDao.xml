@@ -147,7 +147,7 @@
 		from lz_policeinfo t
 		where t.zt = 1
 		and t.isadmin = 0
-		and userid in
+		and jh in
 		<foreach item="item" index="index" collection="list" open="(" separator="," close=")">
 			#{item}
 		</foreach>

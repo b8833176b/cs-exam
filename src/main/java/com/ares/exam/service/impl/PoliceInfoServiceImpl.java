@@ -56,33 +56,35 @@ public class PoliceInfoServiceImpl implements PoliceInfoService{
 	@Override
 	public List<PoliceSelect> getListByReadExcel(Workbook hwb) {
 		HSSFSheet sheet=(HSSFSheet) hwb.getSheet("data");
-		List<Long> ids=new ArrayList<>();
+		//List<Long> ids=new ArrayList<>();
+		List<String> jhs=new ArrayList<>();
 		if(sheet != null) {
 			int fi=sheet.getFirstRowNum();
 			int li=sheet.getLastRowNum();
 			for(int i=fi;i<=li;i++) {
 				HSSFRow hr=sheet.getRow(i);
 				if(hr.getCell(0).getCellType() == HSSFCell.CELL_TYPE_NUMERIC) {
-					System.out.println(i+"行是数字列");
+					/*System.out.println(i+"行是数字列");
 					long x = Math.round(hr.getCell(0).getNumericCellValue());
-					ids.add(x);
+					ids.add(x);*/
+					jhs.add(hr.getCell(0).getNumericCellValue()+"");
 				}else if(hr.getCell(0).getCellType() == HSSFCell.CELL_TYPE_STRING) {
-					String v=hr.getCell(0).getStringCellValue();
+					/*String v=hr.getCell(0).getStringCellValue();
 					if(StringUtil.isNumeric(v)) {
 						Long x=Long.valueOf(v);
 						ids.add(x);
-					}	
+					}	*/
+					jhs.add(hr.getCell(0).getStringCellValue());
 				}
 			}
 			//return policeInfoDao.queryPoliceInfoListByExcel(ids);
-			return policeInfoDao.getPoliceSelectListByExcel(ids);
+			return policeInfoDao.getPoliceSelectListByExcel(jhs);
 		}
 		return null;
 	}
 	
 	@Override
 	public List<PoliceInfoDto> getListByExamID(Long examID) throws ParameterNullException {
-		// TODO Auto-generated method stub
 		if(examID == null) {
 			throw new ParameterNullException("参数为空");
 		}else {

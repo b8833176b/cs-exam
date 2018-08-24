@@ -73,12 +73,12 @@ public class ExamServiceImpl implements ExamService{
 				if(epi.getIsOver()==0) {  
 					Exam exam=examDao.getExam(epi.getExamID());
 					//检查时间
-					Date sd=exam.getStartTime();
-					Date ed=exam.getEndTime();
-					Date xd=new Date(System.currentTimeMillis());
-					System.out.println(xd.after(sd));
-					if(!(xd.after(ed)||xd.before(sd))) {  //这里为了效率，跳过检查。
-						//获取关联类，把考试状态修改为已经开始，但是未完成
+					Date sd=java.sql.Date.valueOf(exam.getStartTime().toString());
+					Date ed=java.sql.Date.valueOf(exam.getEndTime().toString());
+					Date xd=java.sql.Date.valueOf((new Date(System.currentTimeMillis())).toString());;
+                    if(xd.after(ed)||xd.before(sd))
+						throw new ExamNotStartException("不在考试时间段内！");
+						//获取关联类，把考试状态修改为已经开始，但是未完成 //这里为了效率，跳过检查。
 						AnswerSheet as=answerSheetDao.getAnswerSheet(epi.getUserID(), epi.getExamID());
 						if(as==null) {
 							as=new AnswerSheet();
@@ -100,9 +100,6 @@ public class ExamServiceImpl implements ExamService{
 								return 1;
 							}
 						}
-					}else {
-						throw new ExamNotStartException("不在考试时间段内！");
-					}
 				}else  if(epi.getIsOver()==1){
 					throw new ExamNotStartException("考试已经开始过!可联系管理员重置您的试卷!");
 				}else {

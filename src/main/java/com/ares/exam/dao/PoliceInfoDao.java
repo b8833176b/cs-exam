@@ -53,7 +53,7 @@ public interface PoliceInfoDao {
 	 */
 	List<PoliceInfo> queryPoliceInfoListByExcel(List<Long> ids);
 
-	List<PoliceSelect> getPoliceSelectListByExcel(List<Long> ids);
+	List<PoliceSelect> getPoliceSelectListByExcel(List<String> jhs);
 	
 	/**
 	 * 根据id集合获取警员封装信息列表

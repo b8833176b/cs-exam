@@ -106,12 +106,12 @@
                 $('#whenLong').val("");
                 $('#description').val("");
                 $('#display').val("");
-                $('#radioScore').val("");
-                $('#multipleScore').val("");
-                $('#judgmentScore').val("");
-                $('#clozeScore').val("");
-                $('#answerScore').val("");
-                $('#typingScore').val("");
+                $('#radioScore').val("0");
+                $('#multipleScore').val("0");
+                $('#judgmentScore').val("0");
+                $('#clozeScore').val("0");
+                $('#answerScore').val("0");
+                $('#typingScore').val("0");
                 $('#canBlur').val("");
             //题库信息
                 $(".selecteRight").remove();
@@ -124,6 +124,7 @@
 	    	$('#myModalLabel').text('修改考试');
 	    	$('#btn_add').addClass('yc');
 			$('#btn_update').removeClass('yc');
+            $('#errorInfo').click();//初始化预览
 	    	$('#myModal').modal('show');
             $('#errorInfo2').empty();
 	    }
@@ -134,6 +135,7 @@
 			$('#myModalLabel').text('添加考试');
 			$('#btn_update').addClass('yc');
 			$('#btn_add').removeClass('yc');
+            $('#errorInfo').click();//初始化预览
 			$('#myModal').modal('show');
             $('#errorInfo2').empty();
 		}
@@ -587,6 +589,7 @@
 								<!-- 题库信息     -->
 								<div class="panel panel-default">
 								  <div class="panel-heading" style="padding: 3px;font-size: 14px;padding-left: 14px;">题库信息</div>
+									&nbsp;&nbsp;&nbsp;&nbsp; 试卷总分：<span id="exam_all_score" style="left: 20px;color: red;"></span>
 								  <div class="panel-body" style="padding-top: 5px;padding-bottom: 5px;">
 									  <div class="items">
 										  <div class="items-selecte">
@@ -1593,7 +1596,7 @@
                             tr2.append($("<span class='id span-width-10'></span>\n").text(questionBankID));
                             tr2.append($("<span class='name span-width-28'></span>\n").text(questionBankName));
                             tr2.append($("<span class='type span-width-28'></span>\n").text(questionBankTypeName));
-                            tr2.append($("<input type='text' class='form-control input-sm count' />"));
+                            tr2.append($("<input type='text' class='form-control input-sm count' value='0'/>"));
                             cont.append(tr2);
 					}
                 });
@@ -1776,6 +1779,7 @@
                  $(".yl_exam_change").html(exam.canBlur =$("#canBlur").find("option:selected").text());
                 $(".yl_exam_show").html(exam.display =$("#display").find("option:selected").text());
                 //加载题库信息 whf
+				var exam_all_score = 0;
                 $('.selectItem .selecteBody').each(function (index,e){//循环6个题目类型
                     var useQuestionName=$(e).find('.selecteLfte').text();//题目类型名称（单选题、多选题。。。）
                     var useQuestionType=$(e).find('.selecteLfte').attr("getselecte");//题目类型 编号（1、2。。。）
@@ -1835,7 +1839,9 @@
                     });
                     $(".allScore").eq(index).text("总分："+ rowScores);
                     //某类型题目总共的数量
+                    exam_all_score += rowScores//计算试卷的总分
                 });
+                $("#exam_all_score").text(exam_all_score);
 
                 //加载考生信息
                 $("#userShowTable").bootstrapTable('load',$("#userSelectTable").bootstrapTable('getData'));

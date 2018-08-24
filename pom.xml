@@ -183,5 +183,6 @@
     		</plugin>
     	</plugins>
     </pluginManagement>
+	  <finalName>exam</finalName>
   </build>
 </project>
