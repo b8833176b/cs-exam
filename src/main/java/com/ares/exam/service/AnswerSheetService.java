@@ -53,7 +53,7 @@ public interface AnswerSheetService{
 	 * @throws NotExistException 
 	 * @throws ParameterNullException 
 	 */
-	public int submit(ExamPoliceInfo epi,List<Answer> answers) throws NotExistException, ParameterNullException;
+	public String submit(ExamPoliceInfo epi,List<Answer> answers) throws NotExistException, ParameterNullException;
 	
 	/**
 	 * 获取答题
@@ -67,7 +67,7 @@ public interface AnswerSheetService{
 	 * 统计分数
 	 * @param answerSheetID 答题卷ID
 	 */
-	public void loadMark(Long answerSheetID);
+	public String loadMark(Long answerSheetID);
 	
 	/**
 	 * 根据考试ID，和用户ID获取试卷类

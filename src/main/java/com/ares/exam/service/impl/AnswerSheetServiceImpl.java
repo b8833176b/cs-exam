@@ -99,7 +99,7 @@ public class AnswerSheetServiceImpl implements AnswerSheetService{
 	
 	@Transactional
 	@Override
-	public int submit(ExamPoliceInfo epi, List<Answer> answers) throws NotExistException, ParameterNullException {
+	public String submit(ExamPoliceInfo epi, List<Answer> answers) throws NotExistException, ParameterNullException {
 		ExamPoliceInfo examPoliceInfo=examPoliceInfoDao.get(epi.getExamID(), epi.getUserID());
 		if(examPoliceInfo!=null) {
 			if(examPoliceInfo.getIsOver()==1) {
@@ -119,8 +119,8 @@ public class AnswerSheetServiceImpl implements AnswerSheetService{
 						}
 						Exam e=examDao.getExam(epi.getExamID());
 						int r=save(answers,e);//自动评分
-						loadMark(as.getAnswerSheetID());
-						return r;
+						return loadMark(as.getAnswerSheetID());
+						//return r;
 					}else{
 						throw new NotExistException("考试已经交卷");
 					}
@@ -221,13 +221,11 @@ public class AnswerSheetServiceImpl implements AnswerSheetService{
 
 	@Override
 	public AnswerSheet getAnswerSheet(Long examID,Long userID) throws ParameterNullException {
-		// TODO Auto-generated method stub
 		if(examID!=null && userID!=null) {
 			return answerSheetDao.getAnswerSheet(userID, examID);
 		}else {
 			throw new ParameterNullException("缺少参数");
 		}
-	
 	}
 
 	@Override
@@ -303,9 +301,10 @@ public class AnswerSheetServiceImpl implements AnswerSheetService{
 
 
 	@Override
-	public void loadMark(Long answerSheetID) {
+	public String loadMark(Long answerSheetID) {
 		int r=answerDao.getNoMarkCount(answerSheetID);//获得答卷中未打分的试题数量
 		if(r>0) { //当试卷还有未评分的题目，什么也不做
+			return "阅卷完毕后、可查询分数！";
 		}else {//当该试卷全部都已经评分了
 			AnswerSheet as=answerSheetDao.get(answerSheetID);
 			if(as!=null) {
@@ -314,13 +313,14 @@ public class AnswerSheetServiceImpl implements AnswerSheetService{
 					as.setScore(s);//设置总分
 					as.setIsMarking(1);//设置已阅
 					answerSheetDao.update(as);//更新该试卷的总分和状态
-				
+				    return "得分："+s+"分";
 				}else {
 					System.out.println("????????");
 				}
 			}else {
 				System.out.println("??????"+answerSheetID);
 			}
+			return "阅卷完毕后、可查询分数！";
 		}
 	}
 
@@ -350,9 +350,9 @@ public class AnswerSheetServiceImpl implements AnswerSheetService{
 	}
 	
 	private void exportExcel(List<ExamResultDto> erds,HttpSession session, HttpServletRequest request, HttpServletResponse response) {
-		String [] excelHeader = {"记录号","警号","姓名","IP地址","得分","状态"};
-		String [] ds_titles = {"answerSheetID","jh","xm","addressIP","score","isMiss"};
-		int [] ds_format = {2,2,2,2,2,2,2};
+		String [] excelHeader = {"记录号","警号","姓名","单位名称","部门名称","IP地址","得分","状态"};
+		String [] ds_titles = {"answerSheetID","jh","xm","dwmc","bmmc","addressIP","score","isMiss"};
+		int [] ds_format = {2,2,2,2,2,2,2,2,2};
 		List<Map<String, Object>> data =new ArrayList<>();
 		if(erds!=null&&!erds.isEmpty()) {
 			for(ExamResultDto key:erds) {
@@ -360,6 +360,8 @@ public class AnswerSheetServiceImpl implements AnswerSheetService{
 				map.put("answerSheetID", key.getAnswerSheetID());
 				map.put("jh", key.getJh());
 				map.put("xm", key.getXm());
+				map.put("dwmc", key.getDwmc());
+				map.put("bmmc", key.getBmmc());
 				map.put("score", key.getScore());
 				map.put("addressIP", key.getAddressIP());
 				map.put("isMiss", key.getIsMissStr());

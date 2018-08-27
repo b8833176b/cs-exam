@@ -67,7 +67,7 @@ public class PoliceInfoServiceImpl implements PoliceInfoService{
 					/*System.out.println(i+"行是数字列");
 					long x = Math.round(hr.getCell(0).getNumericCellValue());
 					ids.add(x);*/
-					jhs.add(hr.getCell(0).getNumericCellValue()+"");
+					jhs.add(((int)hr.getCell(0).getNumericCellValue())+"");
 				}else if(hr.getCell(0).getCellType() == HSSFCell.CELL_TYPE_STRING) {
 					/*String v=hr.getCell(0).getStringCellValue();
 					if(StringUtil.isNumeric(v)) {

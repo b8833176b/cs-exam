@@ -149,12 +149,11 @@ public class ExamController extends BaseController{
 			ExamPoliceInfo epi=new ExamPoliceInfo();
 			epi.setExamID(examID);
 			epi.setUserID(userID);
-			answerSheetService.submit(epi, ls);
-			return new Result<>(true,"成功！");
+			String result = answerSheetService.submit(epi, ls);
+			return new Result<>(true, result);
 		} catch (ParameterNullException e) {
 			return new Result<>(false,e.getMessage());
 		} catch (NotExistException e) {
-	
 			return new Result<>(false,e.getMessage());
 		}
 	}

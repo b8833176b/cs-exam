@@ -96,7 +96,7 @@
 							    <select class="form-control" name="questionBankName" id="questionBankName">
 							    </select>
 							</div>
-							<div class="form-group">
+							<div class="form-group" style="display: none">
 							    <label for="questionBankID">题库ID</label>
 							    <input type="text" class="form-control" id="questionBankID">
 							</div>
@@ -108,7 +108,7 @@
 							 		<option value="3">判断题</option>
 								</select>
 							</div>
-							<div class="form-group">
+							<div class="form-group" style="display: none">
 							    <label for="questionCount">试题数量</label>
 							    <input type="email" class="form-control" id="questionCount">
 							</div>
@@ -126,29 +126,33 @@
 						</div>
 						<div class="my-radio xx">
 							<div class="radio">
-							  <p>
-							    <input type="radio" name="optionsRadios" id="optionsRadios1" value="A">
+								<p>
+									<label class="oA">
+										<input type="radio" name="optionsRadios" id="optionsRadios1" value="A">
 
-							  	<label class="oA">A. </label>
-							  </p>
+										A. </label>
+								</p>
 							</div>
 							<div class="radio">
-							  <p>
-							    <input type="radio" name="optionsRadios" id="optionsRadios2" value="B">
-							   	<label class="oB">B. </label>
-							  </p>
+								<p>
+									<label class="oB">
+										<input type="radio" name="optionsRadios" id="optionsRadios2" value="B">
+										B. </label>
+								</p>
 							</div>
 							<div class="radio">
-							  <p>
-							    <input type="radio" name="optionsRadios" id="optionsRadios3" value="C">
-							   	<label class="oC">C. </label>
-							  </p>
+								<p>
+									<label class="oC">
+										<input type="radio" name="optionsRadios" id="optionsRadios3" value="C">
+										C. </label>
+								</p>
 							</div>
 							<div class="radio">
-							  <p>
-							    <input type="radio" name="optionsRadios" id="optionsRadios4" value="D">
-							  	<label class="oD">D. </label>
-							  </p>
+								<p>
+									<label class="oD">
+										<input type="radio" name="optionsRadios" id="optionsRadios4" value="D">
+										D. </label>
+								</p>
 							</div>
 
 						</div>
@@ -161,28 +165,32 @@
 						</div>
 						<div class="my-checkbox xx">
 							<div class="checkbox">
-							  <p>
-							    <input type="checkbox" name="optionsRadios" id="optionsRadios11"  value="A">
-							    <label class="oA">A. </label>
-							  </p>
+								<p>
+									<label class="oA">
+										<input type="checkbox" name="optionsRadios" id="optionsRadios11" value="A">
+										A. </label>
+								</p>
 							</div>
 							<div class="checkbox">
-							  <p>
-							    <input type="checkbox" name="optionsRadios" id="optionsRadios22" value="B">
-							   	<label class="oB">B. </label>
-							  </p>
+								<p>
+									<label class="oB">
+										<input type="checkbox" name="optionsRadios" id="optionsRadios22" value="B">
+										B. </label>
+								</p>
 							</div>
 							<div class="checkbox">
-							  <p>
-							    <input type="checkbox" name="optionsRadios" id="optionsRadios222" value="C">
-							    <label class="oC">C. </label>
-							  </p>
+								<p>
+									<label class="oC">
+										<input type="checkbox" name="optionsRadios" id="optionsRadios222" value="C">
+										C. </label>
+								</p>
 							</div>
 							<div class="checkbox">
-							  <p>
-							    <input type="checkbox" name="optionsRadios" id="optionsRadios2222" value="D">
-							   	<label class="oD">D. </label>
-							  </p>
+								<p>
+									<label class="oD">
+										<input type="checkbox" name="optionsRadios" id="optionsRadios2222" value="D">
+										D. </label>
+								</p>
 							</div>
 						</div>
 						<p style="color: red;" class="ts yc"></p>
@@ -264,13 +272,18 @@
 			});
 
 		}
+		// gyw add 序号
 		function setInfo(data){
 			var qs=data.data.questions;
+            var radioC=0;//单选题 序号
+            var multipleC=0;//多选题 序号
+            var judgmentC=0;//判断题 序号
 			$('#con > .as').empty();
 			for(var i=0;i<qs.length;i++){
 				if(qs[i].questionType==1){ //单选题
 					var item=$('.radio-yl').clone();
-	   				item.find('.content').text(qs[i].questionContent);
+                    radioC++;
+	   				item.find('.content').text(radioC+'、'+qs[i].questionContent);
 	   				item.find('input:radio').attr('name',qs[i].questionID);
 	   				//目前写死四个选项
 	   				item.find('.oA').append(qs[i].optionA);
@@ -286,7 +299,8 @@
 	   			}
 	   			if(qs[i].questionType==2){ //多选题
 					var item2=$('.multiple-yl').clone();
-	   				item2.find('.content').text(qs[i].questionContent);
+                    multipleC++;
+	   				item2.find('.content').text(multipleC+'、'+qs[i].questionContent);
 	   				item2.find('input:checkbox').attr('name',qs[i].questionID);
 	   				item2.find('.oA').append(qs[i].optionA);
 	   				item2.find('.oB').append(qs[i].optionB);
@@ -301,7 +315,8 @@
 	   			}
 	   			if(qs[i].questionType==3){  //判断题
 	   				var item3=$('.judgment-yl').clone();
-	   				item3.find('.content').text(qs[i].questionContent);
+                    judgmentC++;
+	   				item3.find('.content').text(judgmentC+'、'+qs[i].questionContent);
 	   				item3.find('input:radio').attr('name',qs[i].questionID);
 	   				item3.find('.ts').attr('data-da',qs[i].rightAnswer);
 	   				item3.removeClass('yc');

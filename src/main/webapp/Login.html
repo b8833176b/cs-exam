@@ -134,6 +134,22 @@
 </body>
 <script type="text/javascript">
 
+    //检测浏览器版本是否低于IE8
+    window.onload = function IEVersion() {
+        var userAgent = navigator.userAgent; //取得浏览器的userAgent字符串
+        var isIE = userAgent.indexOf("compatible") > -1 && userAgent.indexOf("MSIE") > -1; //判断是否IE<11浏览器
+        var isEdge = userAgent.indexOf("Edge") > -1 && !isIE; //判断是否IE的Edge浏览器
+        var isIE11 = userAgent.indexOf('Trident') > -1 && userAgent.indexOf("rv:11.0") > -1;
+        if(isIE) {
+            var reIE = new RegExp("MSIE (\\d+\\.\\d+);");
+            reIE.test(userAgent);
+            var fIEVersion = parseFloat(RegExp["$1"]);
+            if(fIEVersion < 8) {
+                alert("请使用IE8以上版本浏览器打开网页！");
+            }
+        }
+    }
+
     //回车登陆
     document.onkeydown = function(e){
         var ev = document.all ? window.event : e;

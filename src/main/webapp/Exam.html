@@ -10,11 +10,39 @@
 	<script src="assets/layer/layer.js"></script>
 	<script type="text/javascript">
         window.onload=function(){
+
+            //实现全屏
+            /*var Request = new Array();//保存参数
+            var s = location.search.substring(1);
+            if (s && s!=""){
+                var list = s.split("&");
+                for (var i=0; i < list.length; i++){
+                    var pair = list[i].split("=");
+                    if (pair[0] && pair[0] !=""){
+                        Request[unescape(pair[0])] = unescape(pair[1]);
+                    }
+                }
+            }
+            var fullscreen=Request["fullscreen"];
+            if(fullscreen!="yes"){
+                var file =self.location;
+                var a = window.open("Exam.html","","fullscreen=yes");
+                self.opener=null;
+                self.close();
+                a.location=file + "?fullscreen=yes";
+            }*/
+
 		    document.onkeydown=function(){ 
 		        var e=window.event||arguments[0]; 
 		        if(e.keyCode==123){//禁用f12
 		            return false;
-		        }else if((e.ctrlKey)&&(e.shiftKey)&&(e.keyCode==73)){//禁止ctrl+shift+I
+		        }else if(e.keyCode==116){//F5
+                    return false;
+				}else if((e.ctrlKey)&&(e.keyCode==78)){//ctrl+n
+		            return false;
+				}else if((e.altKey)&&(e.keyCode==37||e.keyCode==39)){//alt+ 前进后退
+                    return false;
+				}else if((e.ctrlKey)&&(e.shiftKey)&&(e.keyCode==73)){//禁止ctrl+shift+I
                     return false;
 		        }else if((e.ctrlKey)&&(e.keyCode==85)){//禁止ctrl+U
 		            //追加  
@@ -111,28 +139,32 @@
 					</div>
 					<div class="my-radio">
 						<div class="radio">
-						  <p>
-						    <input type="radio" name="optionsRadios" id="optionsRadios1" value="A">
-						  	<label class="oA"></label>
-						  </p>
+							<p>
+								<label class="oA">
+									<input type="radio" name="optionsRadios" id="optionsRadios1" value="A">
+								</label>
+							</p>
 						</div>
 						<div class="radio">
-						  <p>
-						    <input type="radio" name="optionsRadios" id="optionsRadios2" value="B">
-						   	<label class="oB"></label>
-						  </p>
+							<p>
+								<label class="oB">
+									<input type="radio" name="optionsRadios" id="optionsRadios2" value="B">
+								</label>
+							</p>
 						</div>
 						<div class="radio">
-						  <p>
-						    <input type="radio" name="optionsRadios" id="optionsRadios3" value="C">
-						   	<label class="oC"></label>
-						  </p>
+							<p>
+								<label class="oC">
+									<input type="radio" name="optionsRadios" id="optionsRadios3" value="C">
+								</label>
+							</p>
 						</div>
 						<div class="radio">
-						  <p>
-						    <input type="radio" name="optionsRadios" id="optionsRadios4" value="D">
-						  	<label class="oD"></label>
-						  </p>
+							<p>
+								<label class="oD">
+									<input type="radio" name="optionsRadios" id="optionsRadios4" value="D">
+								</label>
+							</p>
 						</div>
 					</div>
 				</div>				
@@ -143,28 +175,32 @@
 					</div>
 					<div class="my-checkbox" style="margin-left: 50px;">
 						<div class="checkbox">
-						  <p>
-						    <input type="checkbox" name="optionsRadios" id="optionsRadios1"  value="A">
-						    <label class="oA"></label>
-						  </p>
+							<p>
+								<label class="oA">
+									<input type="checkbox" name="optionsRadios" id="optionsRadios11" value="A">
+								</label>
+							</p>
 						</div>
 						<div class="checkbox">
-						  <p>
-						    <input type="checkbox" name="optionsRadios" id="optionsRadios2" value="B">
-						   	<label class="oB"></label>
-						  </p>
+							<p>
+								<label class="oB">
+									<input type="checkbox" name="optionsRadios" id="optionsRadios22" value="B">
+								</label>
+							</p>
 						</div>
 						<div class="checkbox">
-						  <p>
-						    <input type="checkbox" name="optionsRadios" id="optionsRadios2" value="C">
-						    <label class="oC"></label>
-						  </p>
+							<p>
+								<label class="oC">
+									<input type="checkbox" name="optionsRadios" id="optionsRadios33" value="C">
+								</label>
+							</p>
 						</div>
 						<div class="checkbox">
-						  <p>
-						    <input type="checkbox" name="optionsRadios" id="optionsRadios2" value="D">
-						   	<label class="oD"></label>
-						  </p>
+							<p>
+								<label class="oD">
+									<input type="checkbox" name="optionsRadios" id="optionsRadios44" value="D">
+								</label>
+							</p>
 						</div>
 					</div>
 				</div>
@@ -207,7 +243,7 @@
 				<div class="row">
 					<div class="col-xs-9 col-md-9" style="padding-right: 0px;">
 						<div style="margin: 20px;">
-							<p style="text-align: center;">
+							<p class="total-time" style="text-align: center;">
 								共40分钟
 							</p>
 							<p  style="text-align: center;">
@@ -242,15 +278,15 @@
 		window.onblur = function(){  
 		    // 切换出页面执行事件 
 		    i++;
-		    if(i==5 && !ok){
-		    	alert('切换或改变超过5此，直接交卷');
+		    if(i==3 && !ok){
+		    	alert('切换或改变超过3次，直接交卷');
 		    	submint();
 		    }
 		}  
 		window.onresize = function(){
  			i++;
-		    if(i==5 && !ok){
-		    	alert('切换或改变超过5此，直接交卷');
+		    if(i==3 && !ok){
+		    	alert('切换或改变超过3次，直接交卷');
 		    	submint();
 		    }
 		}
@@ -296,10 +332,10 @@
 	   				item.find('.content').text(radioC+'、'+qs[i].questionContent);
 	   				item.find('input:radio').attr('name',qs[i].questionID);
 	   				//目前写死四个选项
-	   				item.find('.oA').text(qs[i].optionA);
-	   				item.find('.oB').text(qs[i].optionB);
-	   				item.find('.oC').text(qs[i].optionC);
-	   				item.find('.oD').text(qs[i].optionD);
+	   				item.find('.oA').append(qs[i].optionA);
+	   				item.find('.oB').append(qs[i].optionB);
+	   				item.find('.oC').append(qs[i].optionC);
+	   				item.find('.oD').append(qs[i].optionD);
 	   				item.removeClass('yc');
 	   				item.removeClass('radio-yl');
 	   				item.addClass('as');
@@ -310,10 +346,10 @@
 					var item2=$('.multiple-yl').clone();
 	   				item2.find('.content').text(multipleC+'、'+qs[i].questionContent);
 	   				item2.find('input:checkbox').attr('name',qs[i].questionID);
-	   				item2.find('.oA').text(qs[i].optionA);
-	   				item2.find('.oB').text(qs[i].optionB);
-	   				item2.find('.oC').text(qs[i].optionC);
-	   				item2.find('.oD').text(qs[i].optionD);
+	   				item2.find('.oA').append(qs[i].optionA);
+	   				item2.find('.oB').append(qs[i].optionB);
+	   				item2.find('.oC').append(qs[i].optionC);
+	   				item2.find('.oD').append(qs[i].optionD);
 					item2.removeClass('yc');
 	   				item2.removeClass('multiple-yl');
 	   				item2.addClass('as');
@@ -359,7 +395,6 @@
 	   		var ed=data.ed;
 	   		loadExamTime(ed.whenLong);
 	   		setCanBlur(ed.canBlur);
-
 	   }
 	   function setCanBlur(canBlur){
 	   		if(canBlur==1){
@@ -368,6 +403,7 @@
 	   }
 
 	   function loadExamTime(m){
+            $(".total-time").text("共"+m+"分钟");
 	   		var time = new Date();
 	   		time.setMinutes(time.getMinutes()+m);
 	   		var interval = setInterval(function(){

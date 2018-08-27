@@ -456,7 +456,7 @@ public class ExamServiceImpl implements ExamService{
 	}
 	@Override
 	public ExamQuestionInfoDto trian(TrainParaDto trainParaDto) throws ParameterNullException, NotExistException {
-		// TODO Auto-generated method stub
+          trainParaDto.setQuestionCount(2000);
 		if(trainParaDto != null&&(trainParaDto.getQuestionBankID()!=null || trainParaDto.getQuestionBankName()!=null)&& trainParaDto.getQuestionType()!=null && trainParaDto.getQuestionCount()!=null) {
 			//先查询出题库,并等到其ID
 			QuestionBank qb=new QuestionBank();

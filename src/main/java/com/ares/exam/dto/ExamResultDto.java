@@ -19,6 +19,10 @@ public class ExamResultDto {
 	private Integer isPass;
     //是否缺考
 	private Integer isMiss;
+	//单位名称
+	private String dwmc;
+	//部门名称
+	private String bmmc;
 
 	public Long getAnswerSheetID() {
 		return answerSheetID;
@@ -72,11 +76,29 @@ public class ExamResultDto {
 		this.isMiss = isMiss;
 	}
 
+	public String getDwmc() {
+		return dwmc;
+	}
+
+	public void setDwmc(String dwmc) {
+		this.dwmc = dwmc;
+	}
+
+	public String getBmmc() {
+		return bmmc;
+	}
+
+	public void setBmmc(String bmmc) {
+		this.bmmc = bmmc;
+	}
+
 	@Override
 	public String toString() {
 		return "ExamResultDto [answerSheetID=" + answerSheetID + ", jh=" + jh + ", xm=" + xm
 				+ ", score=" + score
 				+ ", isMiss=" + isMiss
+				+ ", dwmc=" + dwmc
+				+ ", bmmc=" + bmmc
 				+ ", isPass=" + isPass + "]";
 	}
 	

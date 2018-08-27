@@ -100,7 +100,10 @@
 	
 	<select id="queryExamResultDtos" resultType="com.ares.exam.dto.ExamResultDto" parameterType="com.ares.exam.dto.QueryAnswerSheetDto">
        select  sign( NVL(cast(b.starttime AS DATE),trunc(sysdate)) - (select c.endtime from ks_exam c where c.examid=a.examid) ) as isMiss,
-		b.answersheetid,b.addressIP,d.jh,d.xm,b.score,b.ispass
+		b.answersheetid,b.addressIP,d.jh,d.xm
+		,(SELECT A.DWMC FROM LZ_DW A WHERE A.DWBH = d.DWBH ) AS dwmc <!-- 单位名称 -->
+		,(SELECT A.BMMC FROM LZ_BM A WHERE A.BMBH = d.BMBH ) AS bmmc <!-- 部门名称 -->
+		,b.score,b.ispass
 		from ks_exampoliceinfo a left join ks_answersheet b on a.examid=b.examid and a.userid=b.userid
 		left join lz_policeinfo d on a.userid=d.userid
 		where a.examid=#{examID}
