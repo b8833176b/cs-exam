@@ -127,6 +127,8 @@ public class LoginController extends BaseController{
 		session.removeAttribute(Constants.ADMIN_KEY);
 		session.removeAttribute(Constants.JH_KEY);
 		session.removeAttribute(Constants.USERNAME_KEY);
+		session.removeAttribute(Constants.NOWEXAMID_KEY);
+		session.removeAttribute(Constants.USERID_KEY);
 		return "redirect:/home/toLogin";
 	}
 	

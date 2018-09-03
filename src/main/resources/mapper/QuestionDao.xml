@@ -31,8 +31,16 @@
 	</select>
 	
 	<select id="randomQueryQuestion" resultMap="questionMap"> 
+		 select * from(
+		  select a.* from ks_question a  where a.questiontype = #{type,jdbcType=INTEGER} and a.questionBankID=#{quesionBankID,jdbcType=INTEGER}
+		  order by SYS.dbms_random.value
+		 )where ROWNUM &lt;= #{count}
+	</select>
+
+	<select id="orderQueryQuestion" resultMap="questionMap">
 		select * from(
-		  select a.* from ks_question a  where a.questiontype = #{type,jdbcType=INTEGER} and a.questionBankID=#{quesionBankID,jdbcType=INTEGER} order by SYS.dbms_random.value 
+		select a.* from ks_question a  where a.questiontype = #{type,jdbcType=INTEGER} and a.questionBankID=#{quesionBankID,jdbcType=INTEGER}
+		order by a.questionID
 		)where ROWNUM &lt;= #{count}
 	</select>
 	
@@ -49,6 +57,9 @@
 				<result property="optionB" column="OPTIONB"/>
 				<result property="optionC" column="OPTIONC"/>
 				<result property="optionD" column="OPTIOND"/>
+				<!-- gyw add -->
+				<result property="optionE" column="OPTIONE"/>
+				<result property="optionF" column="OPTIONF"/>
 			</case>
 			<case value="2" resultType="questionMultiple">
 				<!-- 目前认为只有四个选项 -->
@@ -56,6 +67,9 @@
 				<result property="optionB" column="OPTIONB"/>
 				<result property="optionC" column="OPTIONC"/>
 				<result property="optionD" column="OPTIOND"/>
+				<!-- gyw add -->
+				<result property="optionE" column="OPTIONE"/>
+				<result property="optionF" column="OPTIONF"/>
 			</case>
 			<case value="3" resultType="questionJudgment">
 			</case>
@@ -69,7 +83,7 @@
 	</resultMap>
 	<!-- 单选题 -->
 	<insert id="insertQuestion" parameterType="java.util.List" useGeneratedKeys="false">
-		insert into ks_question (QUESTIONID,QUESTIONTYPE,QUESTIONCONTENT,QUESTIONBANKID,RIGHTANSWER,OPTIONA,OPTIONB,OPTIONC,OPTIOND) 
+		insert into ks_question (QUESTIONID,QUESTIONTYPE,QUESTIONCONTENT,QUESTIONBANKID,RIGHTANSWER,OPTIONA,OPTIONB,OPTIONC,OPTIOND,OPTIONE,OPTIONF)
 		select ks_Question_SEQ.nextval as QUESTIONID, A.* from (
 			<foreach collection="list" item="item" index="index"  separator="union all"> 
 				select 
@@ -82,12 +96,18 @@
 				, #{item.optionA,jdbcType=VARCHAR} optionA,
 				#{item.optionB,jdbcType=VARCHAR} optionB,
 				#{item.optionC,jdbcType=VARCHAR} optionC,
-				#{item.optionD,jdbcType=VARCHAR} optionD</if>
+				#{item.optionD,jdbcType=VARCHAR} optionD,
+				#{item.optionE,jdbcType=VARCHAR} optionE,
+				#{item.optionF,jdbcType=VARCHAR} optionF
+				</if>
 				<if test="item.questionType != 1 and item.questionType != 2">
 				, null optionA,
 				null optionB,
 				null optionC,
-				null optionD</if>
+				null optionD,
+				null optionE,
+				null optionF
+				</if>
 				from dual
 			</foreach>
 		) A

@@ -19,7 +19,29 @@
 	</style>
 	<script src="assets/jquery/js/jquery-1.12.4.min.js"></script>
 	<script src="assets/bootstrap/js/bootstrap.min.js"></script>
+	<script src="assets/layer/layer.js"></script>
 	<script type="text/javascript">
+		var ieVersion ;
+        //检测浏览器版本是否低于IE8
+        window.onload = function IEVersion() {
+            var userAgent = navigator.userAgent; //取得浏览器的userAgent字符串
+            var isIE = userAgent.indexOf("compatible") > -1 && userAgent.indexOf("MSIE") > -1; //判断是否IE<11浏览器
+            var isEdge = userAgent.indexOf("Edge") > -1 && !isIE; //判断是否IE的Edge浏览器
+            var isIE11 = userAgent.indexOf('Trident') > -1 && userAgent.indexOf("rv:11.0") > -1;
+            if(isIE) {
+                var reIE = new RegExp("MSIE (\\d+\\.\\d+);");
+                reIE.test(userAgent);
+                var fIEVersion = parseFloat(RegExp["$1"]);
+                if(fIEVersion < 9) {
+                    ieVersion = fIEVersion;
+                    //加载个人信息和退出
+					var infoStr = '&nbsp;<a href="#" onclick="showUserInfo()" style="display: inline-block">个人信息</a>&nbsp;&nbsp;'+
+                        '<a href="#" onclick="logout()" style="display: inline-block">退出</a>';
+					$("#sys_name").after(infoStr);
+                }
+            }
+        }
+
 		//载入信息
     	function getInfo(){
     		$.ajax({
@@ -30,6 +52,8 @@
 					if(data.success){//成功
 					//	alert(data.data.username);
 						$('#username').text(data.data.username);
+						if(ieVersion!=null&&ieVersion!=undefined)
+                            $('#sys_name').html(data.data.username);
 					}else{          //失败
 						alert(data.msg);
 					}
@@ -70,20 +94,24 @@
     	//开始考试
     	function startExam(obj){
     		var id=$(obj).attr('data-id');
-    	
+            layer.load(2,{time: 5*60*1000,shade: [0.5,'black']})//
     		$.ajax({
 				type:"POST",
 				url: "Exam/start",
 				data:{ examID:id },
 				dataType:"json",
 				success:function(data){
+                    layer.closeAll();
 					if(data.success){//成功
-						
+
 						window.location.href="home/toExam"+"?timestamp="+new Date().getTime();
 					}else{          //失败
 						alert(data.msg);
 					}
-				}
+				},
+				error:function (e) {
+                    layer.closeAll();
+                }
 			});
     	}
 
@@ -164,7 +192,7 @@
 	<nav class="navbar navbar-default navbar-fixed-top">
 			<div class="container-fluid">
 				<div class="navbar-header">
-					<p class="navbar-text">考试系统</p>
+					<p class="navbar-text" style="display: inline-block" id="sys_name" >考试系统</p>
 				</div>
 				<div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
 					<ul class="nav navbar-nav navbar-right ul">

@@ -49,7 +49,6 @@ public class AnswerSheetServiceImpl implements AnswerSheetService{
 	private AnswerDao answerDao;
 	@Override
 	public List<Answer> getMark(List<Answer> answers,Exam exam) throws ParameterNullException,NotExistException {
-		// TODO Auto-generated method stub
 		List<Answer> nas=new ArrayList<Answer>();
 		if(answers!=null) {
 			for(Answer key: answers) {
@@ -138,7 +137,7 @@ public class AnswerSheetServiceImpl implements AnswerSheetService{
 	private Answer getRadioMark(Answer a,QuestionRadio qr,Float s) {
 		String r=a.getRespondence();
 		String bz=qr.getRightAnswer();
-		if(StringUtil.isABCD(r)&&StringUtil.isABCD(bz)) {
+		if(StringUtil.isABCDEF(r)&&StringUtil.isABCDEF(bz)) {
 			if(r.toUpperCase().equals(bz.toUpperCase())) {
 				a.setScore(s);
 				a.setCorrect(1);

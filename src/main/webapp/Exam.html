@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html>
+<html style="height:100%">
 <head>
 	<title>考试页面</title>
 	<meta charset="utf-8"> 
@@ -104,6 +104,20 @@
 			right: 20px;
 			top: 150px;
 		}
+		.back-to-top {
+			position: fixed;
+			right: 20px;
+			bottom: 10px;
+			width: 100px;
+			height: 30px;
+			text-align: center;
+			line-height: 30px;
+			/*color: #2C2C2C;*/
+			color: #ffffff;
+			text-decoration: none;
+			border: 1px solid #CCCCCC;
+			background-color: #428bca;
+		}
 	</style>
 </head>
 <body>
@@ -166,6 +180,22 @@
 								</label>
 							</p>
 						</div>
+						<!-- gyw add -->
+						<div class="radio">
+							<p>
+								<label class="oE">
+									<input type="radio" name="optionsRadios" value="E">
+								</label>
+							</p>
+						</div>
+						<div class="radio">
+							<p>
+								<label class="oF">
+									<input type="radio" name="optionsRadios" value="F">
+								</label>
+							</p>
+						</div>
+
 					</div>
 				</div>				
 			</div>
@@ -202,6 +232,22 @@
 								</label>
 							</p>
 						</div>
+						<!-- gyw add -->
+						<div class="checkbox">
+							<p>
+								<label class="oE">
+									<input type="checkbox" name="optionsRadios" value="E">
+								</label>
+							</p>
+						</div>
+						<div class="checkbox">
+							<p>
+								<label class="oF">
+									<input type="checkbox" name="optionsRadios" value="F">
+								</label>
+							</p>
+						</div>
+
 					</div>
 				</div>
 			</div>
@@ -268,24 +314,81 @@
 
 				</div>
 		</div>
+		 <a class="back-to-top" href="#top">返回顶部</a>
 	</div>
 	<script>
+
+		//保持session不过期
+        function keep_post(){
+            $.ajax({
+                type:"POST",
+                url: "home/getUserInfo",
+                dataType:"json",
+                success:function(data){
+                    if(data.success){//成功
+
+                    }else{          //失败
+                        alert(data.msg);
+                    }
+                }
+            });
+        }
+        setInterval(keep_post,15*60*1000);
+
+        var ieVersion ;
+        //检测浏览器版本是否低于IE8
+        var userAgent = navigator.userAgent; //取得浏览器的userAgent字符串
+        var isIE = userAgent.indexOf("compatible") > -1 && userAgent.indexOf("MSIE") > -1; //判断是否IE<11浏览器
+        var isEdge = userAgent.indexOf("Edge") > -1 && !isIE; //判断是否IE的Edge浏览器
+        var isIE11 = userAgent.indexOf('Trident') > -1 && userAgent.indexOf("rv:11.0") > -1;
+        if(isIE) {
+            var reIE = new RegExp("MSIE (\\d+\\.\\d+);");
+            reIE.test(userAgent);
+            var fIEVersion = parseFloat(RegExp["$1"]);
+            if(fIEVersion < 9) {
+                ieVersion = fIEVersion;
+                $('.back-to-top').remove();
+            }
+        }
+        //返回顶部
+        var backBtn= $('.back-to-top');
+        //alert("ieVersion"+ieVersion);
+        //if(ieVersion!=null&&ieVersion!=undefined){
+            backBtn.on('click',function () {
+                $('body,window').animate(
+                    {
+                        scrollTop:0
+                    },300
+                )
+            })
+            $(window).on('scroll',function () {
+                if($(window).scrollTop()>$(window).height()){
+                    backBtn.fadeIn();
+                }else{
+                    backBtn.fadeOut();
+                }
+            })
+		//}
+
 		var ok=false;
 		var i=0;
+		var switch_cnt = 4;
 		window.onfocus = function(){  
 		    // 切换到页面执行事件  
 		}  
-		window.onblur = function(){  
+		window.onblur = function(){
 		    // 切换出页面执行事件 
 		    i++;
-		    if(i==3 && !ok){
+            layer.alert("注意：切换"+(switch_cnt-i)+"次后，自动交卷!",{icon: 7});
+		    if(i==4 && !ok){
 		    	alert('切换或改变超过3次，直接交卷');
 		    	submint();
 		    }
 		}  
 		window.onresize = function(){
  			i++;
-		    if(i==3 && !ok){
+            layer.alert("注意：切换"+(switch_cnt-i)+"次后，自动交卷!",{icon: 7});
+		    if(i==4 && !ok){
 		    	alert('切换或改变超过3次，直接交卷');
 		    	submint();
 		    }
@@ -304,16 +407,24 @@
 	   }
 	   //获取试题信息，并隐藏没有指定类型得题目
 	   function getExamQuestionInfo(){
+           layer.load(2,{time: 5*60*1000,shade: [0.5,'black']})//
+           layer.msg('正在生成试题，请耐心等待...', {icon: 6,
+               time: 5*60*1000 //（如果不配置，默认是3秒）
+           });
 	   		$.ajax({
 				type:"POST",
 				url: "Exam/getExamQuestionInfo",
 				dataType:"json",
 				success:function(data){
+                    layer.closeAll();
 					if(data.success){//成功
 						loadQuestionInfo(data.data);
 					}else{          //失败
 						alert(data.msg);
 					}
+				},
+				error:function(e){
+                    layer.closeAll();
 				}
 			});
 	   }
@@ -334,8 +445,26 @@
 	   				//目前写死四个选项
 	   				item.find('.oA').append(qs[i].optionA);
 	   				item.find('.oB').append(qs[i].optionB);
-	   				item.find('.oC').append(qs[i].optionC);
-	   				item.find('.oD').append(qs[i].optionD);
+	   				//item.find('.oC').append(qs[i].optionC);
+                    if(qs[i].optionC==undefined||qs[i].optionC==null)
+                        item.find('.oC').remove();
+                    else
+                        item.find('.oC').append(qs[i].optionC);
+	   				//item.find('.oD').append(qs[i].optionD);
+                    if(qs[i].optionD==undefined||qs[i].optionD==null)
+                        item.find('.oD').remove();
+                    else
+                        item.find('.oD').append(qs[i].optionD);
+                    //gyw add 选项
+                    if(qs[i].optionE==undefined||qs[i].optionE==null)
+                        item.find('.oE').remove();
+                    else
+                        item.find('.oE').append(qs[i].optionE);
+                    if(qs[i].optionF==undefined||qs[i].optionF==null)
+                        item.find('.oF').remove();
+                    else
+                        item.find('.oF').append(qs[i].optionF);
+
 	   				item.removeClass('yc');
 	   				item.removeClass('radio-yl');
 	   				item.addClass('as');
@@ -349,7 +478,21 @@
 	   				item2.find('.oA').append(qs[i].optionA);
 	   				item2.find('.oB').append(qs[i].optionB);
 	   				item2.find('.oC').append(qs[i].optionC);
-	   				item2.find('.oD').append(qs[i].optionD);
+	   				//item2.find('.oD').append(qs[i].optionD);
+                    if(qs[i].optionD==undefined||qs[i].optionD==null)
+                        item2.find('.oD').remove();
+                    else
+                        item2.find('.oD').append(qs[i].optionD);
+                    //gyw add 选项
+                    if(qs[i].optionE==undefined||qs[i].optionE==null)
+                        item2.find('.oE').remove();
+                    else
+                        item2.find('.oE').append(qs[i].optionE);
+                    if(qs[i].optionF==undefined||qs[i].optionF==null)
+                        item2.find('.oF').remove();
+                    else
+                        item2.find('.oF').append(qs[i].optionF);
+
 					item2.removeClass('yc');
 	   				item2.removeClass('multiple-yl');
 	   				item2.addClass('as');
@@ -440,6 +583,7 @@
 	   //确认交卷
         function submintConfrim(){
             layer.confirm('您确定要交卷吗?',{btn: ['确定', '取消'],title:"提示"}, function(){
+                i--;
                 submint();
             });
 		}
@@ -486,6 +630,7 @@
 	   			return ar;
 
 	   		}
+            layer.load(2,{time: 5*60*1000,shade: [0.5,'black']})//
 	   		var da=getDataInfo();
 			$.ajax({  
 			    type: "POST",  
@@ -493,11 +638,13 @@
 			    data: JSON.stringify(da),//将对象序列化成JSON字符串  
 			    dataType:"json",  
 			    contentType : 'application/json;charset=utf-8', //设置请求头信息  
-			    success: function(data){ 
+			    success: function(data){
+                    layer.closeAll();
 			    	alert(data.msg);
 			        logout();
 			    },  
-			    error: function(data){  
+			    error: function(data){
+                    layer.closeAll();
 			       alert(data.msg); 
 			    }  
 			}); 

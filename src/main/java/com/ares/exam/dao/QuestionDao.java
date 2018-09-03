@@ -48,11 +48,14 @@ public interface QuestionDao {
 	 * 随机获取一定数目的指定类型的试题
 	 * @param quesionBankID 题库ID
 	 * @param count 个数
-	 * @param Type 类型
+	 * @param type 类型
 	 * @return
 	 */
 	List<Question> randomQueryQuestion(@Param("quesionBankID") Long quesionBankID,@Param("count") Integer count,@Param("type") Long type);
-	
+
+	/* 顺序获取一定数目的指定类型的试题*/
+	List<Question> orderQueryQuestion(@Param("quesionBankID") Long quesionBankID,@Param("count") Integer count,@Param("type") Long type);
+
 	
 	
 	

@@ -65,10 +65,8 @@ public class QuestionBankController extends BaseController{
 	public @ResponseBody Result<List<Question>> getQuestionByBankID(Long questionBankID){
 		List<Question> ls;
 		try {
-			
 			ls=questionService.getQuestionsByBankID(questionBankID);
 		} catch (Exception e) {
-			// TODO: handle exception
 			e.printStackTrace();
 			return new Result<List<Question>>(false,"错误!");
 		}

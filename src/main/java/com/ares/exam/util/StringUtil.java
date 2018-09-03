@@ -37,11 +37,11 @@ public class StringUtil {
 	}
 	
 	//判断是不是abcd字母中的一个
-	public static boolean isABCD(String s) {
+	public static boolean isABCDEF(String s) {
 		if(isEmpty(s)) {
 			return false;
 		}else {
-			  Pattern pattern = Pattern.compile("[abcdABCD]"); 
+			  Pattern pattern = Pattern.compile("[abcdefABCDEF]");
 			   Matcher m = pattern.matcher(s);
 			   if(m.matches()) {
 				   return true;
@@ -65,12 +65,12 @@ public class StringUtil {
 	
 	}
 	
-	public static void main(String[] args) {
+	/*public static void main(String[] args) {
 		String s="a,A,b，d，b r,2    t";
 		String [] as=Mysplit(s);
 		Arrays.sort(as);
 		for(String key:as) {
 			System.out.println(key+" ");
 		}
-	}
+	}*/
 }

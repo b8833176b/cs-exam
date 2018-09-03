@@ -10,7 +10,6 @@ import com.ares.exam.util.StringUtil;
  */
 public class QuestionRadio extends Question{
 	public QuestionRadio() {
-		// TODO Auto-generated constructor stub
 		super.setQuestionType(Constants.QuestionType.Radio.getValue());
 	}
 	private String optionA;
@@ -58,8 +57,7 @@ public class QuestionRadio extends Question{
 	}
 	@Override
 	public void setRightAnswer(String rightAnswer) {
-		// TODO Auto-generated method stub
-		if(StringUtil.isABCD(rightAnswer)) {
+		if(StringUtil.isABCDEF(rightAnswer)) {
 			super.setRightAnswer(rightAnswer.toUpperCase());
 		}
 	}

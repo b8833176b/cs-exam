@@ -1038,6 +1038,10 @@
 			}
 			//添加考试
 			function addExam(){
+			    if($("#display").val()==null||$("#display").val()==""){
+			      layer.alert("基本信息：【是否显示】不能为空");
+			      return false;
+				}
                 layer.load(2,{time: 5*60*1000,shade: [0.5,'black']})//
 				var examInfo = getExamInfo();
 				$.ajax({  //考试类型下拉框

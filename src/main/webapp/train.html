@@ -64,6 +64,20 @@
 		.body{
 
 		}
+		.back-to-top {
+			position: fixed;
+			right: 20px;
+			bottom: 10px;
+			width: 100px;
+			height: 30px;
+			text-align: center;
+			line-height: 30px;
+			/*color: #2C2C2C;*/
+			color: #ffffff;
+			text-decoration: none;
+			border: 1px solid #CCCCCC;
+			background-color: #428bca;
+		}
 	</style>
 </head>
 <body>
@@ -154,6 +168,21 @@
 										D. </label>
 								</p>
 							</div>
+							<!-- gyw add -->
+							<div class="radio">
+								<p>
+									<label class="oE">
+										<input type="radio" name="optionsRadios" value="E">
+										E. </label>
+								</p>
+							</div>
+							<div class="radio">
+								<p>
+									<label class="oF">
+										<input type="radio" name="optionsRadios" value="F">
+										F. </label>
+								</p>
+							</div>
 
 						</div>
 						<p style="color: red;" class="ts yc"></p>
@@ -192,6 +221,22 @@
 										D. </label>
 								</p>
 							</div>
+							<!-- gyw add -->
+							<div class="checkbox">
+								<p>
+									<label class="oE">
+										<input type="checkbox" name="optionsRadios" value="E">
+										E. </label>
+								</p>
+							</div>
+							<div class="checkbox">
+								<p>
+									<label class="oF">
+										<input type="checkbox" name="optionsRadios" value="F">
+										F. </label>
+								</p>
+							</div>
+
 						</div>
 						<p style="color: red;" class="ts yc"></p>
 					</div>
@@ -217,7 +262,7 @@
     margin-left: 60%;">提交</button>
 			</div>
 		</div>
-
+		<a class="back-to-top" href="#top">返回顶部</a>
 	</div>
 	<script type="text/javascript">
 		<!-- 加载下拉框    -->
@@ -249,6 +294,40 @@
 	</script>
 
 	<script type="text/javascript">
+
+        var ieVersion ;
+        //检测浏览器版本是否低于IE8
+        var userAgent = navigator.userAgent; //取得浏览器的userAgent字符串
+        var isIE = userAgent.indexOf("compatible") > -1 && userAgent.indexOf("MSIE") > -1; //判断是否IE<11浏览器
+        var isEdge = userAgent.indexOf("Edge") > -1 && !isIE; //判断是否IE的Edge浏览器
+        var isIE11 = userAgent.indexOf('Trident') > -1 && userAgent.indexOf("rv:11.0") > -1;
+        if(isIE) {
+            var reIE = new RegExp("MSIE (\\d+\\.\\d+);");
+            reIE.test(userAgent);
+            var fIEVersion = parseFloat(RegExp["$1"]);
+            if(fIEVersion < 9) {
+                ieVersion = fIEVersion;
+                $('.back-to-top').remove();
+            }
+        }
+        //返回顶部
+        var backBtn= $('.back-to-top');
+        backBtn.on('click',function () {
+            $('body,window').animate(
+                {
+                    scrollTop:0
+                },300
+            )
+        })
+        $(window).on('scroll',function () {
+            if($(window).scrollTop()>$(window).height()){
+                backBtn.fadeIn();
+            }else{
+                backBtn.fadeOut();
+            }
+        })
+
+		//查询考题
 		function getQuestion(){
 			var questionBankID=$('#questionBankID').val();
 			var questionBankName=$('#questionBankName').val();
@@ -288,8 +367,26 @@
 	   				//目前写死四个选项
 	   				item.find('.oA').append(qs[i].optionA);
 	   				item.find('.oB').append(qs[i].optionB);
-	   				item.find('.oC').append(qs[i].optionC);
-	   				item.find('.oD').append(qs[i].optionD);
+	   				//item.find('.oC').append(qs[i].optionC);
+                    if(qs[i].optionC==undefined||qs[i].optionC==null)
+                        item.find('.oC').remove();
+                    else
+                        item.find('.oC').append(qs[i].optionC);
+	   				//item.find('.oD').append(qs[i].optionD);
+                    if(qs[i].optionD==undefined||qs[i].optionD==null)
+                        item.find('.oD').remove();
+                    else
+                        item.find('.oD').append(qs[i].optionD);
+                    //gyw add 选项
+                    if(qs[i].optionE==undefined||qs[i].optionE==null)
+                        item.find('.oE').remove();
+                    else
+                        item.find('.oE').append(qs[i].optionE);
+                    if(qs[i].optionF==undefined||qs[i].optionF==null)
+                        item.find('.oF').remove();
+                    else
+                        item.find('.oF').append(qs[i].optionF);
+
 	   				item.find('.ts').attr('data-da',qs[i].rightAnswer);
 	   				item.removeClass('yc');
 	   				item.removeClass('radio-yl');
@@ -305,7 +402,21 @@
 	   				item2.find('.oA').append(qs[i].optionA);
 	   				item2.find('.oB').append(qs[i].optionB);
 	   				item2.find('.oC').append(qs[i].optionC);
-	   				item2.find('.oD').append(qs[i].optionD);
+	   				//item2.find('.oD').append(qs[i].optionD);
+                    if(qs[i].optionD==undefined||qs[i].optionD==null)
+                        item2.find('.oD').remove();
+                    else
+                        item2.find('.oD').append(qs[i].optionD);
+                    //gyw add 选项
+                    if(qs[i].optionE==undefined||qs[i].optionE==null)
+                        item2.find('.oE').remove();
+                    else
+                        item2.find('.oE').append(qs[i].optionE);
+                    if(qs[i].optionF==undefined||qs[i].optionF==null)
+                        item2.find('.oF').remove();
+                    else
+                        item2.find('.oF').append(qs[i].optionF);
+
 	   				item2.find('.ts').attr('data-da',qs[i].rightAnswer);
 					item2.removeClass('yc');
 	   				item2.removeClass('multiple-yl');

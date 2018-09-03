@@ -295,8 +295,26 @@
 	   					mb.find('.my-content').append(qs[i].questionContent);
 	   					mb.find('.my-oA').append(qs[i].optionA);
 	   					mb.find('.my-oB').append(qs[i].optionB);
-	   					mb.find('.my-oC').append(qs[i].optionC);
-	   					mb.find('.my-oD').append(qs[i].optionD);
+	   					//mb.find('.my-oC').append(qs[i].optionC);
+                        if(qs[i].optionC==undefined||qs[i].optionC==null)
+                            mb.find('.my-oC').remove();
+                        else
+                            mb.find('.my-oC').append(qs[i].optionC);
+	   					//mb.find('.my-oD').append(qs[i].optionD);
+                        if(qs[i].optionD==undefined||qs[i].optionD==null)
+                            mb.find('.my-oD').remove();
+                        else
+                            mb.find('.my-oD').append(qs[i].optionD);
+	   					//gyw add
+						if(qs[i].optionE==undefined||qs[i].optionE==null)
+                            mb.find('.my-oE').remove();
+						else
+                            mb.find('.my-oE').append(qs[i].optionE);
+                        if(qs[i].optionF==undefined||qs[i].optionF==null)
+                            mb.find('.my-oF').remove();
+                        else
+                            mb.find('.my-oF').append(qs[i].optionF);
+
 	   					mb.find('.rightanswer').append(qs[i].rightAnswer);
 	   					mb.find('button').attr('data-id',qs[i].questionID);
 	   					$('#danxuan').append(mb);
@@ -311,7 +329,21 @@
 	   					mb.find('.my-oA').append(qs[i].optionA);
 	   					mb.find('.my-oB').append(qs[i].optionB);
 	   					mb.find('.my-oC').append(qs[i].optionC);
-	   					mb.find('.my-oD').append(qs[i].optionD);
+	   					//mb.find('.my-oD').append(qs[i].optionD);
+                        if(qs[i].optionD==undefined||qs[i].optionD==null)
+                            mb.find('.my-oD').remove();
+                        else
+                            mb.find('.my-oD').append(qs[i].optionD);
+                        //gyw add
+                        if(qs[i].optionE==undefined||qs[i].optionE==null)
+                            mb.find('.my-oE').remove();
+                        else
+                            mb.find('.my-oE').append(qs[i].optionE);
+                        if(qs[i].optionF==undefined||qs[i].optionF==null)
+                            mb.find('.my-oF').remove();
+                        else
+                            mb.find('.my-oF').append(qs[i].optionF);
+
 	   					mb.find('.rightanswer').append(qs[i].rightAnswer);
 	   					mb.find('button').attr('data-id',qs[i].questionID);
 	   					$('#duoxuan').append(mb);
@@ -553,6 +585,12 @@
 										<div class="my-oD">
 											D. 
 										</div>
+										<div class="my-oE">
+											E.
+										</div>
+										<div class="my-oF">
+											F.
+										</div>
 									</div>
 									<div class="rightanswer" style="color: green;padding-left:10px;">
 										正确答案： 
@@ -580,6 +618,12 @@
 									</div>
 									<div class="my-oD">
 										D. 
+									</div>
+									<div class="my-oE">
+										E.
+									</div>
+									<div class="my-oF">
+										F.
 									</div>
 								</div>
 								<div class="rightanswer" style="color: green;padding-left:10px;">

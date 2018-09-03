@@ -470,7 +470,8 @@ public class ExamServiceImpl implements ExamService{
 			}else {
 				 int c=trainParaDto.getQuestionCount();
 				 if(c<0) c=0;
-					List<Question> qs=questionDao.randomQueryQuestion(qbs.get(0).getQuestionBankID(), c,(Long) trainParaDto.getQuestionType());
+					//List<Question> qs=questionDao.randomQueryQuestion(qbs.get(0).getQuestionBankID(), c,(Long) trainParaDto.getQuestionType());
+				    List<Question> qs=questionDao.orderQueryQuestion(qbs.get(0).getQuestionBankID(), c,(Long) trainParaDto.getQuestionType());
 					ExamQuestionInfoDto eqid=new ExamQuestionInfoDto();
 					eqid.setQuestions(qs);
 					return eqid;

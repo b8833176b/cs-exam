@@ -57,7 +57,11 @@ public class PoliceInfoServiceImpl implements PoliceInfoService{
 	public List<PoliceSelect> getListByReadExcel(Workbook hwb) {
 		HSSFSheet sheet=(HSSFSheet) hwb.getSheet("data");
 		//List<Long> ids=new ArrayList<>();
-		List<String> jhs=new ArrayList<>();
+		//List<String> jhs=new ArrayList<>();
+		List<PoliceSelect> allPoliceSelects = policeInfoDao.getPoliceSelectAll();
+		List<PoliceSelect> result = new ArrayList<>();
+		if(allPoliceSelects==null||allPoliceSelects.size()<1)
+			return result;
 		if(sheet != null) {
 			int fi=sheet.getFirstRowNum();
 			int li=sheet.getLastRowNum();
@@ -67,22 +71,31 @@ public class PoliceInfoServiceImpl implements PoliceInfoService{
 					/*System.out.println(i+"行是数字列");
 					long x = Math.round(hr.getCell(0).getNumericCellValue());
 					ids.add(x);*/
-					jhs.add(((int)hr.getCell(0).getNumericCellValue())+"");
+					//jhs.add(((int)hr.getCell(0).getNumericCellValue())+"");
+					addPoliceSelect(allPoliceSelects,(((int)hr.getCell(0).getNumericCellValue())+""),result);
 				}else if(hr.getCell(0).getCellType() == HSSFCell.CELL_TYPE_STRING) {
 					/*String v=hr.getCell(0).getStringCellValue();
 					if(StringUtil.isNumeric(v)) {
 						Long x=Long.valueOf(v);
 						ids.add(x);
 					}	*/
-					jhs.add(hr.getCell(0).getStringCellValue());
+					//jhs.add(hr.getCell(0).getStringCellValue());
+					addPoliceSelect(allPoliceSelects,(hr.getCell(0).getStringCellValue()),result);
 				}
 			}
 			//return policeInfoDao.queryPoliceInfoListByExcel(ids);
-			return policeInfoDao.getPoliceSelectListByExcel(jhs);
+			//return policeInfoDao.getPoliceSelectListByExcel(jhs);
 		}
-		return null;
+		return result;
 	}
-	
+
+	private void addPoliceSelect(List<PoliceSelect> allPoliceSelects,String jh,List<PoliceSelect> result){
+		for(PoliceSelect policeSelect:allPoliceSelects){
+            if(policeSelect.getJh().equals(jh))
+            	result.add(policeSelect);
+		}
+	}
+
 	@Override
 	public List<PoliceInfoDto> getListByExamID(Long examID) throws ParameterNullException {
 		if(examID == null) {

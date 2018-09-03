@@ -108,12 +108,14 @@ public class ExamController extends BaseController{
 	@RequestMapping(value="/start",method= {RequestMethod.GET,RequestMethod.POST})
 	public @ResponseBody Result<Map<Long, List<Question>>> startExam(ExamPoliceInfo epi){
 		try {
+			if(epi.getExamID()==null)
+			   throw new ParameterNullException("选择考场id不能为空");
 			HttpSession session=getSession();
 			Long userID=(Long) session.getAttribute(Constants.USERID_KEY);
+			session.setAttribute(Constants.NOWEXAMID_KEY, epi.getExamID());
 			String ip=getIpAddr(getRequest());
 			epi.setUserID(userID); 
 			examService.startExam(epi,ip);
-			session.setAttribute(Constants.NOWEXAMID_KEY, epi.getExamID());
 			return new Result<>(true,"考试已经开始");
 		} catch (ParameterNullException e) {
 			e.printStackTrace();
