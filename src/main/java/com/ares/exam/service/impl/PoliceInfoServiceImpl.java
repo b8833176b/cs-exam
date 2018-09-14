@@ -91,7 +91,7 @@ public class PoliceInfoServiceImpl implements PoliceInfoService{
 
 	private void addPoliceSelect(List<PoliceSelect> allPoliceSelects,String jh,List<PoliceSelect> result){
 		for(PoliceSelect policeSelect:allPoliceSelects){
-            if(policeSelect.getJh().equals(jh))
+            if(policeSelect.getJh()!=null&&(!"".equals(policeSelect.getJh()))&&policeSelect.getJh().equals(jh))
             	result.add(policeSelect);
 		}
 	}

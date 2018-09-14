@@ -257,7 +257,7 @@
 					</div>
 					<div class="my-judgmentRadio" style="margin-left: 22px;">
 						<label class="radio-inline">
-						  <input type="radio" name="inlineRadioOptions" id="inlineRadio1" value="T"> 正确
+						  <input type="radio" name="inlineRadioOptions" id="inlineRadio1" value="Y"> 正确
 						</label>
 						<label class="radio-inline">
 						  <input type="radio" name="inlineRadioOptions" id="inlineRadio2" value="N"> 错误
@@ -290,7 +290,7 @@
 					<div class="col-xs-9 col-md-9" style="padding-right: 0px;">
 						<div style="margin: 20px;">
 							<p class="total-time" style="text-align: center;">
-								共40分钟
+								共0分钟
 							</p>
 							<p  style="text-align: center;">
 								剩余<span id="t_h"></span><span id="t_m"></span><span id="t_s"></span>
@@ -379,6 +379,7 @@
 		window.onblur = function(){
 		    // 切换出页面执行事件 
 		    i++;
+		    if(!ok)
             layer.alert("注意：切换"+(switch_cnt-i)+"次后，自动交卷!",{icon: 7});
 		    if(i==4 && !ok){
 		    	alert('切换或改变超过3次，直接交卷');
@@ -387,6 +388,7 @@
 		}  
 		window.onresize = function(){
  			i++;
+            if(!ok)
             layer.alert("注意：切换"+(switch_cnt-i)+"次后，自动交卷!",{icon: 7});
 		    if(i==4 && !ok){
 		    	alert('切换或改变超过3次，直接交卷');
@@ -403,6 +405,7 @@
 		});
 		//返回登录页面
 	   function logout(){
+            sessionStorage.clear();
 	    	window.location.href="home/logout"+"?timestamp="+new Date().getTime();
 	   }
 	   //获取试题信息，并隐藏没有指定类型得题目
@@ -536,7 +539,7 @@
 	   		$('#clozeC').text(clozeC);
 	   		$('#answerC').text(answerC);
 	   		var ed=data.ed;
-	   		loadExamTime(ed.whenLong);
+	   		loadExamTime(ed.whenLong,ed.examID);
 	   		setCanBlur(ed.canBlur);
 	   }
 	   function setCanBlur(canBlur){
@@ -545,12 +548,24 @@
 	   		}
 	   }
 
-	   function loadExamTime(m){
+	   //操过60分钟会you'we有问题
+	   function loadExamTime(m,examId){
+           var exam_key = "exam_id_"+examId;
+           var countTime = -1;
+           if((examId!=undefined)&&(examId!=null))
+                countTime = sessionStorage.getItem(exam_key);
             $(".total-time").text("共"+m+"分钟");
-	   		var time = new Date();
-	   		time.setMinutes(time.getMinutes()+m);
+	   		var time = (new Date()).getTime();
+	   		if((countTime!=undefined)&&(countTime!=null)&&(countTime!=-1)) {
+				if(countTime==0){
+                    submint();
+                    return;
+				}
+                time += countTime * 60 * 1000;
+            }else
+	   		    time+=m*60*1000;
 	   		var interval = setInterval(function(){
-	   			var t=time.getTime()-new Date().getTime();
+	   			var t=time-new Date().getTime();
 	   			var h=0;
 	   			var m=0;
 	   			var s=0;
@@ -564,8 +579,10 @@
 				     	$('#t_h').text("");
 				     }
 				     if(m>0){
+				         sessionStorage.setItem(exam_key, m);
 				     	$('#t_m').text(m+"分钟");
 				     }else{
+				         sessionStorage.setItem(exam_key, 0);
 				     	$('#t_m').text("");
 				     }
 				     if(s>0){
@@ -577,13 +594,14 @@
 	   				clearInterval(interval);
 	   				submint();
 	   			}
-	   		},100);
+	   		},500);
 	   }
 
 	   //确认交卷
         function submintConfrim(){
-            layer.confirm('您确定要交卷吗?',{btn: ['确定', '取消'],title:"提示"}, function(){
-                i--;
+            layer.confirm('请检查题目是否都作答。您确定要交卷吗?',{btn: ['确定', '取消'],title:"提示"}, function(){
+                if(!ok)
+                   i--;
                 submint();
             });
 		}

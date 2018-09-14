@@ -67,7 +67,7 @@
 	
 	<select id="queryPoliceInfoByUserAndPwd" parameterType="PoliceInfo" resultType="PoliceInfo">
 		select * from lz_policeinfo a where a.jh = #{jh} and a.pwd = md5(#{pwd})
-		and a.zt=1
+		and (a.zt=1 or a.zt is null)
 	</select>
 	
 	<sql id="policeInfoWhere">
@@ -105,8 +105,8 @@
 		,dwbh
 		,(select dwmc from lz_dw where lz_dw.dwbh=t.dwbh ) as dwmc
 		from lz_policeinfo t
-		where t.zt = 1
-		and t.isadmin = 0
+		where t.isadmin = 0
+		and (t.zt = 1 or t.zt is null)
 		<if test="userid != null"> and userID =#{userid}</if>
 		<if test="jh != null  and jh != '' ">and jh = #{jh,jdbcType=VARCHAR}</if>
 		<if test="xm != null and xm != '' ">and xm = #{xm,jdbcType=VARCHAR}</if>
@@ -145,8 +145,8 @@
 		,dwbh
 		,(select dwmc from lz_dw where lz_dw.dwbh=t.dwbh ) as dwmc
 		from lz_policeinfo t
-		where t.zt = 1
-		and t.isadmin = 0
+		where t.isadmin = 0
+		and (t.zt = 1 or t.zt is null)
 		and jh in
 		<foreach item="item" index="index" collection="list" open="(" separator="," close=")">
 			#{item}
@@ -168,8 +168,8 @@
 		,dwbh
 		,(select dwmc from lz_dw where lz_dw.dwbh=t.dwbh ) as dwmc
 		from lz_policeinfo t
-		where t.zt = 1
-		and t.isadmin = 0
+		where t.isadmin = 0
+		and (t.zt = 1 or t.zt is null)
 	</select>
 	
 	<select id="queryPoliceInfoDtoListByExcel" resultType="com.ares.exam.dto.PoliceInfoDto" parameterType="java.util.List">>

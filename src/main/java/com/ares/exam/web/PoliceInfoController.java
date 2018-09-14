@@ -105,11 +105,11 @@ public class PoliceInfoController {
 			}
 			return new Result<>(true,"查询成功",pis);
 		} catch (IOException e) {
-			
 			return new Result<>(false,"文件读取失败");
 		} catch (FileFormatException e) {
-			// TODO Auto-generated catch block
-		
+			return new Result<>(false,"文件读取失败");
+		}catch (Exception e) {
+			//e.printStackTrace();
 			return new Result<>(false,"文件读取失败");
 		}
 	}

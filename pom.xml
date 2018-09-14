@@ -183,6 +183,6 @@
     		</plugin>
     	</plugins>
     </pluginManagement>
-	  <!--<finalName>exam</finalName>-->
+	  <finalName>ROOT</finalName>
   </build>
 </project>

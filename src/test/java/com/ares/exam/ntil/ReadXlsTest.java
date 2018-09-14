@@ -24,4 +24,24 @@ public class ReadXlsTest extends BaseTest{
 	//	questionDao.insertQuestionRadio(map.get(1));
 //		System.out.println(map.get(1).get(0).toString());
 	}
+
+	@Test
+	public void Test11() {
+		Integer i1 = new Integer(10);
+		Integer i2 = new Integer(10);
+
+		System.out.println(i1 == i2);
+
+		Integer i3 = 127;
+		Integer i4 = 127;
+		Integer i5 = new Integer(127);
+
+		System.out.println(i3 == i4);
+		System.out.println(i3 == i5);
+
+		int a=257;
+		Integer b=257;
+		System.out.println(b == a);
+	}
+
 }
